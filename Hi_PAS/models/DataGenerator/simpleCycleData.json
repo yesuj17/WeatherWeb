@@ -1,0 +1,20 @@
+﻿{
+  "MachineID": 0,
+  "workLoad": 0,
+  "jobID": 0,
+  "currTime": "",
+  "JobType": 0,
+  "MotorCycleInfo": [{
+    "type" : {"Driving": 0, "Hoisting": 1, "Fork": 2, "UpperDriving": 3},
+    "MoveStartTime": "",
+    "MoveEndTime": "",
+    "MoveDistance": 0,
+    "MotorBreakCount": 0,
+    "BreakDiscCount": 0,
+    "BreakMCCount": 0,
+    "BreakRollerCount": 0,
+    "BreakRectifierCount": 0
+  }],
+  "LaserDistanceMeterTotalUsedTime": 0,
+  "OpticalRepeaterTotalUsedTime": 0
+}

@@ -1,0 +1,309 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <Name>Hi_PAS</Name>
+    <RootNamespace>Hi_PAS</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>98ed4aa4-6cb5-48b5-b9b6-b63c73220f77</ProjectGuid>
+    <ProjectHome>.</ProjectHome>
+    <StartupFile>bin\Hi_PAS</StartupFile>
+    <SearchPath>
+    </SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{349c5851-65df-11da-9384-00065b846f21};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
+    <ProjectView>ShowAllFiles</ProjectView>
+    <NodejsPort>1337</NodejsPort>
+    <StartWebBrowser>true</StartWebBrowser>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="app.js" />
+    <Compile Include="config\systemConfig.js">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="controllers\pdas\pdasAnalysisController.js" />
+    <Compile Include="controllers\wems\wemsAnalysisController.js" />
+    <Compile Include="controllers\wems\wemsManagementController.js" />
+    <Compile Include="models\dbSchema\MachineCycleDataSchema.js" />
+    <Compile Include="models\dbSchema\MachineErrorDataSchema.js" />
+    <Compile Include="models\dbSchema\MachineInfoSchema.js" />
+    <Compile Include="models\dbSchema\MachineRealTimeDataSchema.js" />
+    <Compile Include="models\dbSchema\NoticeInfoSchema.js" />
+    <Compile Include="models\dbSchema\UserInfoSchema.js" />
+    <Compile Include="public\angular-chart.js_v1.1.1\angular-chart.js" />
+    <Compile Include="public\angular-chart.js_v1.1.1\angular-chart.min.js" />
+    <Compile Include="public\bootstrap_v3.3.7\js\bootstrap.js" />
+    <Compile Include="public\bootstrap_v3.3.7\js\bootstrap.min.js" />
+    <Compile Include="public\bootstrap_v3.3.7\js\npm.js" />
+    <Compile Include="public\chart.js_v2.6.0\Chart.bundle.js" />
+    <Compile Include="public\chart.js_v2.6.0\Chart.bundle.min.js" />
+    <Compile Include="public\chart.js_v2.6.0\Chart.js" />
+    <Compile Include="public\chart.js_v2.6.0\Chart.min.js" />
+    <Compile Include="public\fullcalendar-3.4.0\fullcalendar.js" />
+    <Compile Include="public\jsBarcode\JsBarcode.all.min.js" />
+    <Compile Include="public\moment-2.18.1\moment-with-locales.js" />
+    <Compile Include="restfulAPIHandlers\dataGeneratorRestfulAPIHandler.js" />
+    <Compile Include="restfulAPIHandlers\machineAgentRestfulAPIHandler.js" />
+    <Compile Include="restfulAPIHandlers\pdasRestfulAPIHandler.js" />
+    <Compile Include="restfulAPIHandlers\pmsRestfulAPIHandler.js" />
+    <Compile Include="restfulAPIHandlers\wemsRestfulAPIHandler.js">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="services\pmsService.js" />
+    <Compile Include="services\webService.js" />
+    <Compile Include="utility\dbManager\commonDBManager.js" />
+    <Compile Include="utility\dbManager\dataGenDBManager.js" />
+    <Compile Include="utility\dbManager\machineDBManager.js" />
+    <Compile Include="utility\dbManager\pdasDBManager.js" />
+    <Compile Include="utility\dbManager\pmsDBManager.js" />
+    <Compile Include="utility\dbManager\wemsDBManager.js" />
+    <Compile Include="routes\route.js" />
+    <Compile Include="views\dash_header.js" />
+    <Compile Include="views\dash_pdas.js" />
+    <Compile Include="views\dash_pm.js" />
+    <Compile Include="views\dash_wems.js" />
+    <Content Include="bin\Hi_PAS" />
+    <Content Include="locales\en.json" />
+    <Content Include="locales\ko.json" />
+    <Content Include="models\DataGenerator\simpleCycleData.json" />
+    <Content Include="models\machine\machineCycleData.json" />
+    <Content Include="models\machine\machineErrorData.json" />
+    <Content Include="models\machine\machineInfo.json" />
+    <Content Include="models\machine\machineRealTimeData.json" />
+    <Content Include="models\pdas\CycleInfo.json" />
+    <Content Include="models\pdas\CycleMonitoringData.json" />
+    <Content Include="models\pdas\machineCycleData.json" />
+    <Content Include="models\pdas\Threshold.json" />
+    <Content Include="models\pms\noticeInfoData.json" />
+    <Content Include="models\pms\userInfoData.json" />
+    <Content Include="models\wems\machineAnalysisData.json" />
+    <Content Include="package.json" />
+    <Content Include="public\angular-chart.js_v1.1.1\angular-chart.min.js.map" />
+    <Content Include="public\bootstrap_v3.3.7\css\bootstrap-theme.css" />
+    <Content Include="public\bootstrap_v3.3.7\css\bootstrap-theme.css.map" />
+    <Content Include="public\bootstrap_v3.3.7\css\bootstrap-theme.min.css" />
+    <Content Include="public\bootstrap_v3.3.7\css\bootstrap-theme.min.css.map" />
+    <Content Include="public\bootstrap_v3.3.7\css\bootstrap.css" />
+    <Content Include="public\bootstrap_v3.3.7\css\bootstrap.css.map" />
+    <Content Include="public\bootstrap_v3.3.7\css\bootstrap.min.css" />
+    <Content Include="public\bootstrap_v3.3.7\css\bootstrap.min.css.map" />
+    <Content Include="public\bootstrap_v3.3.7\fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="public\bootstrap_v3.3.7\fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="public\bootstrap_v3.3.7\fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="public\bootstrap_v3.3.7\fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="public\bootstrap_v3.3.7\fonts\glyphicons-halflings-regular.woff2" />
+    <Content Include="public\font-awesome-4.7.0\css\font-awesome.css" />
+    <Content Include="public\font-awesome-4.7.0\css\font-awesome.min.css" />
+    <Content Include="public\font-awesome-4.7.0\fonts\fontawesome-webfont.eot" />
+    <Content Include="public\font-awesome-4.7.0\fonts\fontawesome-webfont.svg" />
+    <Content Include="public\font-awesome-4.7.0\fonts\fontawesome-webfont.ttf" />
+    <Content Include="public\font-awesome-4.7.0\fonts\fontawesome-webfont.woff" />
+    <Content Include="public\font-awesome-4.7.0\fonts\fontawesome-webfont.woff2" />
+    <Content Include="public\font-awesome-4.7.0\fonts\FontAwesome.otf" />
+    <Content Include="public\font-awesome-4.7.0\less\animated.less" />
+    <Content Include="public\font-awesome-4.7.0\less\bordered-pulled.less" />
+    <Content Include="public\font-awesome-4.7.0\less\core.less" />
+    <Content Include="public\font-awesome-4.7.0\less\fixed-width.less" />
+    <Content Include="public\font-awesome-4.7.0\less\font-awesome.less" />
+    <Content Include="public\font-awesome-4.7.0\less\icons.less" />
+    <Content Include="public\font-awesome-4.7.0\less\larger.less" />
+    <Content Include="public\font-awesome-4.7.0\less\list.less" />
+    <Content Include="public\font-awesome-4.7.0\less\mixins.less" />
+    <Content Include="public\font-awesome-4.7.0\less\path.less" />
+    <Content Include="public\font-awesome-4.7.0\less\rotated-flipped.less" />
+    <Content Include="public\font-awesome-4.7.0\less\screen-reader.less" />
+    <Content Include="public\font-awesome-4.7.0\less\stacked.less" />
+    <Content Include="public\font-awesome-4.7.0\less\variables.less" />
+    <Content Include="public\font-awesome-4.7.0\scss\font-awesome.scss" />
+    <Content Include="public\font-awesome-4.7.0\scss\_animated.scss" />
+    <Content Include="public\font-awesome-4.7.0\scss\_bordered-pulled.scss" />
+    <Content Include="public\font-awesome-4.7.0\scss\_core.scss" />
+    <Content Include="public\font-awesome-4.7.0\scss\_fixed-width.scss" />
+    <Content Include="public\font-awesome-4.7.0\scss\_icons.scss" />
+    <Content Include="public\font-awesome-4.7.0\scss\_larger.scss" />
+    <Content Include="public\font-awesome-4.7.0\scss\_list.scss" />
+    <Content Include="public\font-awesome-4.7.0\scss\_mixins.scss" />
+    <Content Include="public\font-awesome-4.7.0\scss\_path.scss" />
+    <Content Include="public\font-awesome-4.7.0\scss\_rotated-flipped.scss" />
+    <Content Include="public\font-awesome-4.7.0\scss\_screen-reader.scss" />
+    <Content Include="public\font-awesome-4.7.0\scss\_stacked.scss" />
+    <Content Include="public\font-awesome-4.7.0\scss\_variables.scss" />
+    <Content Include="public\fullcalendar-3.4.0\fullcalendar.css" />
+    <Content Include="public\fullcalendar-3.4.0\fullcalendar.print.css" />
+    <Content Include="public\stylesheets\style.styl" />
+    <Content Include="README.md" />
+    <Content Include="typings.json" />
+    <Content Include="views\dash_header.jade" />
+    <Content Include="views\dash_header_board.jade" />
+    <Content Include="views\dash_pdas.jade" />
+    <Content Include="views\dash_pm.jade" />
+    <Content Include="views\dash_wems.jade" />
+    <Content Include="views\dataGenerator.jade" />
+    <Content Include="views\index.jade" />
+    <Content Include="views\pdas\pdas.jade" />
+    <Content Include="views\pdas\pdas_analysis.jade" />
+    <Content Include="views\wems\wems_detail_analysis.html" />
+    <Content Include="views\wems\wems_detail_analysis.jade" />
+    <Content Include="views\wems\wems_detail_layout.jade" />
+    <Content Include="views\wems\wems_detail_management.html" />
+    <Content Include="views\wems\wems_detail_management.jade" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="bin\" />
+    <Folder Include="controllers\" />
+    <Folder Include="controllers\wems\" />
+    <Folder Include="controllers\pms\" />
+    <Folder Include="controllers\pdas\" />
+    <Folder Include="models\" />
+    <Folder Include="models\DataGenerator\" />
+    <Folder Include="models\dbSchema\" />
+    <Folder Include="models\machine\" />
+    <Folder Include="models\pdas\" />
+    <Folder Include="models\pms\" />
+    <Folder Include="models\wems\" />
+    <Folder Include="config\" />
+    <Folder Include="locales\" />
+    <Folder Include="public\angular-chart.js_v1.1.1\" />
+    <Folder Include="public\bootstrap_v3.3.7\" />
+    <Folder Include="public\bootstrap_v3.3.7\css\" />
+    <Folder Include="public\bootstrap_v3.3.7\fonts\" />
+    <Folder Include="public\bootstrap_v3.3.7\js\" />
+    <Folder Include="public\chart.js_v2.6.0\" />
+    <Folder Include="public\font-awesome-4.7.0\" />
+    <Folder Include="public\font-awesome-4.7.0\css\" />
+    <Folder Include="public\font-awesome-4.7.0\fonts\" />
+    <Folder Include="public\font-awesome-4.7.0\less\" />
+    <Folder Include="public\font-awesome-4.7.0\scss\" />
+    <Folder Include="public\fullcalendar-3.4.0\" />
+    <Folder Include="public\jsBarcode\" />
+    <Folder Include="public\moment-2.18.1\" />
+    <Folder Include="restfulAPIHandlers\" />
+    <Folder Include="services\" />
+    <Folder Include="public\css\" />
+    <Folder Include="public\fonts\" />
+    <Folder Include="public\js\" />
+    <Folder Include="typings\globals\async\" />
+    <Folder Include="typings\globals\bootstrap\" />
+    <Folder Include="typings\globals\i18n\" />
+    <Folder Include="typings\globals\mongoose\" />
+    <Folder Include="typings\globals\ng-grid\" />
+    <Folder Include="typings\globals\socket.io\" />
+    <Folder Include="typings\modules\" />
+    <Folder Include="typings\modules\body-parser\" />
+    <Folder Include="typings\modules\cookie-parser\" />
+    <Folder Include="typings\modules\debug\" />
+    <Folder Include="typings\modules\express\" />
+    <Folder Include="typings\modules\jade\" />
+    <Folder Include="typings\modules\morgan\" />
+    <Folder Include="typings\modules\serve-favicon\" />
+    <Folder Include="typings\modules\stylus\" />
+    <Folder Include="utility\" />
+    <Folder Include="public\" />
+    <Folder Include="public\images\" />
+    <Folder Include="public\stylesheets\" />
+    <Folder Include="routes\" />
+    <Folder Include="typings\" />
+    <Folder Include="typings\globals\" />
+    <Folder Include="typings\globals\body-parser\" />
+    <Folder Include="typings\globals\cookie-parser\" />
+    <Folder Include="typings\globals\debug\" />
+    <Folder Include="typings\globals\express-serve-static-core\" />
+    <Folder Include="typings\globals\express\" />
+    <Folder Include="typings\globals\jade\" />
+    <Folder Include="typings\globals\mime\" />
+    <Folder Include="typings\globals\morgan\" />
+    <Folder Include="typings\globals\node\" />
+    <Folder Include="typings\globals\serve-favicon\" />
+    <Folder Include="typings\globals\serve-static\" />
+    <Folder Include="typings\globals\stylus\" />
+    <Folder Include="utility\dbManager\" />
+    <Folder Include="views\" />
+    <Folder Include="views\common\" />
+    <Folder Include="views\pms\" />
+    <Folder Include="views\wems\" />
+    <Folder Include="views\pdas\" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptCompile Include="typings\globals\async\index.d.ts" />
+    <TypeScriptCompile Include="typings\globals\body-parser\index.d.ts" />
+    <TypeScriptCompile Include="typings\globals\bootstrap\index.d.ts" />
+    <TypeScriptCompile Include="typings\globals\cookie-parser\index.d.ts" />
+    <TypeScriptCompile Include="typings\globals\debug\index.d.ts" />
+    <TypeScriptCompile Include="typings\globals\express-serve-static-core\index.d.ts" />
+    <TypeScriptCompile Include="typings\globals\express\index.d.ts" />
+    <TypeScriptCompile Include="typings\globals\i18n\index.d.ts" />
+    <TypeScriptCompile Include="typings\globals\jade\index.d.ts" />
+    <TypeScriptCompile Include="typings\globals\mime\index.d.ts" />
+    <TypeScriptCompile Include="typings\globals\mongoose\index.d.ts" />
+    <TypeScriptCompile Include="typings\globals\morgan\index.d.ts" />
+    <TypeScriptCompile Include="typings\globals\ng-grid\index.d.ts" />
+    <TypeScriptCompile Include="typings\globals\node\index.d.ts" />
+    <TypeScriptCompile Include="typings\globals\serve-favicon\index.d.ts" />
+    <TypeScriptCompile Include="typings\globals\serve-static\index.d.ts" />
+    <TypeScriptCompile Include="typings\globals\socket.io\index.d.ts" />
+    <TypeScriptCompile Include="typings\globals\stylus\index.d.ts" />
+    <TypeScriptCompile Include="typings\index.d.ts" />
+    <TypeScriptCompile Include="typings\modules\body-parser\index.d.ts" />
+    <TypeScriptCompile Include="typings\modules\cookie-parser\index.d.ts" />
+    <TypeScriptCompile Include="typings\modules\debug\index.d.ts" />
+    <TypeScriptCompile Include="typings\modules\express\index.d.ts" />
+    <TypeScriptCompile Include="typings\modules\jade\index.d.ts" />
+    <TypeScriptCompile Include="typings\modules\morgan\index.d.ts" />
+    <TypeScriptCompile Include="typings\modules\serve-favicon\index.d.ts" />
+    <TypeScriptCompile Include="typings\modules\stylus\index.d.ts" />
+  </ItemGroup>
+  <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />
+  <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsTools.targets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>False</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>0</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:48022/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>True</UseCustomServer>
+          <CustomServerUrl>http://localhost:1337</CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}" User="">
+        <WebProjectProperties>
+          <StartPageUrl>
+          </StartPageUrl>
+          <StartAction>CurrentPage</StartAction>
+          <AspNetDebugging>True</AspNetDebugging>
+          <SilverlightDebugging>False</SilverlightDebugging>
+          <NativeDebugging>False</NativeDebugging>
+          <SQLDebugging>False</SQLDebugging>
+          <ExternalProgram>
+          </ExternalProgram>
+          <StartExternalURL>
+          </StartExternalURL>
+          <StartCmdLineArguments>
+          </StartCmdLineArguments>
+          <StartWorkingDirectory>
+          </StartWorkingDirectory>
+          <EnableENC>False</EnableENC>
+          <AlwaysStartWebServerOnDebug>False</AlwaysStartWebServerOnDebug>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

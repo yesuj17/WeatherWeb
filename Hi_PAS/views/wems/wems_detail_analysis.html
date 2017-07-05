@@ -1,0 +1,102 @@
+﻿<div ng-app="wemsAnalysisApp" ng-controller="WemsAnalysisController as wemsAnalysisVM" style="height: 100%; width:100%; margin:0; padding:0" class="container">
+    <div id="wems_analysis_firstRow_content" style="height: 42px; width: 100%; border:1px #dcdcdc solid">
+        <div style="float:left; height: auto; width: 80px; vertical-align:middle; margin-left:3px; margin-right:3px; padding-left: 5px; padding-right: 5px; background-color: #f1f1f1">
+            <h4>Device</h4>
+        </div>
+        <div class="dropdown" style="float:left; margin:3px">
+            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" style="width: 100px">
+                All
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a href="#">S.C1</a></li>
+                <li><a href="#">S.C2</a></li>
+                <li><a href="#">S.C3</a></li>
+            </ul>
+        </div>
+        <div class="btn-group" data-toggle="buttons" style="float:right; margin:3px">
+            <label class="btn active btn-default">
+                <input name="period" id="day" value="CSS" class="active" type="radio" data-ng-model="cssPre">1 Day
+            </label>
+            <label class="btn btn-default">
+                <input name="period" id="week" value="LESS" type="radio" data-ng-model="cssPre">1 Week
+            </label>
+            <label class="btn btn-default">
+                <input name="period" id="month" value="SASS" type="radio" checked="checked" data-ng-model="cssPre">1 Month
+            </label>
+            <label class="btn btn-default">
+                <input name="period" id="year" value="SCSS" type="radio" data-ng-model="cssPre">1 Year
+            </label>
+        </div>
+        <div style="float:right; margin:3px; width:80px; height:40px">
+            <md-content layout-padding ng-cloak>
+                <div layout-gt-xs="row">
+                    <div flex-gt-xs>
+                        <md-datepicker ng-model="wemsAnalysisVM.selectedDate" md-placeholder="Enter date"></md-datepicker>
+                    </div>
+                </div>
+            </md-content>
+        </div>
+    </div>
+    <div id="wems_analysis_secondRow_content" style="width:100%">
+        <div id="wems_power_content" style="width:50%; float:left; border:1px #dcdcdc solid">
+            <canvas id="wemsPowerContent" style="width:100%; padding: 0px"></canvas>
+        </div>
+        <div id="wems_cycleTime_content" style="width:50%; float:right; border:1px #dcdcdc solid">
+            <canvas id="wemsCycleTimeContent" style="width:100%"></canvas>
+        </div>
+    </div>
+    <div id="wems_analysis_third_content" style="width:100%">
+        <div id="wems_powerEfficiency1_content" style="width:50%; float:left; border:1px #dcdcdc solid">
+            <canvas id="wemsPowerEfficiencyBarContent" style="width:100%"></canvas>
+        </div>
+        <div id="wems_powerEfficiency2_content" style="width:50%; float:right; border:1px #dcdcdc solid">
+            <canvas id="wemsPowerEfficiencyLineContent" style="height: 100%; width:100%"></canvas>
+        </div>
+    </div>
+    <div id="wems_analysis_fourth_content" style="width:100%; float:left; border:1px #dcdcdc solid">
+        <table style="width: 500px; border: 1px solid grey; border-collapse: collapse; padding: 5px; margin-top: 5px; margin-bottom: 3px">
+            <tr style="width: 100%">
+                <td style="width: 12%; border: 1px solid grey; border-collapse: collapse; padding: 5px; background-color: #f1f1f1">기간</td>
+                <td style="width: 88%; border: 1px solid grey; border-collapse: collapse; padding: 5px">{{wemsAnalysisVM.analysisPeriod}}</td>
+            </tr>
+        </table>
+        <table style="width: 100%; border-collapse: collapse; padding: 5px; margin-bottom: 5px">
+            <tr style="height: 50px" ng-repeat="powerEfficiencyRow in wemsAnalysisVM.powerEfficiencyRows">
+                <td ng-repeat="powerEfficiency in powerEfficiencyRow">
+                    <table style="width: 100%; height: 25px; border: 1px solid grey; border-collapse: collapse; padding: 5px">
+                        <tr style="width: 100%; background-color: #f1f1f1">
+                            <td style="width: 30%; border: 1px solid grey; border-collapse: collapse; padding: 5px">{{powerEfficiency.DeviceHeader}}</td>
+                            <td style="width: 70%; border: 1px solid grey; border-collapse: collapse; padding: 5px">{{powerEfficiency.PowerEfficiencyHeader}}</td>
+                        </tr>
+                    </table>
+                    <table style="width: 100%; height: 25px; border: 1px solid grey; border-collapse: collapse; padding: 5px">
+                        <tr style="width: 100%; background-color: #ffffff">
+                            <td style="width: 30%; border: 1px solid grey; border-collapse: collapse; padding: 5px">{{powerEfficiency.Device}}</td>
+                            <td style="width: 70%; border: 1px solid grey; border-collapse: collapse; padding: 5px">{{powerEfficiency.PowerEfficiency}}</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div id="wems_analysis_fifth_content" style="width:100%">
+        <table style="border: 1px solid grey; border-collapse: collapse; margin-bottom: 15px; padding: 5px; width:100%">
+            <tr style="height: 25px; background-color: #f1f1f1" >
+                <th style="border: 1px solid grey; border-collapse: collapse; padding: 5px; text-align:center">시간</th>
+                <th style="border: 1px solid grey; border-collapse: collapse; padding: 5px; text-align:center">장비</th>
+                <th style="border: 1px solid grey; border-collapse: collapse; padding: 5px; text-align:center">사용 전력량(kW)</th>
+                <th style="border: 1px solid grey; border-collapse: collapse; padding: 5px; text-align:center">누적 사이클 타임(sec)</th>
+                <th style="border: 1px solid grey; border-collapse: collapse; padding: 5px; text-align:center">전력량 효율(%)</th>
+            </tr>
+            <tr style="height: 25px" ng-repeat="analysisDataRow in wemsAnalysisVM.analysisDataRows">
+                <td style="border: 1px solid grey; border-collapse: collapse; padding: 5px">{{analysisDataRow.Date}}</td>
+                <td style="border: 1px solid grey; border-collapse: collapse; padding: 5px">{{analysisDataRow.DeviceName}}</td>
+                <td style="border: 1px solid grey; border-collapse: collapse; padding: 5px">{{analysisDataRow.Power}}</td>
+                <td style="border: 1px solid grey; border-collapse: collapse; padding: 5px">{{analysisDataRow.CumulativeCycleTime}}</td>
+                <td style="border: 1px solid grey; border-collapse: collapse; padding: 5px">{{analysisDataRow.PowerEfficiency}}</td>
+            </tr>
+        </table>
+    </div>
+    <script src="/wems/wemsAnalysisController.js"></script>
+</div>

@@ -1,0 +1,7 @@
+﻿{
+    "NoticeContent" : "string",
+    "NoticeDate"    : "datetime",
+    "NoticeOption"  : "string",
+    "NoticeTitle"   : "string",
+    "NoticeUser"    : "string"
+}

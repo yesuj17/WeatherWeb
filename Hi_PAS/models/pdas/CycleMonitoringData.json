@@ -1,0 +1,13 @@
+﻿{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "title": "CycleMonitoringData",
+  "type": "object",
+  "properties": {
+    "MachineID":       {"type": "integer"},
+    "CurrDate":   {"type": "string", "format": "date-time"},
+    "JobNo":      {"type": "integer"},
+    "StartTime":  {"type": "string", "format": "date-time"},
+    "EndTime":    {"type": "string", "format": "date-time"},
+    "Power":      {"type": "number"}
+  }
+}

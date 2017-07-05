@@ -1,0 +1,50 @@
+﻿{
+    "JobID": "integer",
+    "JobType": "integer",
+    "MachineID": "integer",
+    "TotalStartTime": "datetime",
+    "TotalEndTime": "datetime",
+    "DrivingInfo": [
+        {
+            "MoveStartTime": "datetime",
+            "MoveEndTime": "datetime",
+            "MoveDistance": "integer",
+            "MotorPowerConsumption": "integer",
+            "MotorBreakCount": "integer",
+            "BreakMCCount": "integer"
+        }
+    ],
+    "UpperDrivingInfo": [
+        {
+            "BreakDiscCount": "integer",
+            "BreakRollerCount": "integer",
+            "BreakMCCount": "integer",
+            "BreakRectifierCount": "integer"
+
+        }
+    ],
+    "HoistingInfo": [
+        {
+            "MoveStartTime": "datetime",
+            "MoveEndTime": "datetime",
+            "MoveDistance": "integer",
+            "MotorPowerConsumption": "integer",
+            "MotorBreakCount": "integer",
+            "BreakMCCount": "integer"
+        }
+    ],
+    "ForkInfo": [
+        {
+            "MoveStartTime": "datetime",
+            "MoveEndTime": "datetime",
+            "MoveDistance": "integer",
+            "MotorPowerConsumption": "integer",
+            "MotorBreakCount": "integer",
+            "BreakMCCount": "integer"
+        }
+    ],
+    "LaserDistanceMeterTotalUsedTime": "integer",
+    "OpticalRepeaterTotalUsedTime": "integer",
+    "Weight": "integer",
+    "InventoryCount": "integer"
+}

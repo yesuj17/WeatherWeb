@@ -1,0 +1,12 @@
+﻿{
+    "ErrorInfos": [
+        {
+            "MachineType" :  "string",
+            "MachineID": "integer",
+            "CurrDate": "datetime",
+            "JobNo": "integer",
+            "ErrCode": "integer",
+            "ErrMsg": "string"
+        }
+    ]   
+}

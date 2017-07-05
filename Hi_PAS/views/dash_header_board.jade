@@ -1,0 +1,65 @@
+﻿.container(style='width: 100%;height: 100%;')
+    #boardManagementModal.modal.fade(role='dialog')
+        .modal-dialog.modal-lg
+            .modal-content(style='width: auto; height: auto; margin-left:-150px') 
+                .modal-header
+                    button.close(type='button', data-dismiss='modal') X
+                    h2.modal-title Board Management
+                .modal-body
+                    .container
+                        .row
+                            .col-md-2(style='margin-left:-15px;')
+                                #accordion.panel-group
+                                    .panel.panel-default
+                                        .panel-heading
+                                            h4.panel-title
+                                            a(data-toggle='collapse', data-parent='#accordion', href='#collapseOne')
+                                                span(style='margin-right: 10px;').glyphicon.glyphicon-folder-close
+                                                | Board
+                                    #collapseOne.panel-collapse.collapse.in
+                                        ul.list-group
+                                            li.list-group-item
+                                                span(style='margin-right: 10px; margin-left: 10px').glyphicon.glyphicon-plus-sign.text-primary
+                                                a(href="#") Add
+                                            li.list-group-item
+                                                span(style='margin-right: 10px; margin-left: 10px').glyphicon.glyphicon-list-alt.text-success 
+                                                a(href="#") List
+                                                span.badge 43
+
+                            .col-md-9(style='margin-left:-20px;')
+                                .panel.panel-default
+                                    .panel-heading
+                                        .row
+                                            .col.col-md-6
+                                                //h3.panel-title Total : 
+                                            .col.col-md-6
+                                                .form-inline
+                                                    select#userFilter(class="form-control", name="size")
+                                                            option(value="UserName") Name
+                                                            option(value="UserEmail") E-mail
+                                                            option(value="UserPhone") Phone  
+                                                    input.form-control(type='text', ng-model='searchBoard')
+                                                    button.btn.btn-default(ng-click="onSearchFilterBoard()") Search
+                                    .panel-body
+                                        
+                                            .col.col-md-13
+                                                table.table-hover.table-bordered.table-sm.text-left(style='table-layout:fixed; width:100%;')
+                                                    thead
+                                                    tr
+                                                        th.text-left.col-md-1 No
+                                                        th.text-left.col-md-8 Title
+                                                        th.text-left.col-md-2 User
+                                                        th.text-left.col-md-2 Date
+                                                    tbody
+                                                    tr
+                                                        td.text-left.col-md-1 
+                                                            p 1
+                                                        td.text-left.col-md-8
+                                                            p title
+                                                        td.text-left.col-md-2
+                                                            p user
+                                                        td.text-left.col-md-2
+                                                            p 17-07-02
+                
+                .modal-footer
+                    button.btn.btn-default(type='button', data-dismiss='modal') Close

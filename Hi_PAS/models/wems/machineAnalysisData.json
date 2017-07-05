@@ -1,0 +1,11 @@
+﻿{
+  "AnalysisDate": "datetime",
+  "AnalysisDataPerDate": [
+    {
+      "MachineID": "number",
+      "Power": "number",
+      "CycleTime": "number",
+      "PowerEfficiency": "number"
+    }
+  ]
+}

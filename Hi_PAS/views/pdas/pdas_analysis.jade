@@ -1,0 +1,47 @@
+﻿#pdasAnalysisModal.modal.fade(role='dialog')
+    .modal-dialog(style='width:1200px; height:1200px; background-color: #646464;')
+        .modal-contents(style='width:100%; height:100%')
+            .modal-header(style='height: 5%; background-color: #ffffff; color:#FFF')
+                div.container-fluid
+                    div.row
+                        div.col-sm-10
+                            h3.modal-title(style='text-align:left; color:black') PAS
+                        div.col-sm-1
+                            button.btn.btn-primary.btn-sm(type='button')
+                                span.glyphicon.glyphicon-cog
+                        div.col-sm-1
+                            button.close(type='button', data-dismiss='modal') x
+            .modal-body(ng-app='pdasAnalysisApp', ng-controller='pdasAnalysisController as analysis', style='height:90%;')
+                div.container-fluid(style='height:100%')
+                    div.row(style='height:5%')
+                        div.col-sm-10
+                        div.col-sm-1
+                            button.btn.btn-primary.btn-md.dropdown-toggle(type='button', data-toggle='dropdown') 기간
+                                span.caret
+                            ul.dropdown-menu
+                                li.dropdown-header 당일
+                                li.dropdown-header 1주
+                                li.dropdown-header 3개월
+                                li.dropdown-header 1년
+                        div.col-sm-1
+                            button.btn.btn-primary.btn-md.dropdown-toggle(type='button', data-toggle='dropdown') 호기
+                                span.caret
+                            // Todo: 실제 설비 정보를 가져와서 동적으로 뿌려주도록 변경.
+                            ul.dropdown-menu
+                                li.dropdown-header 1호기
+                                li.dropdown-header 2호기
+                                li.dropdown-header ...
+                    div.row(style='height:5%')
+                        div.col-sm-9
+                            button.btn.btn-primary(type='button') Trend분석(전류데이터)
+                        div.col-sm-3
+                            label.checkbox-inline(style='color:white; font-size:70%', for='chkDrivingMotor') 주행모터
+                                input#chkDrivingMotor(type='checkbox' value='')
+                            label.checkbox-inline(style='color:white; font-size:70%', for='chkHoistingMotor') 승강모터
+                                input#chkHoistingMotor(type='checkbox' value='')
+                            label.checkbox-inline(style='color:white; font-size:70%', for='chkForkMotor') 포크모터
+                                input#chkForkMotor(type='checkbox' value='')
+                    div.row(style='height:25%; width:97%; background-color:#486268')
+                        canvas(id='currentTrendChart', ng-model="currentTrendChart", style='height:100%; width:90%;margin:auto')
+            .modal-footer(style='height:5%')
+            script(src='/pdas/pdasAnalysisController.js')

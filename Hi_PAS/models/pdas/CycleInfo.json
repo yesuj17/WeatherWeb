@@ -1,0 +1,23 @@
+﻿{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "title": "CycleInfo",
+  "type": "object",
+  "properties": {
+    "MachineID": { "type": "integer" },
+    "CurrDate": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "JobNo": { "type": "integer" },
+    "JobType": { "type": "string" },
+    "StartTime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "EndTime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "InvStockCnt": { "type": "integer" }
+  }
+}

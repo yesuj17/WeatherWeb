@@ -1,0 +1,11 @@
+﻿{
+    "MachineID": "integer",    
+    "MotorInfos": [
+        {
+            "TimeStamp": "datetime",
+            "DrivingCurrent": "integer",
+            "HoistingCurrent": "integer",
+            "ForkCurrent": "integer"
+        }
+    ]
+}

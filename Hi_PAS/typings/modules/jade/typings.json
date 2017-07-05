@@ -1,0 +1,8 @@
+{
+  "resolution": "main",
+  "tree": {
+    "src": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/d2c72d7337163e43b995f785345adb8ac30c5971/jade/index.d.ts",
+    "raw": "registry:dt/jade#0.0.0+20161224194922",
+    "typings": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/d2c72d7337163e43b995f785345adb8ac30c5971/jade/index.d.ts"
+  }
+}

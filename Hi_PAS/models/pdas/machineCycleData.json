@@ -1,0 +1,70 @@
+﻿{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "title": "machineCycleData",
+  "type": "object",
+  "properties": {
+      "JobID":          {"type": "integer"},
+      "JobType":        {"type": "integer"},
+      "MachineID":          {"type": "number"},
+      "TotalStartTime": {"type": "string", "format": "date-time"},
+      "TotalEndTime":   {"type": "string", "format": "date-time"},
+      "DrivingInfo": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+              "MoveStartTime":           {"type": "string", "format": "date-time"},
+              "MoveEndTime"  :           {"type": "string", "format": "date-time"},
+              "MoveDistance" :           {"type": "number"},
+              "MotorPowerConsumption":   {"type": "number"},
+              "MotorBreakCount":         {"type": "integer"},
+              "BreakMCCount":            {"type": "integer"}
+          }
+        }
+      },
+      "UpperDrivingInfo": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+              "BreakDiscCount":       {"type": "integer" },
+              "BreakRollerCount":     {"type": "integer"},
+              "BreakMCCount":         {"type": "integer"},
+              "BreakRectifierCount":  {"type": "integer"}
+          }          
+        }
+      },
+      "HoistingInfo": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+              "MoveStartTime":          {"type": "string", "format": "date-time"},
+              "MoveEndTime":            {"type": "string", "format": "date-time"},
+              "MoveDistance":           {"type": "number"},
+              "MotorPowerConsumption":  {"type": "number"},
+              "MotorBreakCount":        {"type": "integer"},
+              "BreakMCCount":           {"type": "integer"}
+          }
+        }
+      },
+      "ForkInfo": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+              "MoveStartTime":          {"type": "string", "format": "date-time"},
+              "MoveEndTime":            {"type": "string", "format": "date-time"},
+              "MoveDistance":           {"type": "number"},
+              "MotorPowerConsumption":  {"type": "number"},
+              "MotorBreakCount":        {"type": "integer" },
+              "BreakMCCount":           {"type": "integer"}
+          }
+        }
+      },
+      "LaserDistanceMeterTotalUsedTime":  {"type": "number"},
+      "OpticalRepeaterTotalUsedTime":     {"type": "number"},
+      "Weight":                           {"type": "number"},
+      "InventoryCount":                   {"type": "integer"}
+   }
+}

@@ -1,0 +1,25 @@
+﻿{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "title": "Threshold",
+  "type": "object",
+  "properties": {
+    "CurrDate": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "Current": {
+      "type": "object",
+      "properties": {
+        "Threshold": { "type": "array" },
+        "UpperLimit": { "type": "number" }
+      }
+    },
+    "Performance": {
+      "type": "object",
+      "properties": {
+        "Threshold": { "type": "array" },
+        "LowerLimit": { "type": "number" }
+      }
+    }
+  }
+}
