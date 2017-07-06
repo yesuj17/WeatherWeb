@@ -1,20 +1,17 @@
 ﻿angular
-    .module('wemsAnalysisApp', ['chart.js', 'ngMaterial'])
+    .module('wemsAnalysisApp', ['chart.js'])
     .controller('WemsAnalysisController', ['$scope', '$http', WemsAnalysisController]);
 
 var powerChart;
 var cumulativeCycleTimeChart;
 var powerEfficiencyBarChart;
 var powerEfficiencyLineChart;
-
 /* XXX Max Summary Column Number */
 var maxCol = 8;
 function WemsAnalysisController($scope, $http) {
     var vm = this;
 
     $('#wemsDetailModal').on('show.bs.modal', onShowWemsDetailModal);
-
-    vm.selectedDate = new Date();
 
     vm.powerEfficiencyRows = [];
     vm.analysisDataRows = [];
@@ -31,6 +28,29 @@ function WemsAnalysisController($scope, $http) {
         startDate.setHours(0, 0, 0, 0);
         var endDate = new Date();
         endDate.setHours(23, 59, 59, 999);
+
+        $('#analysisDatePicker').datetimepicker({
+            format: 'YYYY/MM/DD',
+            showClose: true,
+            defaultDate: new Date(),
+        });
+        $('#analysisDatePicker').on('dp.change', function () {
+            $("#analysisDatePicker").data("DateTimePicker").hide();
+
+            var selectedDate = $("#analysisDatePicker").data("DateTimePicker").date().toDate();
+            if (!selectedDate) {
+                return;
+            }
+
+            startDate = new Date(selectedDate);
+            endDate = new Date(selectedDate);
+            period = {
+                startDate: startDate.setHours(0, 0, 0, 0),
+                endDate: endDate.setHours(23, 59, 59, 999)
+            }
+
+            refreshAnalysisData(period);
+        });
 
         vm.analysisPeriod = getTimeStamp(startDate) + " ~ " + getTimeStamp(endDate);
         getAnalysisData()
@@ -72,12 +92,22 @@ function WemsAnalysisController($scope, $http) {
 
     // Refresh Analysis Data
     function refreshAnalysisData(period) {
-        var analysisDataSet = getAnalysisData(period);
+        getAnalysisData(period)
+            .then(function (res, status, headers, config) {
+                refreshPowerData(res.data);
+                refreshCumulativeCycleTimeData(res.data);
+                refreshPowerEfficiency(res.data);
+                refreshAnalysisSummary(res.data);
+            })
+            .catch(function (e) {
+                var newMessage = 'XHR Failed for getPowerData'
+                if (e.data && e.data.description) {
+                    newMessage = newMessage + '\n' + e.data.description;
+                }
 
-        refreshPowerData(analysisDataSet);
-        refreshCumulativeCycleTimeData(analysisDataSet);
-        refreshPowerEfficiency(analysisDataSet);
-        refreshAnalysisSummary(analysisDataSet);
+                e.data.description = newMessage;
+                logger.error(newMessage);
+            });
     }
 
     // Refresh Power Data

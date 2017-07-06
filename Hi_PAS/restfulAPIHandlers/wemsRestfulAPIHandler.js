@@ -21,9 +21,14 @@ module.exports.getAnalysisData = function (req, res) {
     }
 
     if (req.query.startDate && req.query.endDate) {
-        period.startDate = new Date(req.query.startDate);
-        period.endDate = new Date(req.query.endDate);
+        period.startDate = new Date(+req.query.startDate);
+        period.endDate = new Date(+req.query.endDate);
     }
+
+    console.log("===========================");
+    console.log(period.startDate);
+    console.log(period.endDate);
+    console.log("===========================");
 
     /* XXX Must Get DeviceID From DB */
     var deviceIDList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];

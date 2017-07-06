@@ -1,4 +1,4 @@
-﻿<div ng-app="wemsAnalysisApp" ng-controller="WemsAnalysisController as wemsAnalysisVM" style="height: 100%; width:100%; margin:0; padding:0" class="container">
+﻿<div ng-app="wemsAnalysisApp" ng-controller="WemsAnalysisController as wemsAnalysisVM" ng-cloak style="height: 100%; width:100%; margin:0; padding:0" class="container">
     <div id="wems_analysis_firstRow_content" style="height: 42px; width: 100%; border:1px #dcdcdc solid">
         <div style="float:left; height: auto; width: 80px; vertical-align:middle; margin-left:3px; margin-right:3px; padding-left: 5px; padding-right: 5px; background-color: #f1f1f1">
             <h4>Device</h4>
@@ -28,14 +28,15 @@
                 <input name="period" id="year" value="SCSS" type="radio" data-ng-model="cssPre">1 Year
             </label>
         </div>
-        <div style="float:right; margin:3px; width:80px; height:40px">
-            <md-content layout-padding ng-cloak>
-                <div layout-gt-xs="row">
-                    <div flex-gt-xs>
-                        <md-datepicker ng-model="wemsAnalysisVM.selectedDate" md-placeholder="Enter date"></md-datepicker>
-                    </div>
+        <div style="width:210px; height: 35px; float:right; margin-top:3px; margin-bottom:2px">
+            <div class="form-group">
+                <div class='input-group date' id='analysisDatePicker'>
+                    <input type='text' class="form-control" style=""/>
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
                 </div>
-            </md-content>
+            </div>
         </div>
     </div>
     <div id="wems_analysis_secondRow_content" style="width:100%">

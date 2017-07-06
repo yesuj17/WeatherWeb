@@ -42,9 +42,11 @@
     <Compile Include="models\dbSchema\MachineInfoSchema.js" />
     <Compile Include="models\dbSchema\MachineRealTimeDataSchema.js" />
     <Compile Include="models\dbSchema\NoticeInfoSchema.js" />
+    <Compile Include="models\dbSchema\PMSmotherSchema.js" />
     <Compile Include="models\dbSchema\UserInfoSchema.js" />
     <Compile Include="public\angular-chart.js_v1.1.1\angular-chart.js" />
     <Compile Include="public\angular-chart.js_v1.1.1\angular-chart.min.js" />
+    <Compile Include="public\bootstrap-datetimepicker\bootstrap-datetimepicker.min.js" />
     <Compile Include="public\bootstrap_v3.3.7\js\bootstrap.js" />
     <Compile Include="public\bootstrap_v3.3.7\js\bootstrap.min.js" />
     <Compile Include="public\bootstrap_v3.3.7\js\npm.js" />
@@ -52,6 +54,7 @@
     <Compile Include="public\chart.js_v2.6.0\Chart.bundle.min.js" />
     <Compile Include="public\chart.js_v2.6.0\Chart.js" />
     <Compile Include="public\chart.js_v2.6.0\Chart.min.js" />
+    <Compile Include="public\eonasdan-bootstrap-datetimepicker_v4.17.47\bootstrap-datetimepicker.min.js" />
     <Compile Include="public\fullcalendar-3.4.0\fullcalendar.js" />
     <Compile Include="public\jsBarcode\JsBarcode.all.min.js" />
     <Compile Include="public\moment-2.18.1\moment-with-locales.js" />
@@ -75,6 +78,12 @@
     <Compile Include="views\dash_pdas.js" />
     <Compile Include="views\dash_pm.js" />
     <Compile Include="views\dash_wems.js" />
+    <Compile Include="views\pms\BodyFrame\BodyIndex.js" />
+    <Compile Include="views\pms\BodyFrame\grid.js" />
+    <Compile Include="views\pms\BodyFrame\Top.js" />
+    <Compile Include="views\pms\BodyFrame\Tree.js" />
+    <Compile Include="views\pms\PMSHead.js" />
+    <Compile Include="views\pms\PMSside.js" />
     <Content Include="bin\Hi_PAS" />
     <Content Include="locales\en.json" />
     <Content Include="locales\ko.json" />
@@ -87,6 +96,8 @@
     <Content Include="models\pdas\CycleMonitoringData.json" />
     <Content Include="models\pdas\machineCycleData.json" />
     <Content Include="models\pdas\Threshold.json" />
+    <Content Include="models\pms\CheckLists.json" />
+    <Content Include="models\pms\mother.json" />
     <Content Include="models\pms\noticeInfoData.json" />
     <Content Include="models\pms\userInfoData.json" />
     <Content Include="models\wems\machineAnalysisData.json" />
@@ -105,6 +116,7 @@
     <Content Include="public\bootstrap_v3.3.7\fonts\glyphicons-halflings-regular.ttf" />
     <Content Include="public\bootstrap_v3.3.7\fonts\glyphicons-halflings-regular.woff" />
     <Content Include="public\bootstrap_v3.3.7\fonts\glyphicons-halflings-regular.woff2" />
+    <Content Include="public\eonasdan-bootstrap-datetimepicker_v4.17.47\css\bootstrap-datetimepicker.min.css" />
     <Content Include="public\font-awesome-4.7.0\css\font-awesome.css" />
     <Content Include="public\font-awesome-4.7.0\css\font-awesome.min.css" />
     <Content Include="public\font-awesome-4.7.0\fonts\fontawesome-webfont.eot" />
@@ -155,6 +167,13 @@
     <Content Include="views\index.jade" />
     <Content Include="views\pdas\pdas.jade" />
     <Content Include="views\pdas\pdas_analysis.jade" />
+    <Content Include="views\pms\BodyFrame\BodyIndex.jade" />
+    <Content Include="views\pms\BodyFrame\grid.jade" />
+    <Content Include="views\pms\BodyFrame\Top.jade" />
+    <Content Include="views\pms\BodyFrame\Tree.jade" />
+    <Content Include="views\pms\PMMain.jade" />
+    <Content Include="views\pms\PMSHead.jade" />
+    <Content Include="views\pms\PMSside.jade" />
     <Content Include="views\wems\wems_detail_analysis.html" />
     <Content Include="views\wems\wems_detail_analysis.jade" />
     <Content Include="views\wems\wems_detail_layout.jade" />
@@ -177,11 +196,14 @@
     <Folder Include="config\" />
     <Folder Include="locales\" />
     <Folder Include="public\angular-chart.js_v1.1.1\" />
+    <Folder Include="public\bootstrap-datetimepicker\" />
     <Folder Include="public\bootstrap_v3.3.7\" />
     <Folder Include="public\bootstrap_v3.3.7\css\" />
     <Folder Include="public\bootstrap_v3.3.7\fonts\" />
     <Folder Include="public\bootstrap_v3.3.7\js\" />
     <Folder Include="public\chart.js_v2.6.0\" />
+    <Folder Include="public\eonasdan-bootstrap-datetimepicker_v4.17.47\" />
+    <Folder Include="public\eonasdan-bootstrap-datetimepicker_v4.17.47\css\" />
     <Folder Include="public\font-awesome-4.7.0\" />
     <Folder Include="public\font-awesome-4.7.0\css\" />
     <Folder Include="public\font-awesome-4.7.0\fonts\" />
@@ -233,6 +255,7 @@
     <Folder Include="views\" />
     <Folder Include="views\common\" />
     <Folder Include="views\pms\" />
+    <Folder Include="views\pms\BodyFrame\" />
     <Folder Include="views\wems\" />
     <Folder Include="views\pdas\" />
   </ItemGroup>
