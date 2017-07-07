@@ -32,7 +32,8 @@ var pmsGETList = [
     ['/pms/getUserData', pmsRestfulAPIHandler.getUserData],
     ['/pms/getUserDataCount', pmsRestfulAPIHandler.getUserDataCount],
     ['/pms/getNoticeData', pmsRestfulAPIHandler.getNoticeData],
-    ['/pms/getNoticeDataCount', pmsRestfulAPIHandler.getNoticeDataCount]
+    ['/pms/getNoticeDataCount', pmsRestfulAPIHandler.getNoticeDataCount],
+    ['/pms', pmsRestfulAPIHandler.pmsrend]
 ];
 
 var pmsPOSTList = [
@@ -40,6 +41,8 @@ var pmsPOSTList = [
     ['/pms/updateUserData', pmsRestfulAPIHandler.updateUserData],
     ['/pms/deleteUserData', pmsRestfulAPIHandler.deleteUserData],
     ['/pms/addNoticeData', pmsRestfulAPIHandler.addNoticeData],
+    ['/pms/insertMother', pmsRestfulAPIHandler.AddMotherData],
+    ['/upload', pmsRestfulAPIHandler.ImportExcel]
 ];
 
 var pmsPUTList;
@@ -62,7 +65,6 @@ module.exports = function (app, io) {
     app.get('/', function (req, res) {
         res.render('index');
     });
-
     /* Restful API */
     /* Set WEMS Restful API Handler */
     if (wemsGETList) {

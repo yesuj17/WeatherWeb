@@ -9,14 +9,51 @@ var powerEfficiencyLineChart;
 /* XXX Max Summary Column Number */
 var maxCol = 8;
 function WemsAnalysisController($scope, $http) {
-    var vm = this;
+    var wemsAnalysisVM = this;
 
     $('#wemsDetailModal').on('show.bs.modal', onShowWemsDetailModal);
 
-    vm.powerEfficiencyRows = [];
-    vm.analysisDataRows = [];
-    vm.analysisPeriod;
+    wemsAnalysisVM.powerEfficiencyRows = [];
+    wemsAnalysisVM.analysisDataRows = [];
+    wemsAnalysisVM.analysisPeriod;
+    wemsAnalysisVM.dateUnit = "day";
 
+    wemsAnalysisVM.onChangeDateUnit = function (value) {
+        switch (value) {
+            case "day":
+                alert("day");
+                break;
+            case "week":
+                alert("week");
+                break;
+            case "month":
+                alert("month");
+                break;
+            case "year":
+                alert("year");
+                break;
+        }
+    }
+
+    /* XXX
+    wemAnalysisVM.changeDateUnit = function () {
+            switch (wemsAnalysisVM.dateUnit) {
+                case "day":
+                    alert("day");
+                    break;
+                case "week":
+                    alert("week");
+                    break;
+                case "month":
+                    alert("month");
+                    break;
+                case "year":
+                    alert("year");
+                    break;
+            }
+        }
+    */
+    //////////////////////////////////////////////////////////////////////
     // On Show Wems Detail Modal 
     function onShowWemsDetailModal() {
         initializeAnalysisData();
@@ -29,15 +66,65 @@ function WemsAnalysisController($scope, $http) {
         var endDate = new Date();
         endDate.setHours(23, 59, 59, 999);
 
-        $('#analysisDatePicker').datetimepicker({
+        var $analysisDateInput = $('#analysisDateinput');
+        $analysisDateInput.data('currentVal', $analysisDateInput.val());
+        $analysisDateInput.change(function () {
+            var $input = $(this);
+            var currentValue = $input.val();
+
+            if (currentValue == "") {
+                $input.data('currentVal', $input.data('currentVal'));
+                this.value = $input.data('currentVal');
+
+                return;
+            }
+        })
+            .focus(function () {
+                var $input = $(this);
+                $input.data('currentVal', $input.val());
+            })
+            .keydown(function (e) {
+                if (e.keyCode === 13) {
+                    var $input = $(this);
+                    var currentValue = $input.val();
+                    if (currentValue == $input.data('currentVal')) {
+                        return;
+                    }
+
+                    if (currentValue == "") {
+                        $input.data('currentVal', $input.data('currentVal'));
+                        this.value = $input.data('currentVal');
+
+                        return;
+                    }
+
+                    this.value = currentValue;
+                    $input.data('currentVal', currentValue);
+
+                    startDate = new Date(currentValue);
+                    endDate = new Date(currentValue);
+                    period = {
+                        startDate: startDate.setHours(0, 0, 0, 0),
+                        endDate: endDate.setHours(23, 59, 59, 999)
+                    }
+
+                    refreshAnalysisData(period);
+                }
+            });
+
+        var $analysisDatePicker = $('#analysisDatePicker');
+        $analysisDatePicker.datetimepicker({
             format: 'YYYY/MM/DD',
             showClose: true,
             defaultDate: new Date(),
-        });
-        $('#analysisDatePicker').on('dp.change', function () {
-            $("#analysisDatePicker").data("DateTimePicker").hide();
+        })
+        .on('dp.change', function () {
+            $analysisDatePicker.data("DateTimePicker").hide();
+            if (!$analysisDatePicker.data("DateTimePicker").date()) {
+                return;
+            }
 
-            var selectedDate = $("#analysisDatePicker").data("DateTimePicker").date().toDate();
+            var selectedDate = $analysisDatePicker.data("DateTimePicker").date().toDate();
             if (!selectedDate) {
                 return;
             }
@@ -52,7 +139,7 @@ function WemsAnalysisController($scope, $http) {
             refreshAnalysisData(period);
         });
 
-        vm.analysisPeriod = getTimeStamp(startDate) + " ~ " + getTimeStamp(endDate);
+        wemsAnalysisVM.analysisPeriod = getTimeStamp(startDate) + " ~ " + getTimeStamp(endDate);
         getAnalysisData()
             .then(function (res, status, headers, config) {
                 initializePowerData(res.data);
@@ -92,6 +179,13 @@ function WemsAnalysisController($scope, $http) {
 
     // Refresh Analysis Data
     function refreshAnalysisData(period) {
+        if (period) {
+            wemsAnalysisVM.analysisPeriod
+                = getTimeStamp(period.startDate)
+                + " ~ "
+                + getTimeStamp(period.endDate);
+        }
+
         getAnalysisData(period)
             .then(function (res, status, headers, config) {
                 refreshPowerData(res.data);
@@ -373,7 +467,7 @@ function WemsAnalysisController($scope, $http) {
 
     // Refresh Analysis Summary
     function refreshAnalysisSummary(analysisDataSet) {
-        vm.analysisDataRows = [];
+        wemsAnalysisVM.analysisDataRows = [];
         if (!analysisDataSet || !analysisDataSet.AnalysisData) {
             return;
         }
@@ -389,7 +483,7 @@ function WemsAnalysisController($scope, $http) {
                 analysisDataIndex++) {
                 var analysisData = analaysisDataPerDate[analysisDataIndex];
                 var analysisDate = getTimeStamp(analysisDataSet.AnalysisData[dataIndex].AnalysisDate);
-                vm.analysisDataRows.push({
+                wemsAnalysisVM.analysisDataRows.push({
                     "Date": analysisDate,
                     "DeviceName": "S.C" + analysisData.MachineID,
                     "Power": getNumberWithCommas(analysisData.Power),
@@ -650,7 +744,7 @@ function WemsAnalysisController($scope, $http) {
             return;
         }
 
-        vm.powerEfficiencyRows = [];
+        wemsAnalysisVM.powerEfficiencyRows = [];
         var powerEfficiencyData = [];
         var backGroundColor = [];
         var powerEfficiencies = [];
@@ -686,14 +780,14 @@ function WemsAnalysisController($scope, $http) {
             });
 
             if ((deviceIndex + 1) % maxCol == 0) {
-                vm.powerEfficiencyRows.push(powerEfficiencies);
+                wemsAnalysisVM.powerEfficiencyRows.push(powerEfficiencies);
                 powerEfficiencies = [];
             }
 
             backGroundColor.push(generateRandomRGBA());
         }
 
-        vm.powerEfficiencyRows.push(powerEfficiencies);
+        wemsAnalysisVM.powerEfficiencyRows.push(powerEfficiencies);
 
         var powerEfficiencyDataSet = [{
             data: powerEfficiencyData,
@@ -741,6 +835,7 @@ function WemsAnalysisController($scope, $http) {
         return stamp;
     }
 
+    // Leading Zeros
     function leadingZeros(number, digits) {
         var zero = '';
         number = number.toString();
@@ -752,6 +847,9 @@ function WemsAnalysisController($scope, $http) {
         return zero + number;
     }
 
+    // Change Date Unit
+    function changeDateUnitHandler() {
+    }
 }   
 
 

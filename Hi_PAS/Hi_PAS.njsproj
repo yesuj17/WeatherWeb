@@ -46,7 +46,6 @@
     <Compile Include="models\dbSchema\UserInfoSchema.js" />
     <Compile Include="public\angular-chart.js_v1.1.1\angular-chart.js" />
     <Compile Include="public\angular-chart.js_v1.1.1\angular-chart.min.js" />
-    <Compile Include="public\bootstrap-datetimepicker\bootstrap-datetimepicker.min.js" />
     <Compile Include="public\bootstrap_v3.3.7\js\bootstrap.js" />
     <Compile Include="public\bootstrap_v3.3.7\js\bootstrap.min.js" />
     <Compile Include="public\bootstrap_v3.3.7\js\npm.js" />
@@ -196,7 +195,6 @@
     <Folder Include="config\" />
     <Folder Include="locales\" />
     <Folder Include="public\angular-chart.js_v1.1.1\" />
-    <Folder Include="public\bootstrap-datetimepicker\" />
     <Folder Include="public\bootstrap_v3.3.7\" />
     <Folder Include="public\bootstrap_v3.3.7\css\" />
     <Folder Include="public\bootstrap_v3.3.7\fonts\" />

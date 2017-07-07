@@ -1,6 +1,7 @@
 ﻿angular
     .module('wemsManagementApp', ['chart.js'])
-    .controller('WemsAnalysisController', ['$scope', '$http', WemsAnalysisController]);
+    .controller('WemsManagementController', ['$scope', '$http', WemsManagementController]);
 
-function WemsAnalysisController($scope, $http) {
+function WemsManagementController($scope, $http) {
+    var vm = this;
 }

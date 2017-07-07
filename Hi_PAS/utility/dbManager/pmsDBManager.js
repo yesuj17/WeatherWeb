@@ -1,6 +1,6 @@
 ﻿var mongoose = require('mongoose');
 var UserInfoSchema = require('../../models/dbSchema/UserInfoSchema.js');
-
+var motherDataSchema = require('../../models/dbSchema/PMSmotherSchema.js');
 // Insert to Mongo DB
 module.exports.insertUserData = function (param, next) {
     if (!param) {
@@ -240,5 +240,60 @@ module.exports.deleteUserData = function (param, next) {
             }
             next(true);
         });
+    });
+}
+
+module.exports.InsertMotherdata = function (InputmotherData, next) {
+    console.log("InsertMotherdata 실행");
+    //input data 유효성 check
+    if (!InputmotherData) {
+        console.log(" [InsertMotherdata]modeherData가 널임.");
+        next(4, 'motherData null');
+        return;
+    }
+    // 들어오는 input data중 동일한 data를 가져오는 쿼리( code값으로 식별)
+    motherDataSchema.findOne({ Code: InputmotherData.Code }, function (err, doc){
+        if (err) {
+            console.log(" [InsertMotherdata]스키마에서 찾다가 에러남.");
+            next(3, err);
+            return;
+        }
+        //data이미 가 있으면 중복처리
+        if (doc) {
+            console.log(" [InsertMotherdata]스키마에 이미 존재");
+            next(2, 'duplicate');
+            return;
+        }
+    });
+    //db에 input 하려는 데이터가 없을 때 새로 생성. 
+    var a = new motherDataSchema();
+    a.Code = InputmotherData.Code;
+    a.Title = InputmotherData.Title;
+    a.Content = InputmotherData.Content;
+    a.LargeCategory = InputmotherData.LargeCategory;
+    a.MediumCategory = InputmotherData.MediumCategory;
+    a.SmallCategory = InputmotherData.SmallCategory;
+    a.CreateDate = new Date();//InputmotherData.CreateDate;
+    a.TimeGroup = InputmotherData.TimeGroup;
+    a.TimeBaseUnit = InputmotherData.TimeBaseUnit;
+    a.TimeBaseValue = InputmotherData.TimeBaseValue;
+    a.nonTimeVaseMainUnit = InputmotherData.nonTimeVaseMainUnit;
+    a.nonTimeBaseMainValue = InputmotherData.nonTimeBaseMainValue;
+    a.nonTimeBaseWarringUnit = InputmotherData.nonTimeBaseWarringUnit;
+    a.nonTimeBaseWarringValue = InputmotherData.nonTimeBaseWarringValue;
+    a.Relation = InputmotherData.Relation;
+    a.Type = InputmotherData.Type;
+    a.Level = InputmotherData.Level;
+    
+    a.save(function (err) {
+        if (err) {
+            console.error(err);
+            console.log(" [InsertMotherdata]model 저장실패");
+            next(5, 'fail save');
+            return;
+        } else {
+            console.log(" [InsertMotherdata]model 저장 성공");
+            next(1, 'success save');
+        }
     });
 }
