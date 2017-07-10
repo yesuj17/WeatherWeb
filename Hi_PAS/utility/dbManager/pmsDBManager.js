@@ -2,7 +2,6 @@
 var UserInfoSchema = require('../../models/dbSchema/UserInfoSchema.js');
 var NoticeInfoSchema = require('../../models/dbSchema/NoticeInfoSchema.js');
 var UserLevelSchema = require('../../models/dbSchema/UserLevelSchema.js');
-var motherDataSchema = require('../../models/dbSchema/PMSmotherSchema.js');
 
 // Insert to Mongo DB
 module.exports.insertUserLevelData = function (param, next) {

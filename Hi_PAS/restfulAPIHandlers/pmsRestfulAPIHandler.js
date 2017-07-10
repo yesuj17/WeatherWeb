@@ -3,10 +3,10 @@
 var dbManager = require('../utility/dbManager/pmsDBManager');
 var pmsUserInfo = require('../models/pms/userInfoData.json');
 
-var motherjson = require("../models/pms/mother.json");
-var multer = require('multer')
-var xlstojson = require("xls-to-json-lc");
-var xlsxtojson = require("xlsx-to-json-lc");
+//var motherjson = require("../models/pms/mother.json");
+//var multer = require('multer')
+//var xlstojson = require("xls-to-json-lc");
+//var xlsxtojson = require("xlsx-to-json-lc");
 
 module.exports.loginUserData = function (req, res) {
 
@@ -323,6 +323,7 @@ saveMotherDataJsonToDB = function (input) {
     });
 }
 
+/* XXX
 var storage = multer.diskStorage({ //업로드 된 파일의 저장 장소 정의.
     destination: function (req, file, cb) {
         cb(null, './uploads')
@@ -341,6 +342,7 @@ var upload = multer({ // 저장 장소 저장 하고 확장자 설정.( xls, xls
         callback(null, true);
     }
 }).single('file');
+*/
 module.exports.ImportExcel = function (req, res) {
     var exceltojson;
     //위에서 설정된 upload 매소드 실행.
@@ -390,6 +392,7 @@ module.exports.ImportExcel = function (req, res) {
         })
 }
 CoverteforSave = function (rawjson) {
+/* xxx 
     var result = motherjson;
     result.Code = rawjson.코드;
     result.Title = rawjson.제목;
@@ -409,6 +412,7 @@ CoverteforSave = function (rawjson) {
     result.Type                     = rawjson.유형;
     result.Level                    = rawjson.등급;
     return result;
+    */
 }
 
 module.exports.pmsrend = function (req, res) {

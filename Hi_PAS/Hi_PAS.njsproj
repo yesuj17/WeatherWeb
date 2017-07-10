@@ -42,8 +42,10 @@
     <Compile Include="models\dbSchema\MachineInfoSchema.js" />
     <Compile Include="models\dbSchema\MachineRealTimeDataSchema.js" />
     <Compile Include="models\dbSchema\NoticeInfoSchema.js" />
-    <Compile Include="models\dbSchema\PMSmotherSchema.js" />
     <Compile Include="models\dbSchema\UserInfoSchema.js" />
+    <Compile Include="models\dbSchema\UserLevelSchema.js">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="public\angular-chart.js_v1.1.1\angular-chart.js" />
     <Compile Include="public\angular-chart.js_v1.1.1\angular-chart.min.js" />
     <Compile Include="public\bootstrap_v3.3.7\js\bootstrap.js" />
@@ -221,9 +223,13 @@
     <Folder Include="typings\globals\ng-grid\" />
     <Folder Include="typings\globals\socket.io\" />
     <Folder Include="typings\modules\" />
+    <Folder Include="typings\modules\angular-animate\" />
+    <Folder Include="typings\modules\angular-material\" />
+    <Folder Include="typings\modules\angular\" />
     <Folder Include="typings\modules\body-parser\" />
     <Folder Include="typings\modules\cookie-parser\" />
     <Folder Include="typings\modules\debug\" />
+    <Folder Include="typings\modules\eonasdan-bootstrap-datetimepicker\" />
     <Folder Include="typings\modules\express\" />
     <Folder Include="typings\modules\jade\" />
     <Folder Include="typings\modules\morgan\" />
@@ -277,9 +283,13 @@
     <TypeScriptCompile Include="typings\globals\socket.io\index.d.ts" />
     <TypeScriptCompile Include="typings\globals\stylus\index.d.ts" />
     <TypeScriptCompile Include="typings\index.d.ts" />
+    <TypeScriptCompile Include="typings\modules\angular-animate\index.d.ts" />
+    <TypeScriptCompile Include="typings\modules\angular-material\index.d.ts" />
+    <TypeScriptCompile Include="typings\modules\angular\index.d.ts" />
     <TypeScriptCompile Include="typings\modules\body-parser\index.d.ts" />
     <TypeScriptCompile Include="typings\modules\cookie-parser\index.d.ts" />
     <TypeScriptCompile Include="typings\modules\debug\index.d.ts" />
+    <TypeScriptCompile Include="typings\modules\eonasdan-bootstrap-datetimepicker\index.d.ts" />
     <TypeScriptCompile Include="typings\modules\express\index.d.ts" />
     <TypeScriptCompile Include="typings\modules\jade\index.d.ts" />
     <TypeScriptCompile Include="typings\modules\morgan\index.d.ts" />

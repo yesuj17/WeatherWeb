@@ -6,6 +6,7 @@ var powerChart;
 var cumulativeCycleTimeChart;
 var powerEfficiencyBarChart;
 var powerEfficiencyLineChart;
+var $analysisDatePicker = $('#analysisDatePicker');
 /* XXX Max Summary Column Number */
 var maxCol = 8;
 function WemsAnalysisController($scope, $http) {
@@ -25,6 +26,61 @@ function WemsAnalysisController($scope, $http) {
     // On Show Wems Detail Modal 
     function onShowWemsDetailModal() {
         initializeAnalysisData();
+    }
+
+    // Initialize Analysis Data
+    function initializeAnalysisData2() {
+        var startDate;
+        var endDate;
+
+        switch (wemsAnalysisVM.selectedDateUnit) {
+            case "day":
+                startDate = moment().startOf('day').toDate();
+                endDate = moment().endOf('day').toDate();
+                $analysisDatePicker.data("DateTimePicker").format('YYYY/MM/DD');
+                $analysisDatePicker.data("DateTimePicker").date(startDate);
+                break;
+
+            case "week":
+                startDate = moment().startOf('isoweek').toDate();
+                endDate = moment().endOf('isoweek').toDate();
+                $analysisDatePicker.data("DateTimePicker").format('YYYY/MM/DD');
+                $analysisDatePicker.data("DateTimePicker").date(startDate);
+                break;
+
+            case "month":
+                startDate = moment().startOf('month').toDate();
+                endDate = moment().endOf('month').toDate();
+                $analysisDatePicker.data("DateTimePicker").format('YYYY/MM');
+                $analysisDatePicker.data("DateTimePicker").date(startDate);
+                break;
+
+            case "year":
+                startDate = moment().startOf('year').toDate();
+                endDate = moment().endOf('year').toDate();
+                $analysisDatePicker.data("DateTimePicker").format('YYYY');
+                $analysisDatePicker.data("DateTimePicker").date(startDate);
+                break;
+
+            default:
+                startDate = moment().startOf('day').toDate();
+                endDate = moment().endOf('day').toDate();
+                $analysisDatePicker.data("DateTimePicker").format('YYYY/MM/DD');
+                $analysisDatePicker.data("DateTimePicker").date(startDate);
+                break;
+        }
+
+        var $analysisDateInput = $('#analysisDateinput');
+        $analysisDateInput.data('currentVal', $analysisDatePicker.data("DateTimePicker").date());
+        $analysisDateInput.value = $analysisDateInput.data('currentVal').toDate();
+
+        var analysisPeriod = {
+            dateUnit: wemsAnalysisVM.selectedDateUnit,
+            startDate: startDate.setHours(0, 0, 0, 0),
+            endDate: endDate.setHours(23, 59, 59, 999)
+        }
+
+        refreshAnalysisData(analysisPeriod);
     }
 
     // Initialize Analysis Data
@@ -85,7 +141,7 @@ function WemsAnalysisController($scope, $http) {
 
             if (currentValue == "") {
                 $input.data('currentVal', $input.data('currentVal'));
-                this.value = $input.data('currentVal');
+                $input.value = $input.data('currentVal');
 
                 return;
             }
@@ -104,12 +160,12 @@ function WemsAnalysisController($scope, $http) {
 
                     if (currentValue == "") {
                         $input.data('currentVal', $input.data('currentVal'));
-                        this.value = $input.data('currentVal');
+                        $input.value = $input.data('currentVal');
 
                         return;
                     }
 
-                    this.value = currentValue;
+                    $input.value = currentValue;
                     $input.data('currentVal', currentValue);
 
                     startDate = new Date(currentValue);
@@ -124,7 +180,6 @@ function WemsAnalysisController($scope, $http) {
                 }
             });
 
-        var $analysisDatePicker = $('#analysisDatePicker');
         $analysisDatePicker.datetimepicker({
             format: 'YYYY/MM/DD',
             showClose: true,
@@ -132,18 +187,15 @@ function WemsAnalysisController($scope, $http) {
         })
             .on('dp.change', function () {
                 $analysisDatePicker.data("DateTimePicker").hide();
-                if (!$analysisDatePicker.data("DateTimePicker").date()) {
-                    return;
-                }
-
-                var selectedDate = $analysisDatePicker.data("DateTimePicker").date().toDate();
+                var selectedDate = $analysisDatePicker.data("DateTimePicker").date()
                 if (!selectedDate) {
                     return;
                 }
 
-                startDate = new Date(selectedDate);
-                endDate = new Date(selectedDate);
+                startDate = new Date(selectedDate.startOf(wemsAnalysisVM.selectedDateUnit));
+                endDate = new Date(selectedDate.endOf(wemsAnalysisVM.selectedDateUnit));
                 period = {
+                    dateUnit: wemsAnalysisVM.selectedDateUnit,
                     startDate: startDate.setHours(0, 0, 0, 0),
                     endDate: endDate.setHours(23, 59, 59, 999)
                 }
@@ -864,51 +916,54 @@ function WemsAnalysisController($scope, $http) {
 
     // Change Date Unit
     function onChangeDateUnitHandler() {
-        var analysisPeriod = getAnalysisPeriod(wemsAnalysisVM.selectedDateUnit);
-        refreshAnalysisData(analysisPeriod);
-    }
-
-    // Get Analysis Period
-    function getAnalysisPeriod(selectedDateUnit) {
-        var period;
-        var currentDate = new Date();
         var startDate;
         var endDate;
+        $analysisDatePicker.data("DateTimePicker").clear();
 
-        switch (selectedDateUnit) {
+        switch (wemsAnalysisVM.selectedDateUnit) {
             case "day":
-                startDate = new Date();
-                endDate = new Date();
+                startDate = moment().startOf('day').toDate();
+                endDate = moment().endOf('day').toDate();
+                $analysisDatePicker.data("DateTimePicker").format('YYYY/MM/DD');
+                $analysisDatePicker.data("DateTimePicker").date(startDate);
                 break;
 
             case "week":
                 startDate = moment().startOf('isoweek').toDate();
                 endDate = moment().endOf('isoweek').toDate();
+                $analysisDatePicker.data("DateTimePicker").format('YYYY/MM/DD');
+                $analysisDatePicker.data("DateTimePicker").date(startDate);
                 break;
 
             case "month":
                 startDate = moment().startOf('month').toDate();
                 endDate = moment().endOf('month').toDate();
+                $analysisDatePicker.data("DateTimePicker").format('YYYY/MM');
+                $analysisDatePicker.data("DateTimePicker").date(startDate);
                 break;
 
             case "year":
                 startDate = moment().startOf('year').toDate();
                 endDate = moment().endOf('year').toDate();
+                $analysisDatePicker.data("DateTimePicker").format('YYYY');
+                $analysisDatePicker.data("DateTimePicker").date(startDate);
                 break;
 
             default:
-                startDate = new Date();
-                endDate = new Date();
+                startDate = moment().startOf('day').toDate();
+                endDate = moment().endOf('day').toDate();
+                $analysisDatePicker.data("DateTimePicker").format('YYYY/MM/DD');
+                $analysisDatePicker.data("DateTimePicker").date(startDate);
                 break;
         }
 
-        period = {
-            dateUnit: selectedDateUnit,
+        var analysisPeriod = {
+            dateUnit: wemsAnalysisVM.selectedDateUnit,
             startDate: startDate.setHours(0, 0, 0, 0),
             endDate: endDate.setHours(23, 59, 59, 999)
         }
 
-        return period;
+        refreshAnalysisData(analysisPeriod);
     }
 
     // Get X Scale Label String
