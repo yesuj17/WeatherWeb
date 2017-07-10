@@ -2,98 +2,224 @@
     .module('pdasAnalysisApp', ['chart.js'])
     .controller('pdasAnalysisController', ['$scope', '$http', pdasAnalysisController]);
 
+const MACHINE_MAX_COUNT = 9999999;
+
+var currentTrendChart;
+var orgCurrentData = {};
 function pdasAnalysisController($scope, $http) {
-    initializeAnalysisData($scope, $http);
-}   
-
-// Initialize Analysis Data
-function initializeAnalysisData($scope,  $http) {
-    initializeCurrentTrendData($scope,  $http);
-}
-
-function initializeCurrentTrendData($scope,  $http) {
-    var canvasObj = document.getElementById('currentTrendChart');
-    
-    // Chart.defaults.global.defaultFontColor = 'white';
-    var myChart = new Chart(canvasObj, {
-        type: 'line',
-        data: GetCurrentTrendDataNew(null, $http),
-        options: {
-            responsive: true,
-            hoverMode: 'index',
-            stacked: false,
-            title:{
-                display: true,
-                text:'전류 Trend 분석'
-            },
-            legend: {
-                labels: {
-                    // This more specific font property overrides the global property
-                    fontColor: 'white'
-                }
-            }, 
-            scales: {    
-                yAxes: [{
-                    type: "linear", // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
-                    display: true,
-                    position: "left",
-                    id: "y-axis-1",
-                }, {
-                    type: "linear", // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
-                    display: true,
-                    position: "right",
-                    id: "y-axis-2",
-                    // grid line settings
-                    gridLines: {
-                        drawOnChartArea: false, // only want the grid lines for one axis to show up
-                    },
-                }],
-            }
-        }
-    });
-}
-
-function initializePerformanceData($scope) {
-
-}
-
-function initializePerformanceTrendData($scope) {
-    
-}
-
-function randomScalingFactor() {
-    return Math.round(Math.random() * (30-20) + 20);
-};
-
-var chartColors = ['rgb(255, 99, 132)','rgb(255, 159, 64)','rgb(255, 205, 86)','rgb(75, 192, 192)','rgb(54, 162, 235)','rgb(153, 102, 255)','rgb(201, 203, 207)'];
-function GetCurrentTrendDataNew(period,  $http) {
-    if(!$http)
-        return null;
-
-    var url = "/pdas/dataAnalysis";
-    if(period)
-        url = "/pdas/dataAnalysis/" + preiod;
-
-    var chartData = {
-        labels : [],
-        datasets : []
+    $scope.period = [{title: '당일',  value: 1   },
+                     {title: '1주',   value: 7   },
+                     {title: '1개월', value: 30  },
+                     {title: '3개월', value: 90  },
+                     {title: '1년',   value: 365 }
+    ];
+    $scope.selectedPeriod = $scope.period[0];
+    $scope.machines = ['aa','bb'];
+    $scope.selectedMachine = [];
+    $scope.selectMachineSettings = {displayProp:'title'};
+    $scope.motorType = {
+        DrivingMotor: 'DrivingMotor',
+        HoistingMotor: 'HoistingMotor',
+        ForkMotor: 'ForkMotor'
     };
 
-    $http.get(url).success(function (res) {
-        chartData.labels = res.currentTrendData.labels;
-        var cnt = 1;
-        res.currentTrendData.dataSets.forEach(function(datasetPerMotor) {
-            var color = chartColors.pop();
-            var dataset = {
-                label : datasetPerMotor.title,
-                data  : datasetPerMotor.data,
-                borderColor : color,
-                backgroundColor : color,
-                fill: false,
-                yAxisID: 'y-axis-' + cnt
+    initializePdasAnalysisApp($scope, $http);
+
+    $scope.selectPeriod = function () {
+        // Step 1. 선택된 기간의 분석데이터 수집
+        getAnalysisData($scope.selectedPeriod.value, $http, updateAnalysisContents);
+        // Step 2. 컨텐츠 별로 챠트 업데이트
+        function updateAnalysisContents(err, anaysisData){
+            if(err) {}
+            else {
+                createMachineInfo($scope, anaysisData.Machines);
+                updateCurrentTrendChart($scope, anaysisData.CurrentData);
             }
-            chartData.datasets.push(dataset);
-        });
+        }
+    }
+
+    $scope.filteringCurrentData = function () {
+        var targetMachine = $scope.selectedMachine.value;
+        var targetDatasets = [];
+
+        removeCurrentTrendChartData();
+        var cpyCurrentData = {
+            labels   : orgCurrentData.labels.slice(0),
+            datasets : orgCurrentData.datasets.slice(0)
+        }
+        cpyCurrentData.datasets.forEach(selectDataSets);
+        function selectDataSets(dataset) {
+            var machineNo = dataset.label.split('_')[0];
+            if (machineNo != targetMachine && targetMachine != MACHINE_MAX_COUNT) {
+                return;
+            }
+            var motorType = dataset.label.split('_')[1];
+            if (motorType != $scope.motorType.DrivingMotor
+                && motorType != $scope.motorType.HoistingMotor
+                && motorType != $scope.motorType.ForkMotor) {
+                return;
+            }
+            targetDatasets.push(dataset);
+        }
+        currentTrendChart.data.labels = cpyCurrentData.labels;
+        currentTrendChart.data.datasets = targetDatasets;
+        currentTrendChart.update();
+    }
+}
+
+function createMachineInfo($scope, machineDatas) {
+    $scope.machines.splice(0);
+    $scope.machines.push({title : '전체', value : MACHINE_MAX_COUNT });
+    machineDatas.forEach(function(machineNo) {
+        var machineInfo = new Object();
+        machineInfo.title = machineNo + '호기';
+        machineInfo.value = machineNo;
+        $scope.machines.push(machineInfo);
     });
+    $scope.selectedMachine = $scope.machines[0];
+}
+// Initialize Analysis Data
+function initializePdasAnalysisApp($scope, $http) {
+    // Step 1. 분석 Data 수집
+    getAnalysisData($scope.period[0].value, $http, createAnalysisContents);
+    // Step 2. 컨텐츠 별로 챠트 생성
+    function createAnalysisContents(err, anaysisData){
+        if(err) {}
+        else {
+            createMachineInfo($scope, anaysisData.Machines);
+            createCurrentTrendChart($scope, anaysisData.CurrentData);
+        }
+    }
+}
+
+function createCurrentTrendChart($scope, currentData) {
+    var chartData = createCurrentChartDatasets($scope, currentData);
+    var chartConfig = {
+        type: 'line',
+        data: chartData,
+        options: currentTrendChartOption
+    }
+    var canvasObj = document.getElementById('currentTrendChart');
+    currentTrendChart = new Chart(canvasObj, chartConfig);
+}
+
+function updateCurrentTrendChart($scope, currentData) {
+    var chartData = createCurrentChartDatasets($scope, currentData);
+    //remove
+    removeCurrentTrendChartData();
+    currentTrendChart.data = chartData;
+    $scope.filteringCurrentData($scope);
+    //currentTrendChart.update();
+}
+
+function removeCurrentTrendChartData() {
+    currentTrendChart.data.labels.pop();
+    currentTrendChart.data.datasets.pop();
+}
+
+function createCurrentChartDatasets($scope, currentData) {
+    var chartData = {
+        labels: [],
+        datasets: []
+    };
+    var targetMachine = $scope.selectedMachine.value;
+    chartData.labels = currentData.labels;
+    currentData.dataSets.forEach(function (datasetPerMotor) {
+        var color = getRandomColor();
+        var dataset = {
+            label: datasetPerMotor.label,
+            data: datasetPerMotor.datas,
+            borderColor: color,
+            fill: false,
+        }
+        chartData.datasets.push(dataset);
+    });
+    orgCurrentData.labels   = chartData.labels.slice(0);
+    orgCurrentData.datasets = chartData.datasets.slice(0);
+
     return chartData;
+}
+
+function getAnalysisData(period, $http, callback) {
+    if (!$http)
+        return null;
+    url = "/pdas/dataAnalysis/" + period;
+    $http.get(url).success(function (res) {
+        return callback(null, res);
+    });
+}
+
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
+var currentTrendChartOption = {
+    responsive: true,
+    maintainAspectRatio: false,
+    title: {},
+    legend: {
+        position: 'bottom',
+        display: true,
+        fullWidth: false,
+        labels: {
+            fontColor: 'white',
+            fontSize: 9
+        }   
+    },
+    tooltips: {
+
+        itemSort: function (i0, i1) {
+            var v0 = i0.y;
+            var v1 = i1.y;
+            return (v0 < v1) ? -1 : (v0 > v1) ? 1 : 0;
+        }
+    },
+    elements: {
+        point: {
+            radius : 0.8
+        },
+        line: {
+            tension: 0,
+            borderWidth: 0.8
+        }
+    },
+    scales: {
+        xAxes: [{
+            type:'time',
+            gridLines: { display: false },
+            scaleLabel: {
+                display: false,
+                labelString: '(time)'
+            },
+            time: {
+                //unit: 'minute',
+            },
+            ticks: {
+                display: true,
+                fontColor: 'white',
+                fontSize: 9
+            }
+        }],
+        yAxes: [{
+            type: "linear",
+            display: true,
+            position: "left",
+            scaleLabel: {
+                display: true,
+                fontSize: 9,
+                fontColor: 'white',
+                labelString: '(Am)'
+            },
+            ticks: {
+                beginAtZero: false,
+                fontColor: 'white',
+                fontSize: 9
+            }
+        }]
+    }
 }

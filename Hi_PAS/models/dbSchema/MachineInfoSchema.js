@@ -7,4 +7,4 @@ var MachineInfoSchema = new Schema({
     ID  : Number
 });
 
-module.exports = mongoose.model('MachineInfoSchema', MachineInfoSchema);
+module.exports = mongoose.model('MachineInfoSchema', MachineInfoSchema, "MachineInfo");

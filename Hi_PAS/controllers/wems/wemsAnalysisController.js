@@ -16,43 +16,11 @@ function WemsAnalysisController($scope, $http) {
     wemsAnalysisVM.powerEfficiencyRows = [];
     wemsAnalysisVM.analysisDataRows = [];
     wemsAnalysisVM.analysisPeriod;
-    wemsAnalysisVM.dateUnit = "day";
 
-    wemsAnalysisVM.onChangeDateUnit = function (value) {
-        switch (value) {
-            case "day":
-                alert("day");
-                break;
-            case "week":
-                alert("week");
-                break;
-            case "month":
-                alert("month");
-                break;
-            case "year":
-                alert("year");
-                break;
-        }
-    }
+    wemsAnalysisVM.onChangeDateUnit = onChangeDateUnitHandler;
 
-    /* XXX
-    wemAnalysisVM.changeDateUnit = function () {
-            switch (wemsAnalysisVM.dateUnit) {
-                case "day":
-                    alert("day");
-                    break;
-                case "week":
-                    alert("week");
-                    break;
-                case "month":
-                    alert("month");
-                    break;
-                case "year":
-                    alert("year");
-                    break;
-            }
-        }
-    */
+    initializeComponentEventHandler();
+
     //////////////////////////////////////////////////////////////////////
     // On Show Wems Detail Modal 
     function onShowWemsDetailModal() {
@@ -61,11 +29,54 @@ function WemsAnalysisController($scope, $http) {
 
     // Initialize Analysis Data
     function initializeAnalysisData() {
+        wemsAnalysisVM.selectedDateUnit = "day";
+
         var startDate = new Date();
         startDate.setHours(0, 0, 0, 0);
         var endDate = new Date();
         endDate.setHours(23, 59, 59, 999);
 
+        wemsAnalysisVM.analysisPeriod = getTimeStamp(startDate) + " ~ " + getTimeStamp(endDate);
+        getAnalysisData()
+            .then(function (res, status, headers, config) {
+                initializePowerData(res.data);
+                initializeCumulativeCycleTimeData(res.data);
+                initializePowerEfficiency(res.data);
+                initializeAnalysisSummayData(res.data);
+            })
+            .catch(function (e) {
+                var newMessage = 'XHR Failed for getPowerData'
+                if (e.data && e.data.description) {
+                    newMessage = newMessage + '\n' + e.data.description;
+                }
+
+                e.data.description = newMessage;
+                /// logger.error(newMessage);
+            });
+    }
+
+    // Initialize Power Data
+    function initializePowerData(analysisDataSet) {
+        refreshPowerData(analysisDataSet);
+    }
+
+    // Initialize Cumulative Cycle Time Data
+    function initializeCumulativeCycleTimeData(analysisDataSet) {
+        refreshCumulativeCycleTimeData(analysisDataSet);
+    }
+
+    // Initialize Power Efficiency
+    function initializePowerEfficiency(analysisDataSet) {
+        refreshPowerEfficiency(analysisDataSet);
+    }
+
+    function initializeAnalysisSummayData(analysisDataSet) {
+        refreshAnalysisSummary(analysisDataSet);
+    }
+
+    function initializeComponentEventHandler() {
+        var startDate;
+        var endDate;
         var $analysisDateInput = $('#analysisDateinput');
         $analysisDateInput.data('currentVal', $analysisDateInput.val());
         $analysisDateInput.change(function () {
@@ -104,6 +115,7 @@ function WemsAnalysisController($scope, $http) {
                     startDate = new Date(currentValue);
                     endDate = new Date(currentValue);
                     period = {
+                        dateUnit: wemsAnalysisVM.selectedDateUnit,
                         startDate: startDate.setHours(0, 0, 0, 0),
                         endDate: endDate.setHours(23, 59, 59, 999)
                     }
@@ -118,63 +130,26 @@ function WemsAnalysisController($scope, $http) {
             showClose: true,
             defaultDate: new Date(),
         })
-        .on('dp.change', function () {
-            $analysisDatePicker.data("DateTimePicker").hide();
-            if (!$analysisDatePicker.data("DateTimePicker").date()) {
-                return;
-            }
-
-            var selectedDate = $analysisDatePicker.data("DateTimePicker").date().toDate();
-            if (!selectedDate) {
-                return;
-            }
-
-            startDate = new Date(selectedDate);
-            endDate = new Date(selectedDate);
-            period = {
-                startDate: startDate.setHours(0, 0, 0, 0),
-                endDate: endDate.setHours(23, 59, 59, 999)
-            }
-
-            refreshAnalysisData(period);
-        });
-
-        wemsAnalysisVM.analysisPeriod = getTimeStamp(startDate) + " ~ " + getTimeStamp(endDate);
-        getAnalysisData()
-            .then(function (res, status, headers, config) {
-                initializePowerData(res.data);
-                initializeCumulativeCycleTimeData(res.data);
-                initializePowerEfficiency(res.data);
-                initializeAnalysisSummayData(res.data);
-            })
-            .catch(function (e) {
-                var newMessage = 'XHR Failed for getPowerData'
-                if (e.data && e.data.description) {
-                    newMessage = newMessage + '\n' + e.data.description;
+            .on('dp.change', function () {
+                $analysisDatePicker.data("DateTimePicker").hide();
+                if (!$analysisDatePicker.data("DateTimePicker").date()) {
+                    return;
                 }
 
-                e.data.description = newMessage;
-                logger.error(newMessage);
+                var selectedDate = $analysisDatePicker.data("DateTimePicker").date().toDate();
+                if (!selectedDate) {
+                    return;
+                }
+
+                startDate = new Date(selectedDate);
+                endDate = new Date(selectedDate);
+                period = {
+                    startDate: startDate.setHours(0, 0, 0, 0),
+                    endDate: endDate.setHours(23, 59, 59, 999)
+                }
+
+                refreshAnalysisData(period);
             });
-    }
-
-    // Initialize Power Data
-    function initializePowerData(analysisDataSet) {
-        refreshPowerData(analysisDataSet);
-    }
-
-    // Initialize Cumulative Cycle Time Data
-    function initializeCumulativeCycleTimeData(analysisDataSet) {
-        refreshCumulativeCycleTimeData(analysisDataSet);
-    }
-
-    // Initialize Power Efficiency
-    function initializePowerEfficiency(analysisDataSet) {
-        refreshPowerEfficiency(analysisDataSet);
-    }
-
-    function initializeAnalysisSummayData(analysisDataSet) {
-        refreshAnalysisSummary(analysisDataSet);
     }
 
     // Refresh Analysis Data
@@ -200,7 +175,7 @@ function WemsAnalysisController($scope, $http) {
                 }
 
                 e.data.description = newMessage;
-                logger.error(newMessage);
+                /// logger.error(newMessage);
             });
     }
 
@@ -228,13 +203,24 @@ function WemsAnalysisController($scope, $http) {
                 position: 'top',
                 fontSize: 14
             },
+            animation: {
+                duration: 10,
+            },
+            tooltips: {
+                mode: 'label',
+                callbacks: {
+                    label: function (tooltipItem, data) {
+                        return data.datasets[tooltipItem.datasetIndex].label + ": " + getNumberWithCommas(tooltipItem.yLabel);
+                    }
+                }
+            },
             scales: {
                 xAxes: [{
                     stacked: true,
                     gridLines: { display: false },
                     scaleLabel: {
                         display: true,
-                        labelString: '( hr )'
+                        labelString: getXScaleLabelString(wemsAnalysisVM.selectedDateUnit)
                     }
                 }],
                 yAxes: [{
@@ -301,7 +287,7 @@ function WemsAnalysisController($scope, $http) {
                     gridLines: { display: false },
                     scaleLabel: {
                         display: true,
-                        labelString: '( hr )'
+                        labelString: getXScaleLabelString(wemsAnalysisVM.selectedDateUnit)
                     }
                 }],
                 yAxes: [{
@@ -439,7 +425,7 @@ function WemsAnalysisController($scope, $http) {
                     gridLines: { display: false },
                     scaleLabel: {
                         display: true,
-                        labelString: '( hr )'
+                        labelString: getXScaleLabelString(wemsAnalysisVM.selectedDateUnit)
                     }
                 }],
                 yAxes: [{
@@ -517,10 +503,39 @@ function WemsAnalysisController($scope, $http) {
         var dateLabels = [];
         for (index = 0; index < analysisDataSet.AnalysisData.length; index++) {
             var analysisDate = new Date(analysisDataSet.AnalysisData[index].AnalysisDate);
-            dateLabels.push(analysisDate.getHours().toString());
+            dateLabels.push(getDateLabelFromDateUnit(analysisDate));
         }
 
         return dateLabels;
+    }
+
+    // Get DateLabel From Date Unit
+    function getDateLabelFromDateUnit(analysisDate) {
+        var dateLabelFromDateUnit;
+        switch (wemsAnalysisVM.selectedDateUnit) {
+            case "day":
+                dateLabelFromDateUnit
+                    = analysisDate.getHours().toString();
+                break;
+
+            case "week":
+            case "month":
+                dateLabelFromDateUnit
+                    = moment(analysisDate.toString()).format('YYYY/MM/DD');
+                break;
+
+            case "year":
+                dateLabelFromDateUnit
+                    = moment(analysisDate.toString()).format('YYYY/MM');
+                break;
+
+            default:
+                dateLabelFromDateUnit
+                    = analysisDate.getHours().toString();
+                break;
+        }
+
+        return dateLabelFromDateUnit;
     }
 
     // Get Device Label
@@ -848,7 +863,77 @@ function WemsAnalysisController($scope, $http) {
     }
 
     // Change Date Unit
-    function changeDateUnitHandler() {
+    function onChangeDateUnitHandler() {
+        var analysisPeriod = getAnalysisPeriod(wemsAnalysisVM.selectedDateUnit);
+        refreshAnalysisData(analysisPeriod);
+    }
+
+    // Get Analysis Period
+    function getAnalysisPeriod(selectedDateUnit) {
+        var period;
+        var currentDate = new Date();
+        var startDate;
+        var endDate;
+
+        switch (selectedDateUnit) {
+            case "day":
+                startDate = new Date();
+                endDate = new Date();
+                break;
+
+            case "week":
+                startDate = moment().startOf('isoweek').toDate();
+                endDate = moment().endOf('isoweek').toDate();
+                break;
+
+            case "month":
+                startDate = moment().startOf('month').toDate();
+                endDate = moment().endOf('month').toDate();
+                break;
+
+            case "year":
+                startDate = moment().startOf('year').toDate();
+                endDate = moment().endOf('year').toDate();
+                break;
+
+            default:
+                startDate = new Date();
+                endDate = new Date();
+                break;
+        }
+
+        period = {
+            dateUnit: selectedDateUnit,
+            startDate: startDate.setHours(0, 0, 0, 0),
+            endDate: endDate.setHours(23, 59, 59, 999)
+        }
+
+        return period;
+    }
+
+    // Get X Scale Label String
+    function getXScaleLabelString(selectedDateUnit) {
+        var xScaleLabelString = '( hr )';
+        switch (selectedDateUnit) {
+            case "day":
+                xScaleLabelString = '( hr )';
+                break;
+
+            case "week":
+            case "month":
+                xScaleLabelString = '( day )';
+                break;
+
+            case "year":
+                xScaleLabelString = '( month )';
+                break;
+
+            default:
+                xScaleLabelString = '( hr )';
+                break;
+        }
+
+        return xScaleLabelString;
     }
 }   
 

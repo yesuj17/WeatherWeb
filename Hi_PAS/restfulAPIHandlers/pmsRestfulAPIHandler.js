@@ -7,6 +7,27 @@ var motherjson = require("../models/pms/mother.json");
 var multer = require('multer')
 var xlstojson = require("xls-to-json-lc");
 var xlsxtojson = require("xlsx-to-json-lc");
+
+module.exports.loginUserData = function (req, res) {
+
+}
+
+module.exports.addUserLevelData = function (req, res) {
+    var param = {
+        'level': req.body.level,
+        'levelName': req.body.levelName
+    };
+
+    dbManager.insertUserLevelData(param, function (result, err) {
+        if (result) {
+            res.end();
+        }
+        else {
+            res.status(505).json({ error: err });
+        }
+    })
+}
+
 module.exports.addUserData = function (req, res) {
     var param = {
         'userName': req.body.userName,
@@ -23,53 +44,33 @@ module.exports.addUserData = function (req, res) {
         }
     });
 }
-module.exports.AddMotherData = function (req, res) {
-    //모수가 json으로 입력됨,post 방식.
-    console.log("AddMotherData 실행");
-    var motherdata = JSON.parse(JSON.stringify(req.body));
-    saveMotherDataJsonToDB(motherdata);
-}
-saveMotherDataJsonToDB = function (input)
-{
-    dbManager.InsertMotherdata(input, function (result, err) {
-        if (result == 1/*정상처리*/) {
-            console.log("[AddMotherData]data 정상 처리");
-          
-        }
-        else if (result == 2/*중복 발생*/) {
-            console.log("[AddMotherData]중복 발생");
-            
-        }
-        else if (result == 3/*findone error 발생*/) {
-            console.log("[AddMotherData]findone error 발생");
-          //res.status(505).json({ error: err });
-        }
-        else if (result == 4/*InsertData가 null*/) {
-            console.log("[AddMotherData]InsertData가 null");
-          
-        }
-        else if (result == 5/*Model save 실패*/) {
-            console.log("[AddMotherData]model save 실패");
-           
-        }
-        else {
-            console.log("[AddMotherData] 뭐.");
-           
-        }
-    });
-}
-
 
 module.exports.addNoticeData = function (req, res) {
     var param = {
         'noticeTitle': req.body.noticeTitle,
         'noticeDate': req.body.noticeDate,
         'noticeOption': req.body.noticeOption,
-        'noticeUser': req.body.noticeUser,
+        'noticeWriter': req.body.noticeWriter,
         'noticeContent': req.body.noticeContent
     }
 
     dbManager.insertNoticeData(param, function (result, err) {
+        if (result) {
+            res.end();
+        }
+        else {
+            res.status(505).json({ error: err });
+        }
+    })
+}
+
+module.exports.addNoticeUserReadData = function (req, res) {
+    var param = {
+        'noticeId': req.body.noticeId,
+        'noticeReadUser': req.body.noticeReadUser
+    }
+
+    dbManager.insertNoticeUserReadData(param, function (result, err) {
         if (result) {
             res.end();
         }
@@ -96,13 +97,45 @@ module.exports.updateUserData = function (req, res) {
     });
 }
 
-module.exports.getUserDataCount = function (req, res) {
+module.exports.updateNoticeData = function(req, res){
+    var param = {
+        'noticeId': req.body.noticeId,
+        'noticeContent': req.body.noticeContent
+    };
+
+    dbManager.updateNoticeData(param, function (result, err) {
+        if (result) {
+            res.end();
+        }
+        else {
+            res.status(505).json({ error: err });
+        }
+    });
+}
+
+module.exports.getLoginData = function (req, res) {
+    var param = {
+        'UserName': req.query.UserName
+    };
+
+    dbManager.findUserData(param, function (result, err, user) {
+        if (result) {
+            req.session.user = user;
+            res.redirect('/');
+        }
+        else {
+            res.redirect('/');
+        }
+    });
+}
+
+module.exports.getUsersDataCount = function (req, res) {
     var param = {
         'filterValue': req.query.filter,
         'searchValue': req.query.search
     };
 
-    dbManager.findUserDataCount(param, function (result, err, count) {
+    dbManager.findUsersDataCount(param, function (result, err, count) {
         if (result) {
             res.send({ 'Count': count });
         }
@@ -112,8 +145,7 @@ module.exports.getUserDataCount = function (req, res) {
     });
 }
 
-module.exports.getUserData = function (req, res) {
-
+module.exports.getUsersData = function (req, res) {
     var param = {
         'pageSizeValue': req.query.pageSize,
         'pageIndexValue': req.query.pageIndex,
@@ -121,7 +153,7 @@ module.exports.getUserData = function (req, res) {
         'searchValue': req.query.search
     };
 
-    dbManager.findUserData(param, function (result, err, users) {
+    dbManager.findUsersData(param, function (result, err, users) {
         if (result) {
             var userArray = [];
             for (var index in users) {
@@ -143,13 +175,11 @@ module.exports.getUserData = function (req, res) {
     });
 }
 
-module.exports.getNoticeDataCount = function (req, res) {
+module.exports.getNoticesDataNewCount = function (req, res) {
     var param = {
-        'filterValue': req.query.filter,
-        'searchValue': req.query.search
+        'userValue': req.query.user
     };
-
-    dbManager.findNoticeDataCount(param, function (result, err, count) {
+    dbManager.findNoticesDataNewCount(param, function (result, err, count) {
         if (result) {
             res.send({ 'Count': count });
         }
@@ -159,26 +189,61 @@ module.exports.getNoticeDataCount = function (req, res) {
     });
 }
 
-module.exports.getNoticeData = function (req, res) {
+module.exports.getNoticesDataCount = function (req, res) {
     var param = {
-        'pageSizeValue': req.query.pageSize,
-        'pageIndexValue': req.query.pageIndex,
         'filterValue': req.query.filter,
         'searchValue': req.query.search
     };
 
-    dbManager.findNoticeData(param, function (result, err, notices) {
+    dbManager.findNoticesDataCount(param, function (result, err, count) {
+        if (result) {
+            res.send({ 'Count': count });
+        }
+        else {
+            res.status(505).json({ error: err });
+        }
+    });
+}
+
+module.exports.getNoticesData = function (req, res) {
+    var param = {
+        'pageSizeValue': req.query.pageSize,
+        'pageIndexValue': req.query.pageIndex,
+        'filterValue': req.query.filter,
+        'searchValue': req.query.search,
+        'user': req.query.user
+    };
+
+    dbManager.findNoticesData(param, function (result, err, notices) {
         if (result) {
             var noticeArray = [];
+
             for (var index in notices) {
+                var currentDate = convertDateToString(new Date); //new Date().toISOString().substring(0, 10);
+                var noticeDate = convertDateToString(notices[index].StartDate); //(notices[index].StartDate).toISOString().substring(0, 10);
+                var noticeTime = (notices[index].StartDate).toTimeString().substring(0, 5);
 
                 var pmsNoticeInfo = {};
+                pmsNoticeInfo.NoticeId = notices[index].id;
                 pmsNoticeInfo.NoticeIndex = Number(param.pageSizeValue * param.pageIndexValue) + Number(index);
                 pmsNoticeInfo.NoticeTitle = notices[index].Title;
-                pmsNoticeInfo.NoticeUser = notices[index].UserName;
-                pmsNoticeInfo.NoticeDate = (notices[index].StartDate).toISOString().substring(0, 10);
+                pmsNoticeInfo.NoticeWriter = notices[index].Writer;
+                pmsNoticeInfo.NoticeDate = noticeDate + ' ' + noticeTime;
                 pmsNoticeInfo.NoticeOption = notices[index].Option;
                 pmsNoticeInfo.NoticeContent = notices[index].Content;
+
+                pmsNoticeInfo.NoticeRead = false;
+                for (var readIndex in notices[index].ReadInfo) {
+                    if (notices[index].ReadInfo[readIndex].name == param.user) {
+                        pmsNoticeInfo.NoticeRead = true;
+                        break;
+                    }
+                }
+
+                pmsNoticeInfo.NoticeNew = false;
+                if (currentDate == noticeDate) {
+                    pmsNoticeInfo.NoticeNew = true;
+                }
 
                 noticeArray.push(pmsNoticeInfo);
             }
@@ -207,6 +272,57 @@ module.exports.deleteUserData = function (req, res) {
         }
     });
 }
+
+module.exports.deleteNoticeData = function(req, res){
+    var param = {
+        'noticeId': req.body.noticeId
+    };
+
+    dbManager.deleteNoticeData(param, function (result, err) {
+        if (result) {
+            res.end();
+        }
+        else {
+            res.status(505).json({ error: err });
+        }
+    });
+}
+
+module.exports.AddMotherData = function (req, res) {
+    //모수가 json으로 입력됨,post 방식.
+    console.log("AddMotherData 실행");
+    var motherdata = JSON.parse(JSON.stringify(req.body));
+    saveMotherDataJsonToDB(motherdata);
+}
+saveMotherDataJsonToDB = function (input) {
+    dbManager.InsertMotherdata(input, function (result, err) {
+        if (result == 1/*정상처리*/) {
+            console.log("[AddMotherData]data 정상 처리");
+
+        }
+        else if (result == 2/*중복 발생*/) {
+            console.log("[AddMotherData]중복 발생");
+
+        }
+        else if (result == 3/*findone error 발생*/) {
+            console.log("[AddMotherData]findone error 발생");
+            //res.status(505).json({ error: err });
+        }
+        else if (result == 4/*InsertData가 null*/) {
+            console.log("[AddMotherData]InsertData가 null");
+
+        }
+        else if (result == 5/*Model save 실패*/) {
+            console.log("[AddMotherData]model save 실패");
+
+        }
+        else {
+            console.log("[AddMotherData] 뭐.");
+
+        }
+    });
+}
+
 var storage = multer.diskStorage({ //업로드 된 파일의 저장 장소 정의.
     destination: function (req, file, cb) {
         cb(null, './uploads')
@@ -297,4 +413,17 @@ CoverteforSave = function (rawjson) {
 
 module.exports.pmsrend = function (req, res) {
     res.render('./pms/PMMain');
+}
+
+function convertDateToString(cDate) {
+    var convertDate = null;
+
+    try {
+        convertDate = cDate.getFullYear() + '-' + (cDate.getMonth() + 1) + '-' + cDate.getDate();
+    }
+    catch (err) {
+        console.log(err);
+    }
+
+    return convertDate;
 }

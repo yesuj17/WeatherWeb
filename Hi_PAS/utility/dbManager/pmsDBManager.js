@@ -1,13 +1,51 @@
 ﻿var mongoose = require('mongoose');
 var UserInfoSchema = require('../../models/dbSchema/UserInfoSchema.js');
+var NoticeInfoSchema = require('../../models/dbSchema/NoticeInfoSchema.js');
+var UserLevelSchema = require('../../models/dbSchema/UserLevelSchema.js');
 var motherDataSchema = require('../../models/dbSchema/PMSmotherSchema.js');
+
 // Insert to Mongo DB
-module.exports.insertUserData = function (param, next) {
+module.exports.insertUserLevelData = function (param, next) {
     if (!param) {
         next(false, 'param null');
         return;
     }
 
+    var key = 'Level';
+    var query = UserLevelSchema
+        .findOne()
+        .where(key).equals(param.level);
+
+    query.exec(function (err, userLevel) {
+        if (err) {
+            next(false, err);
+            return;
+        }
+
+        if (userLevel) {
+            next(false, 'level exist');
+            return;
+        }
+
+        userLevel = new UserLevelSchema();
+        userLevel.Level = param.level;
+        userLevel.LevelName = param.levelName;
+
+        userLevel.save(function (err) {
+            if (err) {
+                next(false, err);
+                return;
+            }
+            next(true);
+        });
+    });
+}
+
+module.exports.insertUserData = function (param, next) {
+    if (!param) {
+        next(false, 'param null');
+        return;
+    }
     var key = 'UserName';
     var query = UserInfoSchema
         .findOne()
@@ -48,7 +86,7 @@ module.exports.insertNoticeData = function (param, next) {
     var notice = new NoticeInfoSchema();
     notice.Title = param.noticeTitle;
     notice.Content = param.noticeContent;
-    notice.UserName = param.noticeUser;
+    notice.Writer = param.noticeWriter;
     notice.Option = param.noticeOption
     notice.StartDate = Date.now();
     notice.EndDate = param.noticeDate;
@@ -62,13 +100,44 @@ module.exports.insertNoticeData = function (param, next) {
     })
 }
 
+module.exports.insertNoticeUserReadData = function (param, next) {
+    if (!param) {
+        next(false, 'param null');
+        return;
+    }
+    var key = '_id';
+    var query = NoticeInfoSchema
+        .findOne()
+        .where(key).equals(param.noticeId);
+
+    query.exec(function (err, notice) {
+        if (err) {
+            next(false, err);
+            return;
+        }
+
+        if (!notice) {
+            next(false, 'notice null');
+            return;
+        }
+
+        notice.ReadInfo.push({ name: param.noticeReadUser });
+        notice.save(function (err) {
+            if (err) {
+                next(false, err);
+                return;
+            }
+            next(true);
+        });
+    });
+}
+
 // Update to Mongo DB
 module.exports.updateUserData = function (param, next) {
     if (!param) {
         next(false, 'param null');
         return;
     }
-
     var key = 'UserName';
     var query = UserInfoSchema
         .findOne()
@@ -98,13 +167,46 @@ module.exports.updateUserData = function (param, next) {
     });
 }
 
-// Select from Mongo DB
-module.exports.findUserDataCount = function (param, next) {
+module.exports.updateNoticeData = function(param, next){
     if (!param) {
         next(false, 'param null');
         return;
     }
 
+    var key = '_id';
+    var query = NoticeInfoSchema
+        .findOne()
+        .where(key).equals(param.noticeId);
+
+    query.exec(function (err, notice) {
+        if (err) {
+            next(false, err);
+            return;
+        }
+
+        if (!notice) {
+            next(false, 'notice null');
+            return;
+        }
+
+        notice.Content = param.noticeContent;
+
+        notice.save(function (err) {
+            if (err) {
+                next(false, err);
+                return;
+            }
+            next(true);
+        });
+    });
+}
+
+// Select from Mongo DB
+module.exports.findUsersDataCount = function (param, next) {
+    if (!param) {
+        next(false, 'param null');
+        return;
+    }
     // make search query
     var filter = param.filterValue;
     var search = '.*' + param.searchValue + '.*';
@@ -129,6 +231,30 @@ module.exports.findUserData = function (param, next) {
         return;
     }
 
+    var query = UserInfoSchema
+        .findOne()
+        .where('UserName').equals(param.UserName);
+
+    query.exec(function (err, user) {
+        if (err) {
+            next(false, err);
+            return;
+        }
+
+        if (!user) {
+            next(false, 'user null');
+            return;
+        }
+
+        next(true, '', user);
+    });
+}
+
+module.exports.findUsersData = function (param, next) {
+    if (!param) {
+        next(false, 'param null');
+        return;
+    }
     // make search query
     var filter = param.filterValue;
     var search = '.*' + param.searchValue + '.*';
@@ -152,11 +278,31 @@ module.exports.findUserData = function (param, next) {
         }
 
         next(true, '', user);
-    })
-
-    return true;
+    });
 }
-module.exports.findNoticeDataCount = function (param, next) {
+
+module.exports.findNoticesDataNewCount = function (param, next) {
+    if (!param) {
+        next(false, 'param null');
+        return;
+    }
+
+    var query = NoticeInfoSchema
+        .find()
+        .where('ReadInfo.name')
+        .nin(param.userValue)
+        .count();
+
+    query.exec(function (err, count) {
+        if (err) {
+            next(false, err);
+            return;
+        }
+        next(true, '', count);
+    });
+}
+
+module.exports.findNoticesDataCount = function (param, next) {
     if (!param) {
         next(false, 'param null');
         return;
@@ -179,7 +325,7 @@ module.exports.findNoticeDataCount = function (param, next) {
     });
 }
 
-module.exports.findNoticeData = function (param, next) {
+module.exports.findNoticesData = function (param, next) {
     if (!param) {
         next(false, 'param null');
         return;
@@ -194,7 +340,8 @@ module.exports.findNoticeData = function (param, next) {
         .find()
         .where(filter).regex(search)
         .skip(index)
-        .limit(size);
+        .limit(size)
+        .sort({Option: -1, StartDate: -1});
 
     query.exec(function (err, notice) {
         if (err) {
@@ -216,7 +363,6 @@ module.exports.deleteUserData = function (param, next) {
         next(false, 'param null');
         return;
     }
-
     var key = 'UserName';
     var query = UserInfoSchema
         .findOne()
@@ -234,6 +380,37 @@ module.exports.deleteUserData = function (param, next) {
         }
 
         user.remove(function (err) {
+            if (err) {
+                next(false, err);
+                return;
+            }
+            next(true);
+        });
+    });
+}
+
+module.exports.deleteNoticeData = function (param, next) {
+    if (!param) {
+        next(false, 'param null');
+        return;
+    }
+    var key = '_id';
+    var query = NoticeInfoSchema
+        .findOne()
+        .where(key).equals(param.noticeId);
+
+    query.exec(function (err, notice) {
+        if (err) {
+            next(false, err);
+            return;
+        }
+
+        if (!notice) {
+            next(false, 'notice null');
+            return;
+        }
+
+        notice.remove(function (err) {
             if (err) {
                 next(false, err);
                 return;
@@ -296,4 +473,64 @@ module.exports.InsertMotherdata = function (InputmotherData, next) {
             next(1, 'success save');
         }
     });
+}
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Initialize Default Data
+module.exports.onDefaultUserData = function (param) {
+    var query = UserInfoSchema
+        .findOne()
+        .where('UserLevel').equals(param.UserName);
+
+    query.exec(function (err, user) {
+        if (err) {
+            next(false, err);
+            return;
+        }
+
+        if (user) {
+            return;
+        }
+
+        user = new UserInfoSchema();
+        user.UserName = param.UserName;
+        user.UserLevel = param.UserLevel;
+        user.save(function (err) {
+            if (err) {
+                return;
+            }
+        });
+    });
+}
+
+module.exports.onDefaultUserLevelData = function (param) {
+    var save = function (param) {
+        var query = UserLevelSchema
+            .findOne()
+            .where('LevelName').equals(param.LevelName);
+
+        query.exec(function (err, userLevel) {
+            if (err) {
+                return;
+            }
+            if (userLevel) {
+                return;
+            }
+
+            userLevel = UserLevelSchema();
+            userLevel.LevelName = param.LevelName;
+            userLevel.save(function (err) {
+                if (err) {
+                    return;
+                }
+            });
+        });
+    }
+
+    for (var index in param) {
+        save(param[index])
+    }
 }

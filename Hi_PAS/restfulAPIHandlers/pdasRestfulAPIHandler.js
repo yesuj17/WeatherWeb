@@ -7,12 +7,13 @@ module.exports.PdAS = function (req, res) {
 }
 
 module.exports.DataAnalysis = function (req, res) {
-    var period = req.body.period;
-    period = 1;
+    var period = parseInt(req.params.period);
+    if(!period)
+        period = 1;
+
     var now = getTimeStamp();
     var fromDate = new Date(now);
-    var toDate   = new Date(now);
-    var interval = 0;
+    var toDate = new Date(now);
 
     fromDate.setUTCDate(fromDate.getUTCDate() - (period - 1));
     fromDate.setUTCHours(0);
@@ -20,28 +21,69 @@ module.exports.DataAnalysis = function (req, res) {
     fromDate.setUTCSeconds(0);
     fromDate.setUTCMilliseconds(0);
 
-    switch (period) {
-        case 1: interval = period * 900000; break;  // 당일 선택시 15분단위로 Data get
-        case 7: interval = period * 3600000; break;  // 일주일 선택시 6시간 단위로 
-        case 30:
-        case 90:  interval = period * 3600000; break;  // 한달/3달 선택시 6시간 단위로
-        case 365: interval = period * 86400000; break;  // 1년 선택시 하루 단위로
-        default: interval = period * 600000;
-    }
-
-    //pdasDBManager.FindCurrentData(fromDate, toDate, period, setResponseData);
-
-    function setResponseData(err, datas) {
+    pdasDBManager.getCurrentTrendData(fromDate, toDate, period, responseCurrentTrend);
+    function responseCurrentTrend(err, datas) {
         if (err) {
-            //console.log(err.message);
-            //res.status(500).send('Data find failure');
+            return res.status(500).send(err);
         }
         else {
-
+            var resDataSets = {
+                Machines: [],
+                CurrentData : {
+                    labels: [],
+                    dataSets: []
+                },
+                PerformanceData : {},
+                CycleTimeData : {}
+            };
+            var intervals = [];
+            var machines = [];
+            var motorInx = [];
+            var tmpArr = [];
+            datas.forEach(setLabels);
+            function setLabels(element) {
+                if (intervals.indexOf(element._id.timeKey.toUTCString()) < 0) {
+                    intervals.push(element._id.timeKey.toUTCString());
+                    resDataSets.CurrentData.labels.push((element._id.timeKey));
+                    tmpArr.push(0);
+                }
+                if (machines.indexOf(element._id.MachineID) < 0) {
+                    machines.push(element._id.MachineID);
+                }
+            }
+            resDataSets.Machines = machines;
+            var motors = ['DrivingMotor', 'HoistingMotor', 'ForkMotor']
+            var inx = 0;
+            for (var i in machines) {
+                motorInx.push(inx);
+                for (var cnt = 0; cnt < 3; cnt++) {
+                    var dataset = new Object;
+                    dataset.label = machines[i] + '_' + motors[cnt];
+                    dataset.datas = tmpArr.slice(0);
+                    resDataSets.CurrentData.dataSets.push(dataset);
+                    inx++;
+                }
+            }
+            for (var ipx in intervals) {
+                datas.forEach(setDataSets);
+                function setDataSets(element) {
+                    if (intervals[ipx] != element._id.timeKey.toUTCString())
+                        return;
+                    var indx = ipx;
+                    var mcInx = machines.indexOf(element._id.MachineID);
+                    if (mcInx < 0)
+                        return;
+                    var subDatas = resDataSets.CurrentData.dataSets[motorInx[mcInx]].datas;
+                    subDatas[ipx] = element.value.DrivingMotorCurrentAvg;
+                    subDatas = resDataSets.CurrentData.dataSets[motorInx[mcInx]+1].datas;
+                    subDatas[ipx] = element.value.HoistingMotorCurrentAvg;
+                    subDatas = resDataSets.CurrentData.dataSets[motorInx[mcInx] + 2].datas;
+                    subDatas[ipx] = element.value.ForkMotorCurrentAvg;
+                }
+            }
+            return res.json(resDataSets);
         }
     }
-    //console.log(responseData);
-    //res.json(responseData);
 }
 
 module.exports.CurrentData = function (req, res) {

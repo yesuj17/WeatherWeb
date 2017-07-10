@@ -9,7 +9,7 @@ module.exports.updateMachineConfig = function (req, res) {
             res.end();
         }
         else {
-            res.status(505).json({ error: err });
+            res.status(505).json({ error: "Invalid Operation" });
         }
     });
 }
@@ -22,7 +22,7 @@ module.exports.addMachineRealTimeData = function (req, res) {
             res.end();
         }
         else {
-            res.status(505).json({ error: err });
+            res.status(505).json({ error: "Invalid Operation" });
         }
     });
 }
@@ -35,7 +35,7 @@ module.exports.addMachineCycleData = function (req, res) {
             res.end();
         }
         else {
-            res.status(505).json({ error: err });
+            res.status(505).json({ error: "Invalid Operation" });
         }
     });
 }

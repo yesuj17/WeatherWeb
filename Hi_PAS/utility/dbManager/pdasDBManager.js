@@ -5,35 +5,32 @@ var async = require('async');
 // Update to Mongo DB
 // Select from Mongo DB
 // Delete from Mongo DB
-module.exports.FindCurrentData = function (fromDate, toDate, period, FnEnd) {
+module.exports.getCurrentTrendData = function (fromDate, toDate, period, FnEnd) {
     if (!MachineRealTimeDataModel) {
         return FnEnd('Database access failure');
     }
-    console.log('Interval start to:' + fromDate.toISOString() + ' ~ ' + toDate.toISOString());
 
     var mapReduceObj = {};
     mapReduceObj.scope = {
         fromDate: fromDate,
         toDate: toDate,
         period: period,
-        getTimeInterval: getTimeInterval
+        getTimeInterval: getTimeInterval,
     };
     mapReduceObj.query = {
         TimeStamp: { $gt: fromDate, $lte: toDate }
     }
     mapReduceObj.sort = {
-        SCNo: 1,
-        TimeStamp: 1
+        TimeStamp: 1,
+        MachineID: 1
     }
-    mapReduceObj.out = {
-        replace: 'mapReduceExam'
-//      inline: 1        
-    }
-
+    //mapReduceObj.out = {
+    //   replace: 'mapReduceExam'
+    //   //inline: 1
+    //}
     mapReduceObj.map = function () {
-        var timeKey = getTimeInterval(this.TimeStamp, period);;
-        print(timeKey.toString());
-        var key = { timeKey, SCNo: this.SCNo };
+        var timeKey = getTimeInterval(this.TimeStamp, period);
+        var key = { timeKey, MachineID: this.MachineID };
         var value = {
             DrivingMotorCurrent: this.DrivingMotorCurrent,
             DrivingMotorCurrentCnt: 1,
@@ -66,55 +63,57 @@ module.exports.FindCurrentData = function (fromDate, toDate, period, FnEnd) {
     }
     mapReduceObj.finalize = function (key, reducedVal) {
         var result = {
-            SCNo: key.SCNo,
+            MachineID: key.MachineID,
             TimeStamp: key.timeKey,
             DrivingMotorCurrentAvg: reducedVal.DrivingMotorCurrent / reducedVal.DrivingMotorCurrentCnt,
             HoistingMotorCurrentAvg: reducedVal.HoistingMotorCurrent / reducedVal.HoistingMotorCurrentCnt,
             ForkMotorCurrentAvg: reducedVal.ForkMotorCurrent / reducedVal.ForkMotorCurrentCnt
-        }
+        };
         return result;
     }
 
     MachineRealTimeDataModel.mapReduce(mapReduceObj, callback);
     function callback(err, datas, stats) {
         if (err)
-            return FnEnd('MapReduce Error');
+            return FnEnd(err.message);
         else {
-            // Todo
-            // 1. Period에 따라 Interval 결정해서 리턴하는 함수 구현
-            // 2. 쿼리 결과값 Json 포멧으로 저장.
-            return console.log('process time:' + stats.processtime + '(ms), target Data cnt:' + stats.counts.emit);
+            // Todo: 핸들러로 넘겨줄 값 셋팅은 association으로 좀 더 간단히 구현 가능할듯하다.
+            // 시간되면 해볼것.
+            console.log('process time:' + stats.processtime + '(ms), target Data cnt:' + stats.counts.emit);
+            return FnEnd(null, datas);
         }
     }
 }
 
-var getTimeInterval = function(docDate, period) {
+var getTimeInterval = function (docDate, period) {
     var interval = 0;
-    var targetUnit = docDate.getMinutes();
-    if (targetUnit <= 14)
-        interval = 0;
-    else if (targetUnit <= 29)
-        interval = 15;
-    else if (targetUnit <= 44)
-        interval = 30;
-    else
-        interval = 45;
-
     switch (period) {
-        case 1: interval = period * 900000; break;  // 당일 선택시 15분단위로 Data get
-        case 7: interval = period * 3600000; break;  // 일주일 선택시 6시간 단위로 
+        case 1: {
+            interval = Math.floor(docDate.getMinutes() / 15); // 15분간격 전류값 Grouping
+            interval = interval * 15;
+            return (new Date(docDate.getFullYear(), docDate.getMonth(), docDate.getDate(), docDate.getHours(), interval));
+        }
+        case 7: {
+            interval = Math.floor(docDate.getHours() / 2);   // 2시간 간격 전류값 Grouping
+            interval = (interval * 2) + 1;
+            return (new Date(docDate.getFullYear(), docDate.getMonth(), docDate.getDate(), interval, 0, 0));
+        }
         case 30:
-        case 90: interval = period * 3600000; break;  // 한달/3달 선택시 6시간 단위로
-        case 365: interval = period * 86400000; break;  // 1년 선택시 하루 단위로
-        default: interval = period * 600000;
+        case 90: {
+            interval = Math.floor(docDate.getHours() / 8);   // 8시간 간격 전류값 Grouping
+            print(docDate.getHours());
+            interval = (interval * 8) + 1;
+            return (new Date(docDate.getFullYear(), docDate.getMonth(), docDate.getDate(), interval, 0, 0));
+        }
+        case 365: {
+            interval = Math.floor(docDate.getDate() / 3);   // 3일 간격 전류값 Grouping
+            interval = interval * 3;
+            return (new Date(docDate.getFullYear(), docDate.getMonth(), interval, 0, 0, 0));
+        }
+        default: {
+            interval = Math.floor(docDate.getMinutes() / 15);
+            interval = interval * 15;
+            return (new Date(docDate.getFullYear(), docDate.getMonth(), docDate.getDate(), docDate.getHours(), interval));
+        }
     }
-
-    return (new Date(docDate.getFullYear() + '-'
-        + docDate.getMonth() + '-'
-        + docDate.getDate() + 'T'
-        + docDate.getHours() + ':'
-        + interval + ':00:00Z'
-    ));
 }
-
-

@@ -4,8 +4,8 @@ var Schema = mongoose.Schema;
 var MachineErrorDataSchema = new Schema({
     MachineType : String,
     MachineID: Number,
-    CurrDate: { type : Date },
-    JobNo: Number,
+    TimeStamp: { type : Date },
+    JobID: Number,
     ErrCode: Number,
     ErrMsg: String    
 });

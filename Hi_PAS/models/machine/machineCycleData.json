@@ -20,7 +20,6 @@
             "BreakRollerCount": "integer",
             "BreakMCCount": "integer",
             "BreakRectifierCount": "integer"
-
         }
     ],
     "HoistingInfo": [

@@ -46,22 +46,22 @@ var addSeconds = function (currTime, addSeconds) {
 }
 
 var GenerateMachineRealTimeData = function (req, arrMCRealTimeData) {
-    const baseWorkHour = 2;
+    const baseWorkHour = 8;
 
     var periodFrom = new Date(req.body.periodFrom + "T08:00:00Z");  //작업시작시간 초기화
     var periodTo = new Date(req.body.periodTo);
     var SCCnt = req.body.SCCnt;
 
-    for (var tmpDate = new Date(periodFrom); tmpDate <= periodTo; tmpDate.setDate(tmpDate.getDate() + 2)) {
+    for (var tmpDate = new Date(periodFrom); tmpDate <= periodTo; tmpDate.setDate(tmpDate.getDate() + 1)) {
         var timeStamp = new Date(tmpDate);
-        for (var cnt = 1; cnt < (baseWorkHour * 3600); cnt++) {
+        for (var cnt = 1; cnt < (baseWorkHour * 3600); cnt += 1) {
             // dummy data 생성
             var machineRealTimeData = JSON.parse(JSON.stringify(machineRealTimeDataJson));
             machineRealTimeData.MachineID = Math.floor(Math.random() * SCCnt + 1);
 
             var motorInfos = [];
             for (var n = 0; n < 2; n++) {
-                addSeconds(timeStamp, 1);    //time-stamp 2초씩 증가
+                addSeconds(timeStamp, 8);    //time-stamp 2초씩 증가
                 var motorInfo = {
                     TimeStamp: new Date(timeStamp),
                     DrivingCurrent: (Math.random() * (40 - 21)) + 20,

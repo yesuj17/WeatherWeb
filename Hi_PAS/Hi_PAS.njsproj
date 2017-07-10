@@ -174,10 +174,8 @@
     <Content Include="views\pms\PMSHead.jade" />
     <Content Include="views\pms\PMSside.jade" />
     <Content Include="views\wems\wems_detail_analysis.html" />
-    <Content Include="views\wems\wems_detail_analysis.jade" />
     <Content Include="views\wems\wems_detail_layout.jade" />
     <Content Include="views\wems\wems_detail_management.html" />
-    <Content Include="views\wems\wems_detail_management.jade" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="bin\" />
@@ -217,6 +215,7 @@
     <Folder Include="public\js\" />
     <Folder Include="typings\globals\async\" />
     <Folder Include="typings\globals\bootstrap\" />
+    <Folder Include="typings\globals\express-session\" />
     <Folder Include="typings\globals\i18n\" />
     <Folder Include="typings\globals\mongoose\" />
     <Folder Include="typings\globals\ng-grid\" />
@@ -264,6 +263,7 @@
     <TypeScriptCompile Include="typings\globals\cookie-parser\index.d.ts" />
     <TypeScriptCompile Include="typings\globals\debug\index.d.ts" />
     <TypeScriptCompile Include="typings\globals\express-serve-static-core\index.d.ts" />
+    <TypeScriptCompile Include="typings\globals\express-session\index.d.ts" />
     <TypeScriptCompile Include="typings\globals\express\index.d.ts" />
     <TypeScriptCompile Include="typings\globals\i18n\index.d.ts" />
     <TypeScriptCompile Include="typings\globals\jade\index.d.ts" />

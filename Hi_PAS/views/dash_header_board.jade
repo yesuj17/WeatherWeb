@@ -1,10 +1,10 @@
 ﻿.container(style='width: 100%;height: 100%;')
-    #boardManagementModal.modal.fade(role='dialog')
+    #noticeManagementModal.modal.fade(role='dialog')
         .modal-dialog.modal-lg
-            .modal-content(style='width: auto; height: auto; margin-left:-150px') 
+            .modal-content(style='width: 1150px; height: auto; margin-left:-150px') 
                 .modal-header
                     button.close(type='button', data-dismiss='modal') X
-                    h2.modal-title Board Management
+                    h2.modal-title Notice Management
                 .modal-body
                     .container
                         .row
@@ -15,51 +15,136 @@
                                             h4.panel-title
                                             a(data-toggle='collapse', data-parent='#accordion', href='#collapseOne')
                                                 span(style='margin-right: 10px;').glyphicon.glyphicon-folder-close
-                                                | Board
+                                                | Notice
                                     #collapseOne.panel-collapse.collapse.in
                                         ul.list-group
                                             li.list-group-item
-                                                span(style='margin-right: 10px; margin-left: 10px').glyphicon.glyphicon-plus-sign.text-primary
-                                                a(href="#") Add
-                                            li.list-group-item
                                                 span(style='margin-right: 10px; margin-left: 10px').glyphicon.glyphicon-list-alt.text-success 
-                                                a(href="#") List
-                                                span.badge 43
+                                                a(href="#", ng-click="onNoticeList()") List
+                                                span.badge {{noticeNewCount}}
+                                            li.list-group-item
+                                                span(style='margin-right: 10px; margin-left: 10px').glyphicon.glyphicon-plus-sign.text-primary
+                                                a(href="#", ng-click="onNoticeAdd()") Add
+                            #noticeAdd.col-md-10(style='margin-left:-20px; display: none;')
+                                .panel.panel-default
+                                    .panel-heading
+                                        .row
+                                            .col.col-md-6
+                                                h3.panel-title Notice Add
+                                            .col.col-md-6
+                                                .form-inline.pull-right
+                                                    button.btn.btn-default(ng-click="onNoticeSave()") Save
+                                                    button.btn.btn-default(ng-click="onNoticeReset()") Reset
+                                    .panel-body
+                                        .col.col-md-13
+                                            table.table-hover.table-bordered.text-left(style='table-layout:fixed; width:100%;')
+                                                thread
+                                                tr
+                                                    th.col-md-2.text-center Title
+                                                    td
+                                                        input.form-control(style="outline: none;" type='text' ng-model="noticeInfo.title" required)
+                                                tr
+                                                    th.col-md-2.text-center End Date
+                                                    td
+                                                        .input-group.date#datetimepicker
+                                                            span.input-group-addon
+                                                                span.glyphicon.glyphicon-calendar
+                                                            input.form-control(type="text" style="background-color: white;" readonly)
+                                                tr 
+                                                    th.col-md-2.text-center Option
+                                                    td
+                                                        .form-inline
+                                                            select#noticeOption(class="form-control", name="size")
+                                                                option(value="Normal") Normal
+                                                                option(value="Notice") Notice 
+                                                tr
+                                                    th.col-md-2.text-center Writer
+                                                    td
+                                                        input.form-control(style="background-color: white;" type='text' ng-model="noticeInfo.name" readonly)
 
-                            .col-md-9(style='margin-left:-20px;')
+                                            textarea.form-contorl(style="width: 100%; height:200px; resize: none; margin-top: 2px;" ng-model="noticeInfo.content" required)
+                                            
+                            #noticeList.col-md-10(style='margin-left:-20px;')
                                 .panel.panel-default
                                     .panel-heading
                                         .row
                                             .col.col-md-6
                                                 //h3.panel-title Total : 
                                             .col.col-md-6
-                                                .form-inline
-                                                    select#userFilter(class="form-control", name="size")
-                                                            option(value="UserName") Name
-                                                            option(value="UserEmail") E-mail
-                                                            option(value="UserPhone") Phone  
-                                                    input.form-control(type='text', ng-model='searchBoard')
-                                                    button.btn.btn-default(ng-click="onSearchFilterBoard()") Search
+                                                .form-inline.pull-right
+                                                    select#noticeFilter(class="form-control", name="size")
+                                                            option(value="Title") Title
+                                                            option(value="Writer") Writer
+                                                    input.form-control(type='text', ng-model='searchTextNotice')
+                                                    button.btn.btn-default(ng-click="onSearchFilterNotice()") Search
                                     .panel-body
-                                        
                                             .col.col-md-13
-                                                table.table-hover.table-bordered.table-sm.text-left(style='table-layout:fixed; width:100%;')
+                                                table.table-bordered.table-sm.text-left(style='table-layout:fixed; width:100%;')
                                                     thead
                                                     tr
-                                                        th.text-left.col-md-1 No
+                                                        th.text-left.col-md-1   
                                                         th.text-left.col-md-8 Title
-                                                        th.text-left.col-md-2 User
+                                                        th.text-left.col-md-2 Writer
                                                         th.text-left.col-md-2 Date
                                                     tbody
-                                                    tr
-                                                        td.text-left.col-md-1 
-                                                            p 1
-                                                        td.text-left.col-md-8
-                                                            p title
-                                                        td.text-left.col-md-2
-                                                            p user
-                                                        td.text-left.col-md-2
-                                                            p 17-07-02
-                
+                                                    tr(ng-repeat="notice in notices" ng-init="$last && onNoticeRepeatEnd()")
+                                                        td.text-center(colspan="1" ng-if="notice.NoticeOption == 'Notice'")
+                                                            span.label.label-danger Notice
+                                                        td(colspan="3" ng-if="notice.NoticeOption == 'Notice'")
+                                                            table.table.text-left(style='table-layout:fixed; width:100%; margin:0;')
+                                                                tr
+                                                                    td.col-md-8(ng-click="onNoticeTitleOpen($index)")
+                                                                        p(style="font-weight: bold" ng-if="notice.NoticeRead == false") {{notice.NoticeTitle}}
+                                                                            span.label.label-warning(style="margin-left: 5px;" ng-if="notice.NoticeNew == true") new
+                                                                        p(style="font-weight: lighter; color:gray;" ng-if="notice.NoticeRead == true") {{notice.NoticeTitle}}
+                                                                            span.label.label-warning(style="margin-left: 5px;" ng-if="notice.NoticeNew == true") new
+                                                                    td.col-md-2 {{notice.NoticeWriter}}
+                                                                    td.col-md-2 {{notice.NoticeDate}}
+                                                                tr(style="display:none; border-top:1pt solid gray" id="{{'noticeContent' + $index}}")
+                                                                    th(colspan="4")
+                                                                        textarea.form-contorl(id="{{'noticeContentTextArea' + $index}}" style="width: 100%; height:100px; resize: none; border: none; font-weight: normal;" readonly) {{notice.NoticeContent}}
+                                                                        a.pull-left(style="margin-right:5px;" href="#", ng-click="onEditNotice($index)" id="{{'noticeEdit' + $index}}")
+                                                                            button.btn.btn-primary.btn-xs(type='button') edit
+                                                                        a.pull-left(style="margin-right:5px; display: none;" href="#", ng-click="onEditNoticeSubmit($index)" id="{{'noticeEditSubmit' + $index}}")
+                                                                            button.btn.btn-primary.btn-xs(type='button') edit Submit
+                                                                        .carousel.slide.pull-left(id="{{myCarousel + notice.NoticeIndex}}", data-ride='carousel', data-interval="false")
+                                                                            .carousel-inner
+                                                                                .item.active
+                                                                                    a(href="#{{myCarousel + notice.NoticeIndex}}", data-slide='next')
+                                                                                        button.btn.btn-danger.btn-xs(type='button') delete
+                                                                                .item
+                                                                                    button.btn.btn-primary.btn-xs(type='button', ng-click="onDeleteNotice($index)") Yes
+                                                                                    a.btn.btn-success.btn-xs(href="#{{myCarousel + notice.NoticeIndex}}", data-slide='prev') No
+                                                    
+                                                        td.text-center.col-md-1(ng-click="onPlusToMinus($index)" ng-if="notice.NoticeOption == 'Normal'")
+                                                            span.glyphicon.glyphicon-minus(style="display: none;" id="{{'minusButton' + $index}}")
+                                                            span.glyphicon.glyphicon-plus(id="{{'plusButton' + $index}}")
+                                                        td(colspan="3" ng-if="notice.NoticeOption == 'Normal'")
+                                                            table.table.text-left(style='table-layout:fixed; width:100%; margin:0;')
+                                                                tr
+                                                                    td.col-md-8
+                                                                        p(style="font-weight: bold" ng-if="notice.NoticeRead == false") {{notice.NoticeTitle}}
+                                                                            span.label.label-warning(style="margin-left: 5px;" ng-if="notice.NoticeNew == true") new
+                                                                        p(style="font-weight: lighter; color:gray;" ng-if="notice.NoticeRead == true") {{notice.NoticeTitle}}
+                                                                            span.label.label-warning(style="margin-left: 5px;" ng-if="notice.NoticeNew == true") new
+                                                                    td.col-md-2 {{notice.NoticeWriter}}
+                                                                    td.col-md-2 {{notice.NoticeDate}}
+                                                                tr(style="display:none; border-top:1pt solid gray" id="{{'noticeContent' + $index}}")
+                                                                    th(colspan="4")
+                                                                        textarea.form-contorl(id="{{'noticeContentTextArea' + $index}}" style="width: 100%; height:100px; resize: none; border: none; font-weight: normal;" readonly) {{notice.NoticeContent}}
+                                                                        a.pull-left(style="margin-right:5px;" href="#", ng-click="onEditNotice($index)" id="{{'noticeEdit' + $index}}")
+                                                                            button.btn.btn-primary.btn-xs(type='button') edit
+                                                                        a.pull-left(style="margin-right:5px; display: none;" href="#", ng-click="onEditNoticeSubmit($index)" id="{{'noticeEditSubmit' + $index}}")
+                                                                            button.btn.btn-primary.btn-xs(type='button') edit Submit
+                                                                        .carousel.slide.pull-left(id="{{myCarousel + notice.NoticeIndex}}", data-ride='carousel', data-interval="false")
+                                                                            .carousel-inner
+                                                                                .item.active
+                                                                                    a(href="#{{myCarousel + notice.NoticeIndex}}", data-slide='next')
+                                                                                        button.btn.btn-danger.btn-xs(type='button') delete
+                                                                                .item
+                                                                                    button.btn.btn-primary.btn-xs(type='button', ng-click="onDeleteNotice($index)") Yes
+                                                                                    a.btn.btn-success.btn-xs(href="#{{myCarousel + notice.NoticeIndex}}", data-slide='prev') No
+                                                .form-inline.text-center(style="margin-top: 10px;")
+                                                    button.btn.btn-default(ng-click="onNoticeMore()") More
                 .modal-footer
                     button.btn.btn-default(type='button', data-dismiss='modal') Close

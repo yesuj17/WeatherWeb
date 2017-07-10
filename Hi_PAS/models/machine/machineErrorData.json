@@ -3,8 +3,8 @@
         {
             "MachineType" :  "string",
             "MachineID": "integer",
-            "CurrDate": "datetime",
-            "JobNo": "integer",
+            "TimeStamp": "datetime",
+            "JobID": "integer",
             "ErrCode": "integer",
             "ErrMsg": "string"
         }

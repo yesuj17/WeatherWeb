@@ -4,7 +4,7 @@ var machineAnalysisData = require('../models/wems/machineAnalysisData.json');
 
 // GET Restful API Handler
 /* XXX Must Fix Standard Power Data */
-var standardPower = 60000;
+var standardPower = 600000;
 module.exports.getAnalysisData = function (req, res) {
     if (!wemsDBManager) {
         return;
@@ -16,11 +16,13 @@ module.exports.getAnalysisData = function (req, res) {
     endDate.setHours(23, 59, 59, 999);
 
     var period = {
+        dateUnit: "day",
         startDate: startDate,
         endDate: endDate
     }
 
     if (req.query.startDate && req.query.endDate) {
+        period.dateUnit = req.query.dateUnit;
         period.startDate = new Date(+req.query.startDate);
         period.endDate = new Date(+req.query.endDate);
     }
@@ -48,7 +50,7 @@ module.exports.getAnalysisData = function (req, res) {
                     return a.DeviceID - b.DeviceID;
                 });
 
-                var analysisData = generateAnalysisData(machineCycleDataPerDeviceList);
+                var analysisData = generateAnalysisData(machineCycleDataPerDeviceList, period.dateUnit);
                 var anlysisDataSet = JSON.stringify({
                     "DeviceIDList": deviceIDList,
                     "AnalysisData": analysisData
@@ -65,7 +67,7 @@ module.exports.getAnalysisData = function (req, res) {
 // DELETE Restful API Handler
 
 // WEMS Method
-function generateAnalysisData(machineCycleDataPerDeviceList) {
+function generateAnalysisData(machineCycleDataPerDeviceList, dateUnit) {
     var analysisDataList = [];
     machineCycleDataPerDeviceList.forEach(generateAnalysisDataHandler);
     calPowerEfficiencyData(analysisDataList);
@@ -93,7 +95,6 @@ function generateAnalysisData(machineCycleDataPerDeviceList) {
                 return;
             }
 
-            machineCycleData.TotalStartTime.setMinutes(0, 0, 0);
             var powerPerCycle = calPowerDataPerCycle(preMachineCycleData, machineCycleData);
             preMachineCycleData = machineCycleData;
             if (powerPerCycle == 0) {
@@ -101,8 +102,10 @@ function generateAnalysisData(machineCycleDataPerDeviceList) {
             }
 
             var cycleTime = calCycleTimeData(machineCycleData);
+            var analysisStartDate = getAnalysisStartDate(machineCycleData, dateUnit);
+            console.log(analysisStartDate);
             for (index = 0; index < analysisDataList.length; index++) {
-                if (analysisDataList[index].AnalysisDate.getTime() === machineCycleData.TotalStartTime.getTime()) {
+                if (analysisDataList[index].AnalysisDate.getTime() === analysisStartDate.getTime()) {
                     // 해당 날짜의 정보가 있는 경우
                     for (deviceIndex = 0;
                         deviceIndex < analysisDataList[index].AnalysisDataPerDate.length;
@@ -133,7 +136,7 @@ function generateAnalysisData(machineCycleDataPerDeviceList) {
 
             // 해당 날짜의 정보가 없는 경우
             var analysisDate = JSON.parse(JSON.stringify(machineAnalysisData));
-            analysisDate.AnalysisDate = machineCycleData.TotalStartTime;
+            analysisDate.AnalysisDate = analysisStartDate;
             analysisDate.AnalysisDataPerDate = [{
                 MachineID: machineCycleData.MachineID,
                 Power: powerPerCycle,
@@ -145,6 +148,44 @@ function generateAnalysisData(machineCycleDataPerDeviceList) {
         }
     }
 } 
+
+// Get Analysis Start Date
+function getAnalysisStartDate(machineCycleData, dateUnit) {
+    if (!machineCycleData) {
+        return;
+    }
+
+    var analysisStartDate;
+    switch (dateUnit) {
+        case "day":
+            analysisStartDate
+                = new Date(machineCycleData.TotalStartTime.setMinutes(0, 0, 0));
+            break;
+
+        case "week":
+            analysisStartDate
+                = new Date(machineCycleData.TotalStartTime.setHours(0, 0, 0, 0));
+            break;
+
+        case "month":
+            analysisStartDate
+                = new Date(machineCycleData.TotalStartTime.setHours(0, 0, 0, 0));
+            break;
+
+        case "year":
+            var firstDatePerMonth = new Date(machineCycleData.TotalStartTime.setDate(1));
+            analysisStartDate
+                = new Date(firstDatePerMonth.setHours(0, 0, 0, 0));
+            break;
+
+        default:
+            analysisStartDate
+                = new Date(machineCycleData.TotalStartTime.setMinutes(0, 0, 0));
+            break;
+    }
+
+    return analysisStartDate;
+}
 
 // Cal Power Data Per Cycle
 function calPowerDataPerCycle(preMachineCycleData, machineCycleData) {

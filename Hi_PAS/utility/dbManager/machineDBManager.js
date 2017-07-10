@@ -16,6 +16,7 @@ module.exports.addMachineInfo = function (machineInfo, next) {
         .findOne({ ID: machineInfo.ID })            
         .exec(function (err, info) {
             if (err) {
+                console.log(err);
                 next(false);
                 return;                                                                   
             }
@@ -144,6 +145,7 @@ module.exports.addMachineCycleData = function (machineCycleData, next) {
 
     data.save(function (err) {
         if (err) {
+            console.log(err);
             next(false);
             return;
         }
@@ -164,13 +166,14 @@ module.exports.addMachineErrorData = function (machineErrorData, next) {
         var data = new MachineErrorDataSchema();
         data.MachineType = machineErrorData.ErrorInfos[i].MachineType;
         data.MachineID = machineErrorData.ErrorInfos[i].MachineID;
-        data.CurrDate = new Date(machineErrorData.ErrorInfos[i].CurrDate);
-        data.JobNo = machineErrorData.ErrorInfos[i].JobNo;
+        data.TimeStamp = new Date(machineErrorData.ErrorInfos[i].TimeStamp);
+        data.JobID = machineErrorData.ErrorInfos[i].JobID;
         data.ErrCode = machineErrorData.ErrorInfos[i].ErrCode;
         data.ErrMsg = machineErrorData.ErrorInfos[i].ErrMsg;
 
         data.save(function (err) {
             if (err) {
+                console.log(err);
                 next(false);
                 return;
             }

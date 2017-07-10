@@ -16,7 +16,7 @@ var wemsDELETEList;
 /* PdAS Restful API Handler */
 var pdasGETList = [
     ['/pdas', pdasRestfulAPIHandler.PdAS],
-    ['/pdas/dataAnalysis', pdasRestfulAPIHandler.DataAnalysis],
+    //['/pdas/dataAnalysis', pdasRestfulAPIHandler.DataAnalysis],
     ['/pdas/dataAnalysis/:period', pdasRestfulAPIHandler.DataAnalysis]
 ];
 
@@ -29,18 +29,25 @@ var pdasDELETEList;
 
 /* PMS Restful API Handler */
 var pmsGETList = [
-    ['/pms/getUserData', pmsRestfulAPIHandler.getUserData],
-    ['/pms/getUserDataCount', pmsRestfulAPIHandler.getUserDataCount],
-    ['/pms/getNoticeData', pmsRestfulAPIHandler.getNoticeData],
-    ['/pms/getNoticeDataCount', pmsRestfulAPIHandler.getNoticeDataCount],
+    ['/pms/getLoginData', pmsRestfulAPIHandler.getLoginData],
+    ['/pms/getUsersData', pmsRestfulAPIHandler.getUsersData],
+    ['/pms/getUsersDataCount', pmsRestfulAPIHandler.getUsersDataCount],
+    ['/pms/getNoticesData', pmsRestfulAPIHandler.getNoticesData],
+    ['/pms/getNoticesDataCount', pmsRestfulAPIHandler.getNoticesDataCount],
+    ['/pms/getNoticesDataNewCount', pmsRestfulAPIHandler.getNoticesDataNewCount],
     ['/pms', pmsRestfulAPIHandler.pmsrend]
 ];
 
 var pmsPOSTList = [
+    ['/pms/loginUserData', pmsRestfulAPIHandler.loginUserData],
+    ['/pms/addUserLevelData', pmsRestfulAPIHandler.addUserLevelData],
     ['/pms/addUserData', pmsRestfulAPIHandler.addUserData],
     ['/pms/updateUserData', pmsRestfulAPIHandler.updateUserData],
+    ['/pms/updateNoticeData', pmsRestfulAPIHandler.updateNoticeData],
     ['/pms/deleteUserData', pmsRestfulAPIHandler.deleteUserData],
+    ['/pms/deleteNoticeData', pmsRestfulAPIHandler.deleteNoticeData],
     ['/pms/addNoticeData', pmsRestfulAPIHandler.addNoticeData],
+    ['/pms/addNoticeUserReadData', pmsRestfulAPIHandler.addNoticeUserReadData],
     ['/pms/insertMother', pmsRestfulAPIHandler.AddMotherData],
     ['/upload', pmsRestfulAPIHandler.ImportExcel]
 ];
@@ -63,7 +70,12 @@ var dataGeneratorAgentPOSTList = [['/dataGenerator/GenerateDummyData', dataGener
 module.exports = function (app, io) {
     /* Main Page */
     app.get('/', function (req, res) {
-        res.render('index');
+        if (!req.session.user) {
+            res.redirect('/pms/getLoginData?UserName=Admin');
+        }
+        else {
+            res.render('index', { user: req.session.user });
+        }
     });
     /* Restful API */
     /* Set WEMS Restful API Handler */

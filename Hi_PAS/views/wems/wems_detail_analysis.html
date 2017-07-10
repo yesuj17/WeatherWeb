@@ -14,18 +14,18 @@
                 <li><a href="#">S.C3</a></li>
             </ul>
         </div>
-        <div class="btn-group" data-toggle="buttons" style="float:right; margin:3px">
-            <label class="btn active btn-default">
-                <input name="dateUnit" class="active" type="radio" ng-change="wemsAnalysisVM.onChangeDateUnit('day')" ng-model="wemsAnalysisVM.selectedDateUnit" value="day">1 Day
+        <div class="btn-group" style="float:right; margin:3px">
+            <label class="btn btn-default">
+                <input name="dateUnit" type="radio" ng-change="wemsAnalysisVM.onChangeDateUnit()" ng-model="wemsAnalysisVM.selectedDateUnit" value="day" >1 Day
             </label>
             <label class="btn btn-default">
-                <input name="dateUnit" type="radio" ng-change="wemsAnalysisVM.onChangeDateUnit('week')" ng-model="wemsAnalysisVM.selectedDateUnit" value="week">1 Week
+                <input name="dateUnit" type="radio" ng-change="wemsAnalysisVM.onChangeDateUnit()" ng-model="wemsAnalysisVM.selectedDateUnit" value="week">1 Week
             </label>
             <label class="btn btn-default">
-                <input name="dateUnit" type="radio" ng-model="wemsAnalysisVM.selectedDateUnit" value="month">1 Month
+                <input name="dateUnit" type="radio" ng-change="wemsAnalysisVM.onChangeDateUnit()" ng-model="wemsAnalysisVM.selectedDateUnit" value="month">1 Month
             </label>
             <label class="btn btn-default">
-                <input name="dateUnit" type="radio" ng-model="wemsAnalysisVM.selectedDateUnit" value="year">1 Year
+                <input name="dateUnit" type="radio" ng-change="wemsAnalysisVM.onChangeDateUnit()" ng-model="wemsAnalysisVM.selectedDateUnit" value="year">1 Year
             </label>
         </div>
         <div style="width:210px; height: 35px; float:right; margin-top:3px; margin-bottom:2px">
@@ -98,7 +98,6 @@
                 <td style="border: 1px solid grey; border-collapse: collapse; padding: 5px">{{analysisDataRow.PowerEfficiency}}</td>
             </tr>
         </table>
-
     </div>
     <script src="/wems/wemsAnalysisController.js"></script>
 </div>

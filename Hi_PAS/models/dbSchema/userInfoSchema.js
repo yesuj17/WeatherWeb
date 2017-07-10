@@ -5,7 +5,7 @@ var UserInfoSchema = new Schema({
     UserName    : String,
     UserEmail   : String,
     UserPhone   : String,
-    Completed   : Boolean
+    UserLevel   : { type: String, default: 'Operator' }
 });
 
 module.exports = mongoose.model('UserInfoSchema', UserInfoSchema);

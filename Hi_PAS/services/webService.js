@@ -4,6 +4,7 @@ module.exports = function (app, express) {
     var favicon = require('serve-favicon');
     var logger = require('morgan');
     var cookieParser = require('cookie-parser');
+    var session = require('express-session');
     var bodyParser = require('body-parser');
     var i18n = require('i18n');
 
@@ -16,6 +17,11 @@ module.exports = function (app, express) {
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: true }));
     app.use(cookieParser());
+    app.use(session({
+        secret: '!!##@@HI_PAS@@##!!',
+        resave: false,
+        saveUninitialized: true
+    }));
     app.use(require('stylus').middleware(path.join(__dirname, '../public')));
     app.use(express.static(path.join(__dirname, '../public')));
     app.use(express.static(path.join(__dirname, '../controllers')));
