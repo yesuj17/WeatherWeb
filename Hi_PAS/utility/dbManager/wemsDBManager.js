@@ -15,44 +15,32 @@ function getMachineCycleData(period, deviceID, next) {
         function (next) {
             MachineCycleDataSchema.
                 findOne().
-                where('TotalStartTime').lt(period.startDate).
                 where('MachineID').equals(deviceID).
+                where('TotalStartTime').lt(period.startDate).
                 select('MachineID TotalStartTime TotalEndTime DrivingInfo HoistingInfo ForkInfo').
                 sort('-TotalStartTime').
+                lean().
                 exec(function (err, doc) {
-                    if (err) {
-                        console.error(err);
-                        return false;
-                    }
-
                     next(err, doc);
                 });
         },
         function (doc, next) {
             MachineCycleDataSchema.
                 find().
+                where('MachineID').equals(deviceID).
                 where("TotalStartTime").gte(period.startDate).
                 where("TotalEndTime").lte(period.endDate).
-                where('MachineID').equals(deviceID).
                 select('MachineID TotalStartTime TotalEndTime DrivingInfo HoistingInfo ForkInfo').
                 sort('TotalStartTime').
+                lean().
                 exec(function (err, docs) {
-                    if (err) {
-                        console.error(err);
-                        return false;
-                    }
+                    var machineCycleDataList = [];
+                    machineCycleDataList.push(doc);
+                    var resultMachineCycleDataList
+                        = machineCycleDataList.concat(docs);
 
-                    next(err, doc, docs);
+                    next(null, resultMachineCycleDataList);
                 });
-        },
-        function (doc, docs, next) {
-            /* Post processing data */
-            var machineCycleDataList = [];
-            machineCycleDataList.push(doc);
-            var resultMachineCycleDataList
-                = machineCycleDataList.concat(docs);
-
-            next(resultMachineCycleDataList);
         }
     ], next);
 }

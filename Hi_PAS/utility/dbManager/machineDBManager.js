@@ -1,7 +1,42 @@
-﻿var MachineInfoSchema = require('../../models/dbSchema/MachineInfoSchema.js');
+﻿var mongoose = require('mongoose');
+
+var MachineInfoSchema = require('../../models/dbSchema/MachineInfoSchema.js');
 var MachineRealTimeDataSchema = require('../../models/dbSchema/MachineRealTimeDataSchema.js');
 var MachineCycleDataSchema = require('../../models/dbSchema/MachineCycleDataSchema.js');
 var MachineErrorDataSchema = require('../../models/dbSchema/MachineErrorDataSchema.js');
+
+module.exports.InitMachineDB = function (next) {
+    mongoose.connection.db.listCollections({ name: 'MachineInfo' })
+        .next(function (err, collinfo) {
+            if (collinfo == null) {
+    
+                /* Make Default Data */
+                var infoArray = [];
+    
+                for (var i = 1; i < 9; i++) {
+                    var info = new MachineInfoSchema();
+                    info.Type = "SC";
+                    info.Name = "StackerCrane (" + i + ")";
+                    info.ID = i;
+                    info.CellCount = 300;
+                    infoArray.push(info);
+                }
+    
+                MachineInfoSchema
+                    .insertMany(infoArray, function (err) {
+                        if (err) {
+                            next(false);
+                            return;
+                        }
+    
+                        next(true);
+                    });
+            }
+            else {
+                next(true);
+            }            
+        });
+}
 
 // Add Machine Info
 module.exports.addMachineInfo = function (machineInfo, next) {

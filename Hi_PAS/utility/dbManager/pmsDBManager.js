@@ -1,7 +1,9 @@
 ﻿var mongoose = require('mongoose');
+var async = require('async');
 var UserInfoSchema = require('../../models/dbSchema/UserInfoSchema.js');
 var NoticeInfoSchema = require('../../models/dbSchema/NoticeInfoSchema.js');
 var UserLevelSchema = require('../../models/dbSchema/UserLevelSchema.js');
+var motherDataSchema = require('../../models/dbSchema/PMSmotherSchema.js');
 
 // Insert to Mongo DB
 module.exports.insertUserLevelData = function (param, next) {
@@ -88,7 +90,7 @@ module.exports.insertNoticeData = function (param, next) {
     notice.Writer = param.noticeWriter;
     notice.Option = param.noticeOption
     notice.StartDate = Date.now();
-    notice.EndDate = param.noticeDate;
+    notice.EndDate = param.noticeEndDate;
 
     notice.save(function (err) {
         if (err) {
@@ -166,7 +168,7 @@ module.exports.updateUserData = function (param, next) {
     });
 }
 
-module.exports.updateNoticeData = function(param, next){
+module.exports.updateNoticeData = function (param, next) {
     if (!param) {
         next(false, 'param null');
         return;
@@ -188,7 +190,12 @@ module.exports.updateNoticeData = function(param, next){
             return;
         }
 
+        notice.Title = param.noticeTitle;
         notice.Content = param.noticeContent;
+        notice.Writer = param.noticeWriter;
+        notice.Option = param.noticeOption
+        notice.StartDate = Date.now();
+        notice.EndDate = param.noticeEndDate;
 
         notice.save(function (err) {
             if (err) {
@@ -201,29 +208,6 @@ module.exports.updateNoticeData = function(param, next){
 }
 
 // Select from Mongo DB
-module.exports.findUsersDataCount = function (param, next) {
-    if (!param) {
-        next(false, 'param null');
-        return;
-    }
-    // make search query
-    var filter = param.filterValue;
-    var search = '.*' + param.searchValue + '.*';
-
-    var query = UserInfoSchema
-        .find()
-        .where(filter).regex(search)
-        .count();
-
-    query.exec(function (err, count) {
-        if (err) {
-            next(false, err);
-            return;
-        }
-        next(true, '', count);
-    });
-}
-
 module.exports.findUserData = function (param, next) {
     if (!param) {
         next(false, 'param null');
@@ -286,33 +270,15 @@ module.exports.findNoticesDataNewCount = function (param, next) {
         return;
     }
 
+    var tempDay = new Date();
+    var strDay = tempDay.getFullYear() + '-' + (tempDay.getMonth() + 1) + '-' + tempDay.getDate();
+    var toDay = new Date(strDay);
+
     var query = NoticeInfoSchema
         .find()
+        .where('EndDate').gte(toDay)
         .where('ReadInfo.name')
         .nin(param.userValue)
-        .count();
-
-    query.exec(function (err, count) {
-        if (err) {
-            next(false, err);
-            return;
-        }
-        next(true, '', count);
-    });
-}
-
-module.exports.findNoticesDataCount = function (param, next) {
-    if (!param) {
-        next(false, 'param null');
-        return;
-    }
-    // make search query
-    var filter = param.filterValue;
-    var search = '.*' + param.searchValue + '.*';
-
-    var query = NoticeInfoSchema
-        .find()
-        .where(filter).regex(search)
         .count();
 
     query.exec(function (err, count) {
@@ -335,12 +301,17 @@ module.exports.findNoticesData = function (param, next) {
     var size = Number(param.pageSizeValue);
     var index = Number(param.pageSizeValue * param.pageIndexValue);
 
+    var tempDay = new Date();
+    var strDay = tempDay.getFullYear() + '-' + (tempDay.getMonth() + 1) + '-' + tempDay.getDate();
+    var toDay = new Date(strDay);
+
     var query = NoticeInfoSchema
         .find()
         .where(filter).regex(search)
+        .where('EndDate').gte(toDay)
         .skip(index)
         .limit(size)
-        .sort({Option: -1, StartDate: -1});
+        .sort({ Option: -1, StartDate: -1 });
 
     query.exec(function (err, notice) {
         if (err) {
@@ -428,7 +399,7 @@ module.exports.InsertMotherdata = function (InputmotherData, next) {
         return;
     }
     // 들어오는 input data중 동일한 data를 가져오는 쿼리( code값으로 식별)
-    motherDataSchema.findOne({ Code: InputmotherData.Code }, function (err, doc){
+    motherDataSchema.findOne({ Code: InputmotherData.Code }, function (err, doc) {
         if (err) {
             console.log(" [InsertMotherdata]스키마에서 찾다가 에러남.");
             next(3, err);
@@ -460,7 +431,7 @@ module.exports.InsertMotherdata = function (InputmotherData, next) {
     a.Relation = InputmotherData.Relation;
     a.Type = InputmotherData.Type;
     a.Level = InputmotherData.Level;
-    
+
     a.save(function (err) {
         if (err) {
             console.error(err);
@@ -475,22 +446,60 @@ module.exports.InsertMotherdata = function (InputmotherData, next) {
 }
 
 
-
+module.exports.InitPMSDB = function (next) {
+    var defaultUserData         =   { UserName: 'Admin', UserLevel: 'Admin' };
+    var defaultUserLevelData    = [ { LevelName: 'Operator' },
+                                    { LevelName: 'Admin' },
+                                    { LevelName: 'CSEngineer' }];
+    async.waterfall([
+        // default User Data
+        function (callback) {
+            onDefaultUserData(defaultUserData, function (result) {
+                if (result) {
+                    callback(null);
+                }
+                else {
+                    callback('Init DefaultUserData failed');
+                }
+            });
+        },
+        // default User Level Data
+        function (callback) {
+            onDefaultUserLevelData(defaultUserLevelData, function (result) {
+                if (result) {
+                    callback(null);
+                }
+                else {
+                    callback('Init DefaultUserLevelData failed');
+                }
+            });
+        }
+    ],
+        function (err) {
+            if (err) {
+                next(false);
+            }
+            else {
+                next(true);
+            }
+        });
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Initialize Default Data
-module.exports.onDefaultUserData = function (param) {
+function onDefaultUserData(param, next) {
     var query = UserInfoSchema
         .findOne()
         .where('UserLevel').equals(param.UserName);
 
     query.exec(function (err, user) {
         if (err) {
-            next(false, err);
+            next(false);
             return;
         }
 
         if (user) {
+            next(true);
             return;
         }
 
@@ -499,37 +508,29 @@ module.exports.onDefaultUserData = function (param) {
         user.UserLevel = param.UserLevel;
         user.save(function (err) {
             if (err) {
+                next(false);
                 return;
             }
+
+            next(true);
         });
     });
 }
 
-module.exports.onDefaultUserLevelData = function (param) {
-    var save = function (param) {
-        var query = UserLevelSchema
-            .findOne()
-            .where('LevelName').equals(param.LevelName);
-
-        query.exec(function (err, userLevel) {
-            if (err) {
-                return;
+function onDefaultUserLevelData(param, next) {
+    mongoose.connection.db.listCollections({ name: 'userlevelschemas' })
+        .next(function (err, collinfo) {
+            if (collinfo == null) {
+                UserLevelSchema.insertMany(param, function (err) {
+                    if (err) {
+                        next(false);
+                        return;
+                    }
+                    next(true);
+                });
             }
-            if (userLevel) {
-                return;
+            else {
+                next(true);
             }
-
-            userLevel = UserLevelSchema();
-            userLevel.LevelName = param.LevelName;
-            userLevel.save(function (err) {
-                if (err) {
-                    return;
-                }
-            });
         });
-    }
-
-    for (var index in param) {
-        save(param[index])
-    }
 }

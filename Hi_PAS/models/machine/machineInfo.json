@@ -1,5 +1,6 @@
 ﻿{
     "Type" : "string",
     "Name" : "string",
-    "ID"   : "interger"
+    "ID": "integer",
+    "CellCount": "integer"
 }

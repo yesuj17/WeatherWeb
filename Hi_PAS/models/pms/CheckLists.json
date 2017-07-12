@@ -1,0 +1,12 @@
+﻿{
+  "Code_FacilityId":"String",
+  "CreateDate":"String",
+  "TimeGroup":"String",
+  "TimeBaseUnit":"String",
+  "TimeBaseValue":"int",
+  "nonTimeVaseMainUnit":"String",
+  "nonTimeBaseMainValue":"int",
+  "nonTimeBaseWarringUnit":"String",
+  "nonTimeBaseWarringValue":"int",
+  "Relation":"String"
+ }

@@ -25,16 +25,14 @@ $('#noticeManagementModal').on('hidden.bs.modal', function () {
 });
 
 $scope.onUserManagementLoad = function () {
-    getUserDataCount();
-    getUserData();
+    onInitUserData();
 }
 
 $scope.onNoticeManagementLoad = function () {
-
     onInitNoticeData();
 
     $scope.noticeInfo.name = userName;
-    
+
     // notice calendar
     $("#datetimepicker").datetimepicker({
         format: 'YYYY/MM/DD',
@@ -68,23 +66,8 @@ $scope.onCloseRegister = function () {
     onInitUserValid();
 }
 
-$scope.onSearchFilterUser = function () {
-    $scope.currentPage = 0;
-
-    getUserDataCount();
-    getUserData();
-}
-
-$scope.onSearchFilterNotice = function () {
-    
-    onInitNoticeData();
-}
-
-$scope.onChangePage = function (index) {
-    $scope.currentPage = index;
-    getUserDataCount();
-    getUserData();
-}
+$scope.onSearchFilterUser = function () { onInitUserData(); }
+$scope.onSearchFilterNotice = function () { onInitNoticeData(); }
 
 $scope.onEditUser = function (index) {
 
@@ -122,6 +105,45 @@ $scope.onEditRegister = function () {
     updateUserData(name, email, phone);
 }
 
+$scope.onEditNotice = function (index) {
+
+    var editNotice = $scope.notices[index];
+    if (!editNotice) {
+        return false;
+    }
+
+    $scope.noticeInfo.id = editNotice.NoticeId;
+    $scope.noticeInfo.title = editNotice.NoticeTitle;
+    $scope.noticeInfo.name = editNotice.NoticeWriter;
+    $("#datetimepicker").data("DateTimePicker").date(editNotice.NoticeEndDate);
+    $('#noticeOption').val(editNotice.NoticeOption);
+    $scope.noticeInfo.content = editNotice.NoticeContent;
+
+    $('#noticeAdd').show();
+    $('#noticeList').hide();
+
+    $('#noticeEditButton').show();
+    $('#noticeSaveButton').hide();
+}
+
+$scope.onNoticeEditSubmit = function () {
+    var rdate = $("#datetimepicker").data("DateTimePicker").date();
+    var endDate = new Date(rdate);
+
+    var inputNotice = {};
+    inputNotice.id = $scope.noticeInfo.id;
+    inputNotice.title = $scope.noticeInfo.title;
+    inputNotice.writer = $scope.noticeInfo.name;
+    inputNotice.endDate = endDate;
+    inputNotice.option = $('#noticeOption').val();
+    inputNotice.content = $scope.noticeInfo.content;
+
+    if (inputNotice.title == undefined) { alert('Input Title'); return; }
+    if (inputNotice.content == undefined) { alert('Input Content'); return; }
+
+    updateNoticeData(inputNotice);
+}
+
 $scope.onDeleteUser = function (index) {
     // delete user
     var deleteUser = $scope.users[index];
@@ -141,35 +163,7 @@ $scope.onDeleteUser = function (index) {
     deleteUserData(deleteUser);
 }
 
-$scope.onEditNotice = function(index){
-    var noticeEdit = '#noticeEdit' + index;
-    var noticeEditSubmit = '#noticeEditSubmit' + index;
-    var content = '#noticeContentTextArea' + index;
-
-    $(content).removeAttr('readonly');
-
-    $(noticeEditSubmit).show();
-    $(noticeEdit).hide();
-
-}
-
-$scope.onEditNoticeSubmit = function (index) {
-    var noticeEdit = '#noticeEdit' + index;
-    var noticeEditSubmit = '#noticeEditSubmit' + index;
-    var content = '#noticeContentTextArea' + index;
-
-    $(content).attr('readonly', 'readonly');
-
-    $(noticeEditSubmit).hide();
-    $(noticeEdit).show();
-
-    var id = $scope.notices[index].NoticeId;
-    var content = $(content).val();
-
-    updateNoticeData(id, content);
-}
-
-$scope.onDeleteNotice = function(index){
+$scope.onDeleteNotice = function (index) {
     // delete notice
     var deleteNotice = $scope.notices[index];
     if (!deleteNotice) {
@@ -235,13 +229,96 @@ function onMakeBarCode() {
     }
 }
 
-// Initialize
-function onInitNoticeData(){
-    $scope.notices = [];
-    $scope.morePageCount = 0;
+$scope.onNoticeMore = function () {
 
-    getNoticeData($scope.noticePageSize, $scope.morePageCount);
+    $scope.noticeMoreCount++;
+    getNoticeData($scope.noticePageSize, $scope.noticeMoreCount);
+}
+
+$scope.onUserMore = function () {
+    $scope.userMoreCount++;
+    getUserData($scope.userPageSize, $scope.userMoreCount);
+}
+
+$scope.onNoticeTitleOpen = function (index) {
+    var cContent = '#noticeContent' + index;
+
+    if ($(cContent).css('display') == 'none') {
+        $(cContent).fadeIn();
+
+        if ($scope.notices[index].NoticeRead == false) {
+            addNoticeUserReadData(index, userName);
+        }
+    }
+    else {
+        $(cContent).fadeOut();
+    }
+}
+
+$scope.onNoticeAdd = function () {
+    $('#noticeAdd').show();
+    $('#noticeList').hide();
+
+    $('#noticeEditButton').hide();
+    $('#noticeSaveButton').show();
+
+    $scope.onNoticeReset();
+}
+
+$scope.onNoticeList = function () {
+    $('#noticeAdd').hide();
+    $('#noticeList').show();
+
+    $('#noticeEditButton').hide();
+    $('#noticeSaveButton').show();
+
+    $scope.onNoticeReset();
+}
+
+$scope.onNoticeSave = function () {
+
+    var rdate = $("#datetimepicker").data("DateTimePicker").date();
+    var endDate = new Date(rdate);
+
+    var inputNotice = {};
+    inputNotice.title = $scope.noticeInfo.title;
+    inputNotice.writer = $scope.noticeInfo.name;
+    inputNotice.endDate = endDate;
+    inputNotice.option = $('#noticeOption').val();
+    inputNotice.content = $scope.noticeInfo.content;
+
+    if (inputNotice.title == undefined) { alert('Input Title'); return; }
+    if (inputNotice.content == undefined) { alert('Input Content'); return; }
+
+    addNoticeData(inputNotice);
+}
+
+$scope.onNoticeReset = function () {
+    $scope.noticeInfo.title = undefined;
+    $("#datetimepicker").data("DateTimePicker").date(new Date());
+    $('#noticeOption').val('Normal');
+    $scope.noticeInfo.content = undefined;
+}
+
+$scope.onNoticeRepeatEnd = function () {
+    /// XXX
+}
+
+/////////////////////////////////////////////////////////////////Initialize/////////////////////////////////////////////////////////////////
+function onInitNoticeData() {
+    $scope.notices = [];
+    $scope.noticeMoreCount = 0;
+    $scope.noticeIndex = 0;
+
+    getNoticeData($scope.noticePageSize, $scope.noticeMoreCount);
     getNoticeDataNewCount();
+}
+
+function onInitUserData(){
+    $scope.users = [];
+    $scope.userMoreCount = 0;
+
+    getUserData($scope.userPageSize, $scope.userMoreCount);
 }
 
 function onInitUserInfo() {
@@ -259,7 +336,7 @@ function onInitUserValid() {
     $scope.registerForm.userphone.$setValidity('phonevalid', true);
 }
 
-// Validate
+/////////////////////////////////////////////////////////////////Validate/////////////////////////////////////////////////////////////////
 function onValidateDuplicate(result) {
     $scope.registerForm.username.$setValidity("duplicate", result);
 }
@@ -291,33 +368,11 @@ function onValidatePhone(phone) {
     return regex.test(phone);
 }
 
-// http
-function getUserDataCount() {
-    var pageSizeValue = $scope.userPageSize;
-    var filterValue = $('#userFilter').val();
-    var searchValue = $scope.searchText == undefined ? '' : $scope.searchText;
+/////////////////////////////////////////////////////////////////HTTP/////////////////////////////////////////////////////////////////
+function getUserData(pageSize, moreCount) {
 
-    $http.get('/pms/getUsersDataCount', {
-        params: {
-            filter: filterValue,
-            search: searchValue,
-            date: (new Date()).getTime()
-        }
-    })
-        .then(function (response) {
-
-            var totalCount = response.data.Count;
-            $scope.userPageCount = new Array(Math.ceil(totalCount / pageSizeValue));
-
-        }, function (err) {
-            console.log(err);
-        });
-}
-
-function getUserData() {
-
-    var pageSizeValue = $scope.userPageSize;
-    var pageIndexValue = $scope.currentPage;
+    var pageSizeValue = pageSize;
+    var pageIndexValue = moreCount;
     var filterValue = $('#userFilter').val();
     var searchValue = $scope.searchText == undefined ? '' : $scope.searchText;
 
@@ -330,7 +385,46 @@ function getUserData() {
             date: (new Date()).getTime()
         }
     }).then(function (response) {
-        $scope.users = response.data.users;
+
+        for (var index in response.data.users) {
+            var user = response.data.users[index];
+            
+            $scope.users.push(user);
+        }
+    }, function (err) {
+        console.log(err);
+    });
+}
+
+function getNoticeData(pageSize, moreCount) {
+
+    var pageSizeValue = pageSize;
+    var pageIndexValue = moreCount;
+    var filterValue = $('#noticeFilter').val();
+    var searchValue = $scope.searchTextNotice == undefined ? '' : $scope.searchTextNotice;
+    var userValue = userName;
+
+    $http.get('/pms/getNoticesData', {
+        params: {
+            pageSize: pageSizeValue,
+            pageIndex: pageIndexValue,
+            filter: filterValue,
+            search: searchValue,
+            user: userValue,
+            date: (new Date()).getTime()
+        }
+    }).then(function (response) {
+
+        for (var index in response.data.notices) {
+            var notice = response.data.notices[index];
+            notice.NoticeIndex = $scope.noticeIndex;
+
+            if (notice.NoticeOption == 'Normal') {
+                $scope.noticeIndex++;
+            }
+
+            $scope.notices.push(notice);
+        }
 
     }, function (err) {
         console.log(err);
@@ -354,33 +448,6 @@ function getNoticeDataNewCount() {
     });
 }
 
-function getNoticeData(pageSize, moreCount) {
-
-    var pageSizeValue = pageSize;//$scope.noticePageSize;
-    var pageIndexValue = moreCount;//$scope.currentPageNotice;
-    var filterValue = $('#noticeFilter').val();
-    var searchValue = $scope.searchTextNotice == undefined ? '' : $scope.searchTextNotice;
-    var userValue = userName;
-
-    $http.get('/pms/getNoticesData', {
-        params: {
-            pageSize: pageSizeValue,
-            pageIndex: pageIndexValue,
-            filter: filterValue,
-            search: searchValue,
-            user: userValue,
-            date: (new Date()).getTime()
-        }
-    }).then(function (response) {
-        for(var index in response.data.notices){
-            $scope.notices.push(response.data.notices[index]);
-        }
-
-    }, function (err) {
-        console.log(err);
-    });
-}
-
 function updateUserData(name, email, phone) {
 
     $http.post('/pms/updateUserData', {
@@ -389,20 +456,27 @@ function updateUserData(name, email, phone) {
         userPhone: phone
     })
         .success(function (data, status, headers, config) {
-            getUserData();
+            onInitUserData();
         })
         .error(function (data, status, header, config) {
             console.log(data.error);
         });
 }
 
-function updateNoticeData(id, content) {
+function updateNoticeData(notice) {
     $http.post('/pms/updateNoticeData', {
-        noticeId: id,
-        noticeContent: content
+        noticeId: notice.id,
+        noticeTitle: notice.title,
+        noticeEndDate: notice.endDate,
+        noticeOption: notice.option,
+        noticeWriter: notice.writer,
+        noticeContent: notice.content
     })
         .success(function (data, status, headers, config) {
             onInitNoticeData();
+
+            $scope.onNoticeReset();
+            $scope.onNoticeList();
         })
         .error(function (data, status, header, config) {
             console.log(data.error);
@@ -420,8 +494,7 @@ function addUserData(name, email, phone) {
             onInitUserInfo();
             onInitUserValid();
 
-            getUserDataCount();
-            getUserData();
+            onInitUserData();
         })
         .error(function (data, status, header, config) {
 
@@ -431,18 +504,17 @@ function addUserData(name, email, phone) {
         });
 }
 
-function addNoticeData(title, date, option, writer, content) {
+function addNoticeData(notice) {
     $http.post('/pms/addNoticeData', {
-        noticeTitle: title,
-        noticeDate: date,
-        noticeOption: option,
-        noticeWriter: writer,
-        noticeContent: content
-
+        noticeTitle: notice.title,
+        noticeEndDate: notice.endDate,
+        noticeOption: notice.option,
+        noticeWriter: notice.writer,
+        noticeContent: notice.content
     })
         .success(function (data, status, headers, config) {
             onInitNoticeData();
-            
+
             $scope.onNoticeReset();
             $scope.onNoticeList();
         })
@@ -467,12 +539,13 @@ function addNoticeUserReadData(index, readUser) {
 }
 
 function deleteUserData(user) {
-    $http.post('/pms/deleteUserData', {
-        userName: user.UserName,
+    $http.delete('/pms/deleteUserData', {
+        params: {
+            userName: user.UserName,
+        }
     })
         .success(function (data, status, headers, config) {
-            getUserDataCount();
-            getUserData();
+            onInitUserData();
         })
         .error(function (data, status, header, config) {
             console.log(data.error);
@@ -480,8 +553,10 @@ function deleteUserData(user) {
 }
 
 function deleteNoticeData(notice) {
-    $http.post('/pms/deleteNoticeData', {
-        noticeId: notice.NoticeId,
+    $http.delete('/pms/deleteNoticeData', {
+        params: {
+            noticeId: notice.NoticeId,
+        }
     })
         .success(function (data, status, headers, config) {
             onInitNoticeData();
@@ -499,12 +574,10 @@ function header_OnLoad() {
     $scope.userInfo = {};
     // current tab
     $scope.currentTab = null;
-    // current page
-    $scope.currentPage = 0;
     // user count in page
     $scope.userPageSize = 5;
-    // user page count
-    $scope.userPageCount = 0;
+    // user more
+    $scope.userMoreCount = 0;
     // user search text
     $scope.searchText = undefined;
 
@@ -514,92 +587,12 @@ function header_OnLoad() {
     $scope.noticeInfo = {};
     // notice count in page
     $scope.noticePageSize = 5;
-
-    $scope.morePageCount = 0;
-
+    // notice index
+    $scope.noticeIndex = 0;
+    // notice more
+    $scope.noticeMoreCount = 0;
+    // notice search text
     $scope.searchTextNotice = undefined;
 
     getNoticeDataNewCount();
-}
-
-///////////////////////////////////////////////////////////////////////////
-$scope.onNoticeMore = function(){
-
-    $scope.morePageCount++;
-    getNoticeData($scope.noticePageSize, $scope.morePageCount);
-}
-
-$scope.onNoticeTitleOpen = function(index){
-    var cContent = '#noticeContent' + index;
-
-    if($(cContent).css('display') == 'none'){
-        $(cContent).fadeIn();
-
-        if ($scope.notices[index].NoticeRead == false) {
-            addNoticeUserReadData(index, userName);
-        }
-    }
-    else{
-        $(cContent).fadeOut();
-    }
-}
-
-$scope.onNoticeAdd = function () {
-    $('#noticeAdd').show();
-    $('#noticeList').hide();
-}
-
-$scope.onNoticeList = function () {
-    $('#noticeAdd').hide();
-    $('#noticeList').show();
-}
-
-$scope.onPlusToMinus = function (index) {
-    var mButton = '#minusButton' + index;
-    var pButton = '#plusButton' + index;
-    var cContent = '#noticeContent' + index;
-
-    if ($(pButton).css("display") == 'none') {
-        $(mButton).hide();
-        $(pButton).show();
-        $(cContent).fadeOut();
-
-        return;
-    }
-
-    if ($(mButton).css("display") == 'none') {
-        $(mButton).show();
-        $(pButton).hide();
-        $(cContent).fadeIn();
-
-        if ($scope.notices[index].NoticeRead == false) {
-            addNoticeUserReadData(index, userName);
-        }
-        return;
-    }
-}
-
-$scope.onNoticeSave = function () {
-    var title = $scope.noticeInfo.title;
-    var user = $scope.noticeInfo.name;
-    var rdate = $("#datetimepicker").data("DateTimePicker").date()
-    var endDate = new Date(rdate);
-    var option = $('#noticeOption').val();
-    var content = $scope.noticeInfo.content;
-
-    if (title == undefined) { alert('Input Title'); return; }
-    if (content == undefined) { alert('Input Content'); return; }
-
-    addNoticeData(title, endDate, option, user, content);
-}
-
-$scope.onNoticeReset = function () {
-    $scope.noticeInfo.title = undefined;
-    $("#datetimepicker").data("DateTimePicker").date(new Date());
-    $('#noticeOption').val('Normal');
-    $scope.noticeInfo.content = undefined;
-}
-
-$scope.onNoticeRepeatEnd = function () {
-
 }

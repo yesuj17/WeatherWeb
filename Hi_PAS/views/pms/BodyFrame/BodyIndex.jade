@@ -1,0 +1,47 @@
+﻿doctype html
+html
+  head
+    title PMSFrame
+    link(rel='stylesheet', href='/bootstrap_v3.3.7/css/bootstrap.min.css')
+    script(src='http://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js')
+    script(src='/bootstrap_v3.3.7/js/bootstrap.min.js')    
+    link(href='https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css', rel='stylesheet')
+    link(href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css', rel='stylesheet')
+    script(src='https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.js')
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.3.1/angular-ui-router.min.js')
+
+
+    script(src='http://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular-touch.js')
+    script(src='http://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular-animate.js')
+    script(src='http://ui-grid.info/docs/grunt-scripts/csv.js')
+    script(src='http://ui-grid.info/docs/grunt-scripts/pdfmake.js')
+    script(src='http://ui-grid.info/docs/grunt-scripts/vfs_fonts.js')
+    script(src='http://ui-grid.info/release/ui-grid.js')
+    link(rel='stylesheet', href='http://ui-grid.info/release/ui-grid.css', type='text/css')
+
+
+
+    meta(charset="utf-8")
+    style(type="text/css").
+        html{
+            height:100%
+        }
+        body {
+            display:table; height: 100%; width:100%
+        }
+    | <script>
+    |   var PMappNoUse = angular.module('PMappNoUse', ['ea.treeview', 'ui.router', 'ngTouch', 'ui.grid', 'ui.grid.autoResize']).config(function ($stateProvider, $locationProvider) {
+    |   PMappNoUse.controller('PMappController', ['$http', function($scope, $http) 
+    |   {    
+    include Top.js
+    include Tree.js
+    include grid.js
+    |   }]);
+    | </script>  
+  body(ng-app='PMapp')
+    div#header(style='margin: 0px; height: 10%; width:100%; float:top;border:2px #a99 solid')
+        include Top 
+    div#Tree(style='margin: 0px; height: 90%; width:20%; float:left; border:2px #a99 solid')
+        include Tree
+    div#grid(style='margin: 0px; height: 90%; width:80%; float:right;border:2px #a99 solid')
+        include grid                      

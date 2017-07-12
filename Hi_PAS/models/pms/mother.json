@@ -1,0 +1,19 @@
+﻿{
+  "Code":"String",
+  "Title":"String",
+  "Content":"String",
+  "LargeCategory":"String",
+  "MediumCategory":"String",
+  "SmallCategory":"String",
+  "CreateDate":"DateTime",
+  "TimeGroup":"String",
+  "TimeBaseUnit":"String",
+  "TimeBaseValue":"int",
+  "nonTimeVaseMainUnit":"String",
+  "nonTimeBaseMainValue":"int",
+  "nonTimeBaseWarringUnit":"String",
+  "nonTimeBaseWarringValue":"int",
+  "Relation":["String"],
+  "Type":"String",
+  "Level":"int"
+}

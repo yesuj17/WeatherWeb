@@ -1,0 +1,109 @@
+﻿.container(style='width: 100%;height: 100%;')
+    #userManagementModal.modal.fade(role='dialog')
+        .modal-dialog
+            .modal-content(style='width: 900px; height: auto; margin-left:-150px') 
+                .modal-header
+                    button.close(type='button', data-dismiss='modal') X
+                    h2.modal-title User Management
+                .modal-body
+                    ul.nav.nav-tabs
+                        li.active
+                            a(data-toggle='tab', href='#List', ng-click="onClickTab('List')") List
+                        li
+                            a(data-toggle='tab', ng href='#BarCode', ng-click="onClickTab('BarCode')") BarCode
+
+                    .tab-content
+                        #List.tab-pane.fade.in.active
+                            nav.navbar.navbar-default.query(role='query')
+                                .container-fluid
+                                    .collapse.navbar-collapse
+                                        .navbar-form.navbar-left
+                                            select#userFilter(class="form-control", name="size")
+                                                option(value="UserName") Name
+                                                option(value="UserEmail") E-mail
+                                                option(value="UserPhone") Phone
+                                                
+                                            input.form-control(type='text', ng-model='searchText')
+                                            button.btn.btn-default(ng-click="onSearchFilterUser()") Search
+                                        .navbar-form.navbar-right
+                                            button.btn.btn-default#userAddButton(ng-click="onOpenRegister()") User Add
+                                            a.btn.btn-default#userCancelButton(ng-click="onCloseRegister()" style='display:none;') Cancel
+                            .container.adduser(style='display: none; width:auto;')
+                                form(name='registerForm', ng-submit="onRegisterFormSubmit(registerForm)")
+                                    .form-group
+                                        input.btn.btn-default.pull-right#userRegisterButton(type='submit', name='submit_reg', value='Register')
+                                        a.btn.btn-default.pull-right#userEditButton(ng-click="onEditRegister()" style='display:none;') Edit
+                                        br
+                                        span.req * 
+                                        | User Name:
+                                        input.form-control#inputname(type='text', name='username', ng-model="userInfo.name", ng-change="onValidation('name')", placeholder="name", style="outline: none;" maxlength="18" required)    
+                                        div(ng-show="registerForm.username.$error.required" class="col-xs-12 col-md-12 alert alert-warning" role="alert") Please Enter User Name.
+                                        div(ng-show="registerForm.username.$error.namevalid" class="col-xs-12 col-md-12 alert alert-warning" role="alert") This is not an User Name format.
+                                        div(ng-show="registerForm.username.$error.duplicate" class="col-xs-12 col-md-12 alert alert-warning" role="alert") User Name already exists.
+                                    .form-group
+                                        span.req * 
+                                        |  Email Address:
+                                        input.form-control(type='text', name='useremail', ng-model="userInfo.email", ng-change="onValidation('email')", placeholder="email", style="outline: none;" maxlength="38" required)
+                                        div(ng-show="registerForm.useremail.$error.required" class="col-xs-12 col-md-12 alert alert-warning" role="alert") Please Enter User E-mail Address.
+                                        div(ng-show="registerForm.useremail.$error.emailvalid" class="col-xs-12 col-md-12 alert alert-warning" role="alert") This is not an E-mail Address format.
+                                    .form-group
+                                        span.req * 
+                                        |  Phone Number:
+                                        input.form-control(type='text', name='userphone', ng-model="userInfo.phone", ng-change="onValidation('phone')", placeholder="phone", style="outline: none;" required)
+                                        div(ng-show="registerForm.userphone.$error.required" class="col-xs-12 col-md-12 alert alert-warning" role="alert") Please Enter User Phone Number.
+                                        div(ng-show="registerForm.userphone.$error.phonevalid" class="col-xs-12 col-md-12 alert alert-warning" role="alert") This is not an Phone Number format. Please Enter without '-'
+                            .table-responsive.col-md-13
+                            table.table.table-striped.table-hover.text-left(style='table-layout:fixed;')
+                                thead
+                                tr
+                                    th.text-left.col-md-1 No
+                                    th.text-left.col-md-2 Name
+                                    th.text-left.col-md-4 E-mail
+                                    th.text-left.col-md-2 Phone
+                                    th.text-left.col-md-1 Edit
+                                    th.text-left.col-md-2 Delete
+                                tbody
+                                tr(ng-repeat="user in users")
+                                    td.col-md-1
+                                        p {{user.UserIndex + 1}}
+                                    td.col-md-2
+                                        p {{user.UserName}}
+                                    td.col-md-4
+                                        p {{user.UserEmail}}
+                                    td.col-md-2
+                                        p {{user.UserPhone}}
+                                    td.col-md-1
+                                        p
+                                            a(href="#", ng-click="onEditUser($index)")
+                                                button.btn.btn-primary.btn-xs(type='button') edit
+                                    td.col-md-2
+                                            .carousel.slide(id="{{myCarousel + user.UserName}}", data-ride='carousel', data-interval="false")
+                                                .carousel-inner
+                                                    .item.active
+                                                        a(href="#{{myCarousel + user.UserName}}", data-slide='next')
+                                                            button.btn.btn-danger.btn-xs(type='button') delete
+                                                    .item
+                                                        button.btn.btn-primary.btn-xs(type='button', ng-click="onDeleteUser($index)") Yes
+                                                        a.btn.btn-success.btn-xs(href="#{{myCarousel + user.UserName}}", data-slide='prev') No
+                        #BarCode.tab-pane.fade.in
+                            .table-responsive.col-md-13
+                            table.table.table-striped.table-hover
+                                thead
+                                tr(align='center')
+                                    th No
+                                    th Name
+                                    th Barcode
+                                tbody
+                                tr(ng-repeat="user in usersBarCode()")
+                                    td
+                                        p {{user.UserIndex + 1}}
+                                    td
+                                        p {{user.UserName}}
+                                    td
+                                        img(id="{{'myBarcode' + user.UserName}}")
+                    
+                    .form-inline.text-center(style="margin-top: 10px;")
+                        button.btn.btn-default(ng-click="onUserMore()") More
+
+                .modal-footer
+                    button.btn.btn-default(type='button', data-dismiss='modal') Close

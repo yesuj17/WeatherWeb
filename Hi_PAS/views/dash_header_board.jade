@@ -30,10 +30,11 @@
                                     .panel-heading
                                         .row
                                             .col.col-md-6
-                                                h3.panel-title Notice Add
+                                                //h3.panel-title Notice Add
                                             .col.col-md-6
                                                 .form-inline.pull-right
-                                                    button.btn.btn-default(ng-click="onNoticeSave()") Save
+                                                    button.btn.btn-default#noticeEditButton(ng-click="onNoticeEditSubmit()") Edit
+                                                    button.btn.btn-default#noticeSaveButton(ng-click="onNoticeSave()") Save
                                                     button.btn.btn-default(ng-click="onNoticeReset()") Reset
                                     .panel-body
                                         .col.col-md-13
@@ -85,7 +86,7 @@
                                                         th.text-left.col-md-1   
                                                         th.text-left.col-md-8 Title
                                                         th.text-left.col-md-2 Writer
-                                                        th.text-left.col-md-2 Date
+                                                        th.text-left.col-md-2 Reporting Date
                                                     tbody
                                                     tr(ng-repeat="notice in notices" ng-init="$last && onNoticeRepeatEnd()")
                                                         td.text-center(colspan="1" ng-if="notice.NoticeOption == 'Notice'")
@@ -105,24 +106,22 @@
                                                                         textarea.form-contorl(id="{{'noticeContentTextArea' + $index}}" style="width: 100%; height:100px; resize: none; border: none; font-weight: normal;" readonly) {{notice.NoticeContent}}
                                                                         a.pull-left(style="margin-right:5px;" href="#", ng-click="onEditNotice($index)" id="{{'noticeEdit' + $index}}")
                                                                             button.btn.btn-primary.btn-xs(type='button') edit
-                                                                        a.pull-left(style="margin-right:5px; display: none;" href="#", ng-click="onEditNoticeSubmit($index)" id="{{'noticeEditSubmit' + $index}}")
-                                                                            button.btn.btn-primary.btn-xs(type='button') edit Submit
-                                                                        .carousel.slide.pull-left(id="{{myCarousel + notice.NoticeIndex}}", data-ride='carousel', data-interval="false")
+                                                                        .carousel.slide.pull-left(id="{{myCarousel + $index}}", data-ride='carousel', data-interval="false")
                                                                             .carousel-inner
                                                                                 .item.active
-                                                                                    a(href="#{{myCarousel + notice.NoticeIndex}}", data-slide='next')
+                                                                                    a(href="#{{myCarousel + $index}}", data-slide='next')
                                                                                         button.btn.btn-danger.btn-xs(type='button') delete
                                                                                 .item
                                                                                     button.btn.btn-primary.btn-xs(type='button', ng-click="onDeleteNotice($index)") Yes
-                                                                                    a.btn.btn-success.btn-xs(href="#{{myCarousel + notice.NoticeIndex}}", data-slide='prev') No
+                                                                                    a.btn.btn-success.btn-xs(href="#{{myCarousel + $index}}", data-slide='prev') No
                                                     
-                                                        td.text-center.col-md-1(ng-click="onPlusToMinus($index)" ng-if="notice.NoticeOption == 'Normal'")
-                                                            span.glyphicon.glyphicon-minus(style="display: none;" id="{{'minusButton' + $index}}")
-                                                            span.glyphicon.glyphicon-plus(id="{{'plusButton' + $index}}")
+                                                        td.text-center.col-md-1(ng-if="notice.NoticeOption == 'Normal'") {{notice.NoticeIndex + 1}}
+                                                            //span.glyphicon.glyphicon-minus(style="display: none;" id="{{'minusButton' + $index}}")
+                                                            //span.glyphicon.glyphicon-plus(id="{{'plusButton' + $index}}")
                                                         td(colspan="3" ng-if="notice.NoticeOption == 'Normal'")
                                                             table.table.text-left(style='table-layout:fixed; width:100%; margin:0;')
                                                                 tr
-                                                                    td.col-md-8
+                                                                    td.col-md-8(ng-click="onNoticeTitleOpen($index)")
                                                                         p(style="font-weight: bold" ng-if="notice.NoticeRead == false") {{notice.NoticeTitle}}
                                                                             span.label.label-warning(style="margin-left: 5px;" ng-if="notice.NoticeNew == true") new
                                                                         p(style="font-weight: lighter; color:gray;" ng-if="notice.NoticeRead == true") {{notice.NoticeTitle}}
@@ -134,16 +133,15 @@
                                                                         textarea.form-contorl(id="{{'noticeContentTextArea' + $index}}" style="width: 100%; height:100px; resize: none; border: none; font-weight: normal;" readonly) {{notice.NoticeContent}}
                                                                         a.pull-left(style="margin-right:5px;" href="#", ng-click="onEditNotice($index)" id="{{'noticeEdit' + $index}}")
                                                                             button.btn.btn-primary.btn-xs(type='button') edit
-                                                                        a.pull-left(style="margin-right:5px; display: none;" href="#", ng-click="onEditNoticeSubmit($index)" id="{{'noticeEditSubmit' + $index}}")
-                                                                            button.btn.btn-primary.btn-xs(type='button') edit Submit
-                                                                        .carousel.slide.pull-left(id="{{myCarousel + notice.NoticeIndex}}", data-ride='carousel', data-interval="false")
+                                                                        .carousel.slide.pull-left(id="{{myCarousel + $index}}", data-ride='carousel', data-interval="false")
                                                                             .carousel-inner
                                                                                 .item.active
-                                                                                    a(href="#{{myCarousel + notice.NoticeIndex}}", data-slide='next')
+                                                                                    a(href="#{{myCarousel + $index}}", data-slide='next')
                                                                                         button.btn.btn-danger.btn-xs(type='button') delete
                                                                                 .item
                                                                                     button.btn.btn-primary.btn-xs(type='button', ng-click="onDeleteNotice($index)") Yes
-                                                                                    a.btn.btn-success.btn-xs(href="#{{myCarousel + notice.NoticeIndex}}", data-slide='prev') No
+                                                                                    a.btn.btn-success.btn-xs(href="#{{myCarousel + $index}}", data-slide='prev') No
+                                                                    
                                                 .form-inline.text-center(style="margin-top: 10px;")
                                                     button.btn.btn-default(ng-click="onNoticeMore()") More
                 .modal-footer

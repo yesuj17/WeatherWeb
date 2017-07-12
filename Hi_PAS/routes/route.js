@@ -31,9 +31,7 @@ var pdasDELETEList;
 var pmsGETList = [
     ['/pms/getLoginData', pmsRestfulAPIHandler.getLoginData],
     ['/pms/getUsersData', pmsRestfulAPIHandler.getUsersData],
-    ['/pms/getUsersDataCount', pmsRestfulAPIHandler.getUsersDataCount],
     ['/pms/getNoticesData', pmsRestfulAPIHandler.getNoticesData],
-    ['/pms/getNoticesDataCount', pmsRestfulAPIHandler.getNoticesDataCount],
     ['/pms/getNoticesDataNewCount', pmsRestfulAPIHandler.getNoticesDataNewCount],
     ['/pms', pmsRestfulAPIHandler.pmsrend]
 ];
@@ -44,16 +42,19 @@ var pmsPOSTList = [
     ['/pms/addUserData', pmsRestfulAPIHandler.addUserData],
     ['/pms/updateUserData', pmsRestfulAPIHandler.updateUserData],
     ['/pms/updateNoticeData', pmsRestfulAPIHandler.updateNoticeData],
-    ['/pms/deleteUserData', pmsRestfulAPIHandler.deleteUserData],
-    ['/pms/deleteNoticeData', pmsRestfulAPIHandler.deleteNoticeData],
     ['/pms/addNoticeData', pmsRestfulAPIHandler.addNoticeData],
     ['/pms/addNoticeUserReadData', pmsRestfulAPIHandler.addNoticeUserReadData],
     ['/pms/insertMother', pmsRestfulAPIHandler.AddMotherData],
     ['/upload', pmsRestfulAPIHandler.ImportExcel]
 ];
 
-var pmsPUTList;
-var pmsDELETEList;
+var pmsPUTList = [
+    
+];
+var pmsDELETEList = [
+    ['/pms/deleteUserData', pmsRestfulAPIHandler.deleteUserData],
+    ['/pms/deleteNoticeData', pmsRestfulAPIHandler.deleteNoticeData]
+];
 
 /* Machine Agent Restful API Handler */
 var machineAgentPOSTList = [

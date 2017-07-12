@@ -39,7 +39,12 @@ module.exports.getAnalysisData = function (req, res) {
     deviceIDList.forEach(generateDeviceMachineCycleDataHandler);
 
     function generateDeviceMachineCycleDataHandler(deviceID) {
-        wemsDBManager.getMachineCycleData(period, deviceID, function (machineCycleDataList) {
+        wemsDBManager.getMachineCycleData(period, deviceID, function (err, machineCycleDataList) {
+            if (err) {
+                res.status(505).json({ error: err });
+                return;
+            }
+
             machineCycleDataPerDeviceList.push({
                 DeviceID: deviceID,
                 DeviceMachineCycleData: machineCycleDataList

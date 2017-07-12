@@ -7,6 +7,10 @@ var cumulativeCycleTimeChart;
 var powerEfficiencyBarChart;
 var powerEfficiencyLineChart;
 var $analysisDatePicker = $('#analysisDatePicker');
+var currentAnalysisDataSet;
+/* XXX Must Get From DB */
+var costPerkW = 0.3;
+var currentFactor = 1;
 /* XXX Max Summary Column Number */
 var maxCol = 8;
 function WemsAnalysisController($scope, $http) {
@@ -17,8 +21,14 @@ function WemsAnalysisController($scope, $http) {
     wemsAnalysisVM.powerEfficiencyRows = [];
     wemsAnalysisVM.analysisDataRows = [];
     wemsAnalysisVM.analysisPeriod;
+    wemsAnalysisVM.deviceInfoList = [];
+    wemsAnalysisVM.selectedDeviceInfo;
+    wemsAnalysisVM.selectedAnalysisUnit;
+    wemsAnalysisVM.powerSummaryTitle;
 
     wemsAnalysisVM.onChangeDateUnit = onChangeDateUnitHandler;
+    wemsAnalysisVM.onSelectDevice = onSelectDeviceHandler;
+    wemsAnalysisVM.onChangeAnalysisUnit = onChangeAnalysisUnitHandler;
 
     initializeComponentEventHandler();
 
@@ -29,63 +39,10 @@ function WemsAnalysisController($scope, $http) {
     }
 
     // Initialize Analysis Data
-    function initializeAnalysisData2() {
-        var startDate;
-        var endDate;
-
-        switch (wemsAnalysisVM.selectedDateUnit) {
-            case "day":
-                startDate = moment().startOf('day').toDate();
-                endDate = moment().endOf('day').toDate();
-                $analysisDatePicker.data("DateTimePicker").format('YYYY/MM/DD');
-                $analysisDatePicker.data("DateTimePicker").date(startDate);
-                break;
-
-            case "week":
-                startDate = moment().startOf('isoweek').toDate();
-                endDate = moment().endOf('isoweek').toDate();
-                $analysisDatePicker.data("DateTimePicker").format('YYYY/MM/DD');
-                $analysisDatePicker.data("DateTimePicker").date(startDate);
-                break;
-
-            case "month":
-                startDate = moment().startOf('month').toDate();
-                endDate = moment().endOf('month').toDate();
-                $analysisDatePicker.data("DateTimePicker").format('YYYY/MM');
-                $analysisDatePicker.data("DateTimePicker").date(startDate);
-                break;
-
-            case "year":
-                startDate = moment().startOf('year').toDate();
-                endDate = moment().endOf('year').toDate();
-                $analysisDatePicker.data("DateTimePicker").format('YYYY');
-                $analysisDatePicker.data("DateTimePicker").date(startDate);
-                break;
-
-            default:
-                startDate = moment().startOf('day').toDate();
-                endDate = moment().endOf('day').toDate();
-                $analysisDatePicker.data("DateTimePicker").format('YYYY/MM/DD');
-                $analysisDatePicker.data("DateTimePicker").date(startDate);
-                break;
-        }
-
-        var $analysisDateInput = $('#analysisDateinput');
-        $analysisDateInput.data('currentVal', $analysisDatePicker.data("DateTimePicker").date());
-        $analysisDateInput.value = $analysisDateInput.data('currentVal').toDate();
-
-        var analysisPeriod = {
-            dateUnit: wemsAnalysisVM.selectedDateUnit,
-            startDate: startDate.setHours(0, 0, 0, 0),
-            endDate: endDate.setHours(23, 59, 59, 999)
-        }
-
-        refreshAnalysisData(analysisPeriod);
-    }
-
-    // Initialize Analysis Data
     function initializeAnalysisData() {
         wemsAnalysisVM.selectedDateUnit = "day";
+        wemsAnalysisVM.selectedAnalysisUnit = "kW";
+        wemsAnalysisVM.powerSummaryTitle = "사용 전력량(kW)";
 
         var startDate = new Date();
         startDate.setHours(0, 0, 0, 0);
@@ -95,6 +52,9 @@ function WemsAnalysisController($scope, $http) {
         wemsAnalysisVM.analysisPeriod = getTimeStamp(startDate) + " ~ " + getTimeStamp(endDate);
         getAnalysisData()
             .then(function (res, status, headers, config) {
+                currentAnalysisDataSet = res.data;
+
+                initializeDeviceInfoList(res.data);
                 initializePowerData(res.data);
                 initializeCumulativeCycleTimeData(res.data);
                 initializePowerEfficiency(res.data);
@@ -126,64 +86,25 @@ function WemsAnalysisController($scope, $http) {
         refreshPowerEfficiency(analysisDataSet);
     }
 
+    // Initialzie Analysis Summary Data
     function initializeAnalysisSummayData(analysisDataSet) {
         refreshAnalysisSummary(analysisDataSet);
+    }
+
+    // Initialzie DeviceInfo List
+    function initializeDeviceInfoList(analysisDataSet) {
+        refreshDeviceInfoList(analysisDataSet);
     }
 
     function initializeComponentEventHandler() {
         var startDate;
         var endDate;
-        var $analysisDateInput = $('#analysisDateinput');
-        $analysisDateInput.data('currentVal', $analysisDateInput.val());
-        $analysisDateInput.change(function () {
-            var $input = $(this);
-            var currentValue = $input.val();
-
-            if (currentValue == "") {
-                $input.data('currentVal', $input.data('currentVal'));
-                $input.value = $input.data('currentVal');
-
-                return;
-            }
-        })
-            .focus(function () {
-                var $input = $(this);
-                $input.data('currentVal', $input.val());
-            })
-            .keydown(function (e) {
-                if (e.keyCode === 13) {
-                    var $input = $(this);
-                    var currentValue = $input.val();
-                    if (currentValue == $input.data('currentVal')) {
-                        return;
-                    }
-
-                    if (currentValue == "") {
-                        $input.data('currentVal', $input.data('currentVal'));
-                        $input.value = $input.data('currentVal');
-
-                        return;
-                    }
-
-                    $input.value = currentValue;
-                    $input.data('currentVal', currentValue);
-
-                    startDate = new Date(currentValue);
-                    endDate = new Date(currentValue);
-                    period = {
-                        dateUnit: wemsAnalysisVM.selectedDateUnit,
-                        startDate: startDate.setHours(0, 0, 0, 0),
-                        endDate: endDate.setHours(23, 59, 59, 999)
-                    }
-
-                    refreshAnalysisData(period);
-                }
-            });
 
         $analysisDatePicker.datetimepicker({
             format: 'YYYY/MM/DD',
             showClose: true,
-            defaultDate: new Date(),
+            ignoreReadonly: true,
+            defaultDate: new Date()
         })
             .on('dp.change', function () {
                 $analysisDatePicker.data("DateTimePicker").hide();
@@ -206,6 +127,7 @@ function WemsAnalysisController($scope, $http) {
 
     // Refresh Analysis Data
     function refreshAnalysisData(period) {
+        var start = performance.now();
         if (period) {
             wemsAnalysisVM.analysisPeriod
                 = getTimeStamp(period.startDate)
@@ -215,10 +137,17 @@ function WemsAnalysisController($scope, $http) {
 
         getAnalysisData(period)
             .then(function (res, status, headers, config) {
+                currentAnalysisDataSet = res.data;
+
+                refreshDeviceInfoList(res.data);
                 refreshPowerData(res.data);
                 refreshCumulativeCycleTimeData(res.data);
                 refreshPowerEfficiency(res.data);
                 refreshAnalysisSummary(res.data);
+                var end = performance.now();
+                console.log("====================================================");
+                console.log("Call Refresh Analysis " + (end - start) + " milliseconds.");
+                console.log("====================================================");
             })
             .catch(function (e) {
                 var newMessage = 'XHR Failed for getPowerData'
@@ -227,7 +156,6 @@ function WemsAnalysisController($scope, $http) {
                 }
 
                 e.data.description = newMessage;
-                /// logger.error(newMessage);
             });
     }
 
@@ -248,10 +176,17 @@ function WemsAnalysisController($scope, $http) {
             datasets: datasets
         };
 
+        var titleName = '사용 전력량';
+        var yAxesLabel = '( kW )';
+        if (currentFactor != 1) {
+            titleName = '사용 전력 비용';
+            yAxesLabel = '( 1000 KRW )';
+        }
+
         var options = {
             title: {
                 display: true,
-                text: '사용 전력량',
+                text: titleName,
                 position: 'top',
                 fontSize: 14
             },
@@ -282,7 +217,7 @@ function WemsAnalysisController($scope, $http) {
                     },
                     scaleLabel: {
                         display: true,
-                        labelString: '( kW )'
+                        labelString: yAxesLabel
                     }
                 }],
             },
@@ -510,6 +445,11 @@ function WemsAnalysisController($scope, $http) {
             return;
         }
 
+        wemsAnalysisVM.powerSummaryTitle = "사용 전력량(kW)";
+        if (currentFactor != 1) {
+            wemsAnalysisVM.powerSummaryTitle = "사용 전력 비용(1000 KRW)";
+        }
+
         for (var dataIndex = 0; dataIndex < analysisDataSet.AnalysisData.length; dataIndex++) {
             if (!analysisDataSet.AnalysisData[dataIndex]) {
                 continue;
@@ -521,15 +461,47 @@ function WemsAnalysisController($scope, $http) {
                 analysisDataIndex++) {
                 var analysisData = analaysisDataPerDate[analysisDataIndex];
                 var analysisDate = getTimeStamp(analysisDataSet.AnalysisData[dataIndex].AnalysisDate);
+                var deviceName = "S.C" + analysisData.MachineID;
+                if (wemsAnalysisVM.selectedDeviceInfo &&
+                    (wemsAnalysisVM.selectedDeviceInfo.DeviceID != 0) &&
+                    (wemsAnalysisVM.selectedDeviceInfo.DeviceName != deviceName)) {
+                    continue;
+                }
+
+                var calAnalysisData = analysisData.Power * currentFactor;
                 wemsAnalysisVM.analysisDataRows.push({
                     "Date": analysisDate,
-                    "DeviceName": "S.C" + analysisData.MachineID,
-                    "Power": getNumberWithCommas(analysisData.Power),
+                    "DeviceName": deviceName,
+                    "Power": getNumberWithCommas(calAnalysisData.toFixed(2)),
                     "CumulativeCycleTime": getNumberWithCommas(analysisData.CycleTime),
                     "PowerEfficiency": analysisData.PowerEfficiency
                 });
             }
         }
+    }
+
+    // Refresh Device Info List
+    function refreshDeviceInfoList(analysisDataSet) {
+        if (!analysisDataSet) {
+            return;
+        }
+
+        wemsAnalysisVM.deviceInfoList = [];
+        wemsAnalysisVM.deviceInfoList.push({
+            DeviceID: 0,
+            DeviceName: 'All'
+        });
+
+        for (var deviceIndex = 0;
+            deviceIndex < analysisDataSet.DeviceIDList.length;
+            deviceIndex++) {
+            wemsAnalysisVM.deviceInfoList.push({
+                DeviceID: analysisDataSet.DeviceIDList[deviceIndex],
+                DeviceName: 'S.C' + analysisDataSet.DeviceIDList[deviceIndex]
+            });
+        }
+
+        wemsAnalysisVM.selectedDeviceInfo = wemsAnalysisVM.deviceInfoList[0];
     }
 
     // Get Analysis Data
@@ -600,7 +572,14 @@ function WemsAnalysisController($scope, $http) {
         for (var deviceIndex = 0;
             deviceIndex < analysisDataSet.DeviceIDList.length;
             deviceIndex++) {
-            deviceLabelList.push('S.C' + analysisDataSet.DeviceIDList[deviceIndex]);
+            var labelName = 'S.C' + analysisDataSet.DeviceIDList[deviceIndex];
+            if (wemsAnalysisVM.selectedDeviceInfo &&
+                (wemsAnalysisVM.selectedDeviceInfo.DeviceID != 0) &&
+                (wemsAnalysisVM.selectedDeviceInfo.DeviceName != labelName)) {
+                continue;
+            }
+
+            deviceLabelList.push(labelName);
         }
 
         return deviceLabelList;
@@ -616,11 +595,21 @@ function WemsAnalysisController($scope, $http) {
         var lastYearData = [];
         for (deviceIndex = 0; deviceIndex < analysisDataSet.DeviceIDList.length; deviceIndex++) {
             var labelName = 'S.C' + analysisDataSet.DeviceIDList[deviceIndex].toString();
+            if (wemsAnalysisVM.selectedDeviceInfo &&
+                (wemsAnalysisVM.selectedDeviceInfo.DeviceID != 0) &&
+                (wemsAnalysisVM.selectedDeviceInfo.DeviceName != labelName)){
+                continue;
+            }
+
             var deviceData = [];
             for (dataIndex = 0; dataIndex < analysisDataSet.AnalysisData.length; dataIndex++) {
                 var analysisData = analysisDataSet.AnalysisData[dataIndex];
                 if (!analysisData) {
                     continue;
+                }
+
+                if (lastYearData.length - 1 < dataIndex) {
+                    lastYearData.push(0);
                 }
 
                 var analysisDataPerDevice
@@ -631,20 +620,16 @@ function WemsAnalysisController($scope, $http) {
                     || !analysisDataPerDevice[0]
                     || analysisDataPerDevice[0].Power < 0) {
                     deviceData.push(0);
-                    if (deviceIndex == 0) {
-                        lastYearData.push(0);
-                    }
-
                     continue;
                 }
 
-                deviceData.push(analysisDataPerDevice[0].Power);
-                if (deviceIndex == 0) {
-                    lastYearData.push(analysisDataPerDevice[0].Power);
-                    continue;
+                var calAnalysisData = analysisDataPerDevice[0].Power * currentFactor;
+                if (currentFactor != 1) {
+                    calAnalysisData = Number(calAnalysisData.toFixed(2));
                 }
 
-                lastYearData[dataIndex] += analysisDataPerDevice[0].Power;
+                deviceData.push(calAnalysisData);
+                lastYearData[dataIndex] += calAnalysisData;
             }
 
             var randomBackGroundColor = generateRandomRGBA();
@@ -691,11 +676,21 @@ function WemsAnalysisController($scope, $http) {
         var lastYearData = [];
         for (deviceIndex = 0; deviceIndex < analysisDataSet.DeviceIDList.length; deviceIndex++) {
             var labelName = 'S.C' + analysisDataSet.DeviceIDList[deviceIndex].toString();
+            if (wemsAnalysisVM.selectedDeviceInfo &&
+                (wemsAnalysisVM.selectedDeviceInfo.DeviceID != 0) &&
+                (wemsAnalysisVM.selectedDeviceInfo.DeviceName != labelName)) {
+                continue;
+            }
+
             var deviceData = [];
             for (dataIndex = 0; dataIndex < analysisDataSet.AnalysisData.length; dataIndex++) {
                 var analysisData = analysisDataSet.AnalysisData[dataIndex];
                 if (!analysisData) {
                     continue;
+                }
+
+                if (lastYearData.length - 1 < dataIndex) {
+                    lastYearData.push(0);
                 }
 
                 var analysisDataPerDevice
@@ -706,19 +701,10 @@ function WemsAnalysisController($scope, $http) {
                     || !analysisDataPerDevice[0]
                     || analysisDataPerDevice[0].CycleTime < 0) {
                     deviceData.push(0);
-                    if (deviceIndex == 0) {
-                        lastYearData.push(0);
-                    }
-
                     continue;
                 }
 
                 deviceData.push(analysisDataPerDevice[0].CycleTime);
-                if (deviceIndex == 0) {
-                    lastYearData.push(analysisDataPerDevice[0].CycleTime);
-                    continue;
-                }
-
                 lastYearData[dataIndex] += analysisDataPerDevice[0].CycleTime;
             }
 
@@ -765,6 +751,12 @@ function WemsAnalysisController($scope, $http) {
         var powerEfficiencyDataSet = [];
         for (deviceIndex = 0; deviceIndex < analysisDataSet.DeviceIDList.length; deviceIndex++) {
             var labelName = 'S.C' + analysisDataSet.DeviceIDList[deviceIndex].toString();
+            if (wemsAnalysisVM.selectedDeviceInfo &&
+                (wemsAnalysisVM.selectedDeviceInfo.DeviceID != 0) &&
+                (wemsAnalysisVM.selectedDeviceInfo.DeviceName != labelName)) {
+                continue;
+            }
+
             var deviceData = [];
             for (dataIndex = 0; dataIndex < analysisDataSet.AnalysisData.length; dataIndex++) {
                 var analysisData = analysisDataSet.AnalysisData[dataIndex];
@@ -816,6 +808,13 @@ function WemsAnalysisController($scope, $http) {
         var backGroundColor = [];
         var powerEfficiencies = [];
         for (deviceIndex = 0; deviceIndex < analysisDataSet.DeviceIDList.length; deviceIndex++) {
+            var deviceName = "S.C" + analysisDataSet.DeviceIDList[deviceIndex];
+            if (wemsAnalysisVM.selectedDeviceInfo &&
+                (wemsAnalysisVM.selectedDeviceInfo.DeviceID != 0) &&
+                (wemsAnalysisVM.selectedDeviceInfo.DeviceName != deviceName)) {
+                continue;
+            }
+
             var totalEfficiencyPerDevice = 0;
             for (dataIndex = 0; dataIndex < analysisDataSet.AnalysisData.length; dataIndex++) {
                 var analysisData = analysisDataSet.AnalysisData[dataIndex];
@@ -838,11 +837,15 @@ function WemsAnalysisController($scope, $http) {
 
             var powerEfficiency = Number((totalEfficiencyPerDevice
                 / analysisDataSet.AnalysisData.length).toFixed(2));
+            if (!powerEfficiency) {
+                powerEfficiency = 0;
+            }
+
             powerEfficiencyData.push(powerEfficiency);
             powerEfficiencies.push({
                 "DeviceHeader": "장비",
                 "PowerEfficiencyHeader": "전력량 효율(%)",
-                "Device": "S.C" + analysisDataSet.DeviceIDList[deviceIndex],
+                "Device": deviceName,
                 "PowerEfficiency": powerEfficiency,
             });
 
@@ -917,53 +920,61 @@ function WemsAnalysisController($scope, $http) {
     // Change Date Unit
     function onChangeDateUnitHandler() {
         var startDate;
-        var endDate;
-        $analysisDatePicker.data("DateTimePicker").clear();
-
         switch (wemsAnalysisVM.selectedDateUnit) {
             case "day":
                 startDate = moment().startOf('day').toDate();
-                endDate = moment().endOf('day').toDate();
                 $analysisDatePicker.data("DateTimePicker").format('YYYY/MM/DD');
-                $analysisDatePicker.data("DateTimePicker").date(startDate);
                 break;
 
             case "week":
-                startDate = moment().startOf('isoweek').toDate();
-                endDate = moment().endOf('isoweek').toDate();
+                startDate = moment().startOf('week').toDate();
                 $analysisDatePicker.data("DateTimePicker").format('YYYY/MM/DD');
-                $analysisDatePicker.data("DateTimePicker").date(startDate);
                 break;
 
             case "month":
                 startDate = moment().startOf('month').toDate();
-                endDate = moment().endOf('month').toDate();
                 $analysisDatePicker.data("DateTimePicker").format('YYYY/MM');
-                $analysisDatePicker.data("DateTimePicker").date(startDate);
                 break;
 
             case "year":
                 startDate = moment().startOf('year').toDate();
-                endDate = moment().endOf('year').toDate();
                 $analysisDatePicker.data("DateTimePicker").format('YYYY');
-                $analysisDatePicker.data("DateTimePicker").date(startDate);
                 break;
 
             default:
                 startDate = moment().startOf('day').toDate();
-                endDate = moment().endOf('day').toDate();
                 $analysisDatePicker.data("DateTimePicker").format('YYYY/MM/DD');
-                $analysisDatePicker.data("DateTimePicker").date(startDate);
                 break;
         }
 
-        var analysisPeriod = {
-            dateUnit: wemsAnalysisVM.selectedDateUnit,
-            startDate: startDate.setHours(0, 0, 0, 0),
-            endDate: endDate.setHours(23, 59, 59, 999)
+        $analysisDatePicker.data("DateTimePicker").date(startDate);
+    }
+
+    function onChangeAnalysisUnitHandler() {
+        switch (wemsAnalysisVM.selectedAnalysisUnit) {
+            case "kW":
+                currentFactor = 1;
+                break;
+
+            case "won":
+                currentFactor = costPerkW;
+                break;
+
+            default:
+                currentFactor = 1;
+                break;
         }
 
-        refreshAnalysisData(analysisPeriod);
+        refreshPowerData(currentAnalysisDataSet);
+        refreshAnalysisSummary(currentAnalysisDataSet);
+    }
+
+    // On Select Device Handler
+    function onSelectDeviceHandler() {
+        refreshPowerData(currentAnalysisDataSet);
+        refreshCumulativeCycleTimeData(currentAnalysisDataSet);
+        refreshPowerEfficiency(currentAnalysisDataSet);
+        refreshAnalysisSummary(currentAnalysisDataSet);
     }
 
     // Get X Scale Label String

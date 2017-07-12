@@ -1,5 +1,8 @@
 ﻿var systemConfig = require('../config/systemConfig');
-module.exports = function (app, express) {
+var express = require('express');
+var app = express();
+
+module.exports = function () {
     var path = require('path');
     var favicon = require('serve-favicon');
     var logger = require('morgan');

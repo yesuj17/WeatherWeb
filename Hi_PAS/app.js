@@ -1,14 +1,30 @@
-﻿var express = require('express');
-var app = express();
+﻿var async = require('async');
 
-/* Initialize and Connect DB */
-var commonDBManager = require('./utility/dbManager/commonDBManager');
-commonDBManager.connect();
+async.waterfall([
+    function (callback) {
+        /* Initialize DB */
+        require('./utility/dbManager/commonDBManager').connect(function (result) {
+            if (result == true) {
+                console.log("DB connection successful");
+                callback(null);
+            }
+            else {                
+                callback("Failed to Initailize DB");
+            }
+        });
+    },
+    function (callback) {
+        /* Initialzie and Start PM Service */
+        require('./services/pmsService')();
 
-/* Initialzie and Start PM Service */
-require('./services/pmsService')(app);
+        /* Initialize and Sart Web Service */
+        require('./services/webService')();
 
-/* Initialize and Sart Web Service */
-require('./services/webService')(app, express);
-
-module.exports = app;
+        callback(null);
+    }
+], function (err) {
+    if (err) {
+        console.error(err);
+        process.exit(1);
+    }
+}); 
