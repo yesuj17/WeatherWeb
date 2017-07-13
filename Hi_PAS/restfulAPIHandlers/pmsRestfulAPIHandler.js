@@ -386,7 +386,7 @@ CoverteforSave = function (rawjson) {
 }
 
 module.exports.pmsrend = function (req, res) {
-    res.render('./pms/PMMain');
+    res.render('./pms/pms_main.ejs');
 }
 
 function convertDateToString(cDate) {

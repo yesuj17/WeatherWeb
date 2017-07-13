@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Generate dummy data</title>
+  </head>
+  <body>
+    <form action="/dataGenerator/GenerateDummyData" method="post" onsubmit="return validateForm()">
+      <table>
+        <tr>
+          <td>물동량: </td>
+          <td> 
+            <input type="text" name="workLoad" value="1000" min="1" max="2000">
+          </td>
+          <td></td>
+          <td>
+            <label id="errText1" for="workLoad"></label>
+          </td>
+        </tr>
+        <tr>
+          <td>S/C수:  </td>
+          <td>
+            <input type="text" name="SCCnt" value="10">
+          </td>
+        </tr>
+        <tr>
+          <td>기간: From</td>
+          <td>
+            <input type="date" name="periodFrom" value="2017-06-01">
+          </td>
+          <td>                      </td>
+          <td> To  
+            <input type="date" name="periodTo" value="2017-06-02">
+          </td>
+        </tr>
+        <tr>
+          <td>에러발생률</td>
+          <td>
+            <input type="text" name="errRate" value="0.02">
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <input type="submit" value="Generate">
+          </td>
+        </tr>
+      </table>
+    </form>
+    <script>
+      function validateForm() {
+          var workLoad = document.getElementById("workLoad");
+          if(Number(workLoad.value) < Number(workLoad.min)) {
+              document.getElementById('errText1').innerHTML = "최소 입력값: "+ workLoad.min;
+              workLoad.value = workLoad.min;
+              return false;
+          }
+          if(Number(workLoad.value) > Number(workLoad.max)) {
+              document.getElementById('errText1').innerHTML = "최대 입력값: "+ workLoad.max;
+              workLoad.value = workLoad.max;
+              return false;
+          }
+          return true;
+      }
+    </script>
+  </body>
+</html>

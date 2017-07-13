@@ -15,13 +15,21 @@ async.waterfall([
     },
     function (callback) {
         /* Initialzie and Start PM Service */
-        require('./services/pmsService')();
+        require('./services/pmsService')(function (result) {
+            if (result == true) {
+                callback(null);
+            } else {
+                callback("Failed to Initailze PMS Service");
+            }          
+        });                
+    },
+    function (callback) {        
 
         /* Initialize and Sart Web Service */
         require('./services/webService')();
 
         callback(null);
-    }
+    },
 ], function (err) {
     if (err) {
         console.error(err);

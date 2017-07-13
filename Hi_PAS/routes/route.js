@@ -33,7 +33,7 @@ var pmsGETList = [
     ['/pms/getUsersData', pmsRestfulAPIHandler.getUsersData],
     ['/pms/getNoticesData', pmsRestfulAPIHandler.getNoticesData],
     ['/pms/getNoticesDataNewCount', pmsRestfulAPIHandler.getNoticesDataNewCount],
-    ['/pms', pmsRestfulAPIHandler.pmsrend]
+    ['/pms/pms_main', pmsRestfulAPIHandler.pmsrend]
 ];
 
 var pmsPOSTList = [

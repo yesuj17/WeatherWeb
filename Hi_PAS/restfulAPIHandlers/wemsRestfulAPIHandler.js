@@ -108,7 +108,6 @@ function generateAnalysisData(machineCycleDataPerDeviceList, dateUnit) {
 
             var cycleTime = calCycleTimeData(machineCycleData);
             var analysisStartDate = getAnalysisStartDate(machineCycleData, dateUnit);
-            console.log(analysisStartDate);
             for (index = 0; index < analysisDataList.length; index++) {
                 if (analysisDataList[index].AnalysisDate.getTime() === analysisStartDate.getTime()) {
                     // 해당 날짜의 정보가 있는 경우

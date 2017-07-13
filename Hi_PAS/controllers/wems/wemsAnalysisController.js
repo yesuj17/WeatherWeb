@@ -7,12 +7,17 @@ var cumulativeCycleTimeChart;
 var powerEfficiencyBarChart;
 var powerEfficiencyLineChart;
 var $analysisDatePicker = $('#analysisDatePicker');
+var $wemsMoreResultButton = $('#wemsMoreResultButton');
 var currentAnalysisDataSet;
+var analysisSummaryDataList = [];
 /* XXX Must Get From DB */
 var costPerkW = 0.3;
 var currentFactor = 1;
+
 /* XXX Max Summary Column Number */
 var maxCol = 8;
+var analysisSummaryRowCount = 50;
+var analysisSummaryPageCount = 0;
 function WemsAnalysisController($scope, $http) {
     var wemsAnalysisVM = this;
 
@@ -29,6 +34,8 @@ function WemsAnalysisController($scope, $http) {
     wemsAnalysisVM.onChangeDateUnit = onChangeDateUnitHandler;
     wemsAnalysisVM.onSelectDevice = onSelectDeviceHandler;
     wemsAnalysisVM.onChangeAnalysisUnit = onChangeAnalysisUnitHandler;
+    wemsAnalysisVM.onShowMoreResult = onShowMoreResultHandler;
+    wemsAnalysisVM.onShowPrintPage = onShowPrintPageHandler;
 
     initializeComponentEventHandler();
 
@@ -104,6 +111,7 @@ function WemsAnalysisController($scope, $http) {
             format: 'YYYY/MM/DD',
             showClose: true,
             ignoreReadonly: true,
+            maxDate: new Date(),
             defaultDate: new Date()
         })
             .on('dp.change', function () {
@@ -440,7 +448,7 @@ function WemsAnalysisController($scope, $http) {
 
     // Refresh Analysis Summary
     function refreshAnalysisSummary(analysisDataSet) {
-        wemsAnalysisVM.analysisDataRows = [];
+        analysisSummaryDataList = [];
         if (!analysisDataSet || !analysisDataSet.AnalysisData) {
             return;
         }
@@ -469,7 +477,7 @@ function WemsAnalysisController($scope, $http) {
                 }
 
                 var calAnalysisData = analysisData.Power * currentFactor;
-                wemsAnalysisVM.analysisDataRows.push({
+                analysisSummaryDataList.push({
                     "Date": analysisDate,
                     "DeviceName": deviceName,
                     "Power": getNumberWithCommas(calAnalysisData.toFixed(2)),
@@ -478,6 +486,33 @@ function WemsAnalysisController($scope, $http) {
                 });
             }
         }
+
+        showMoreAnalysisSummaryData(true);
+    }
+
+    // Show More Analysis Summay Data
+    function showMoreAnalysisSummaryData(isInitialize) {
+        if (isInitialize == true) {
+            analysisSummaryPageCount = 0;
+            wemsAnalysisVM.analysisDataRows = [];
+        }
+
+        var startRowIndex = analysisSummaryPageCount * analysisSummaryRowCount;
+        var endRowIndex = startRowIndex + analysisSummaryRowCount;
+        if (analysisSummaryDataList.length < endRowIndex) {
+            endRowIndex = analysisSummaryDataList.length;
+            $wemsMoreResultButton.hide();
+        } else {
+            $wemsMoreResultButton.show();
+        }
+
+        for (var analysisSummaryIndex = startRowIndex;
+            analysisSummaryIndex < endRowIndex;
+            analysisSummaryIndex++){
+            wemsAnalysisVM.analysisDataRows.push(analysisSummaryDataList[analysisSummaryIndex]);
+        }
+
+        analysisSummaryPageCount++;
     }
 
     // Refresh Device Info List
@@ -924,32 +959,38 @@ function WemsAnalysisController($scope, $http) {
             case "day":
                 startDate = moment().startOf('day').toDate();
                 $analysisDatePicker.data("DateTimePicker").format('YYYY/MM/DD');
+                $analysisDatePicker.data("DateTimePicker").viewMode('days');
                 break;
 
             case "week":
                 startDate = moment().startOf('week').toDate();
                 $analysisDatePicker.data("DateTimePicker").format('YYYY/MM/DD');
+                $analysisDatePicker.data("DateTimePicker").viewMode('days');
                 break;
 
             case "month":
                 startDate = moment().startOf('month').toDate();
                 $analysisDatePicker.data("DateTimePicker").format('YYYY/MM');
+                $analysisDatePicker.data("DateTimePicker").viewMode('months');
                 break;
 
             case "year":
                 startDate = moment().startOf('year').toDate();
                 $analysisDatePicker.data("DateTimePicker").format('YYYY');
+                $analysisDatePicker.data("DateTimePicker").viewMode('years');
                 break;
 
             default:
                 startDate = moment().startOf('day').toDate();
                 $analysisDatePicker.data("DateTimePicker").format('YYYY/MM/DD');
+                $analysisDatePicker.data("DateTimePicker").viewMode('days');
                 break;
         }
 
         $analysisDatePicker.data("DateTimePicker").date(startDate);
     }
 
+    // On Change Analysis Unit Handler
     function onChangeAnalysisUnitHandler() {
         switch (wemsAnalysisVM.selectedAnalysisUnit) {
             case "kW":
@@ -967,6 +1008,16 @@ function WemsAnalysisController($scope, $http) {
 
         refreshPowerData(currentAnalysisDataSet);
         refreshAnalysisSummary(currentAnalysisDataSet);
+    }
+
+    // On Show More Result Handler
+    function onShowMoreResultHandler() {
+        showMoreAnalysisSummaryData(false);
+    }
+
+    // On Show Print Page Handler
+    function onShowPrintPageHandler() {
+
     }
 
     // On Select Device Handler

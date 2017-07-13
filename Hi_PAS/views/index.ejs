@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Demo</title>
+    <link rel="stylesheet" href="/bootstrap_v3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/eonasdan-bootstrap-datetimepicker_v4.17.47/css/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet" href="/fullcalendar-3.4.0/fullcalendar.css">
+    <link rel="stylesheet" href="/fullcalendar-3.4.0/fullcalendar.print.css" media="print">
+    <link rel="stylesheet" href="/font-awesome-4.7.0/css/font-awesome.min.css">
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="/bootstrap_v3.3.7/js/bootstrap.min.js"></script>
+    <script src="/moment-2.18.1/moment-with-locales.js">       </script>
+    <script src="/fullcalendar-3.4.0/fullcalendar.js"> </script>
+    <script src="/chart.js_v2.6.0/Chart.min.js"></script>
+    <script src="/eonasdan-bootstrap-datetimepicker_v4.17.47/bootstrap-datetimepicker.min.js"></script>
+    <meta charset="utf-8">
+    <style type="text/css">
+      html{
+          height:100%
+      }
+      body {
+          display:table; height: 100%; width:100%
+      } 
+      
+    </style><script>
+      angular
+          .module('app', [])
+          .controller('DashBoardController', ['$scope', '$http', DashBoardController]);
+      function DashBoardController ($scope, $http){    
+	  		  
+		  <% include ./dash_header.js %>
+		  <% include ./dash_pm.js %>
+		  <% include ./dash_wems.js %>
+		  <% include ./dash_pdas.js %>
+	    
+          /* onLoad() */
+          angular.element(document).ready(function () {
+              header_OnLoad();
+              pm_OnLoad();
+              wems_OnLoad();
+              pdas_OnLoad();
+          });
+      }
+    </script>    
+  </head>
+  <body ng-app="app" ng-controller="DashBoardController as dashboard">
+    <div id="header" style="display: table-row; height: 50px; width:100%;">
+      <div style="display: table; margin: 0px; width: 100%; height: 100%; background-color: #000000">   
+        <!--/ dash_header.ejs start                          -->
+		<% include ./dash_header.ejs %>
+        <!--/ dash_header.ejs end -->
+      </div>
+    </div>
+    <div id="content" style="display: table-row; height: 100%; width:100%;">       
+      <div id="left_content" style="height: 100%; width:50%; float:left; border:2px #f99 solid">
+        <!--/ dash_pm.ejs start                          -->       
+		<% include ./dash_pm.ejs %>
+        <!--/ dash_pm.ejs end                          -->
+      </div>
+      <div id="right_content" style="height: 100%; width:50%; float:right;">
+        <div id="wems_content" style="height: 65%; width:100%; border:2px #f99 solid">
+          <!--/ dash_wems.ejs start-->
+		  <% include ./dash_wems.ejs %>
+          <!--/ dash_wems.ejs end-->
+        </div>
+        <div id="pdas_content" style="height: 35%; width:100%; border:2px #f99 solid">
+          <!--/ dash_pdas.ejs start-->		  
+		  <% include ./dash_pdas.ejs %>
+          <!--/ dash_pdas.ejs end-->
+        </div>
+      </div>
+    </div>
+    <div id="footer" style="display: table-row; height: 10px; width:100%; border:2px #f99 solid">
+      <h6>CopyRight                                      </h6>
+    </div>
+  </body>
+</html>

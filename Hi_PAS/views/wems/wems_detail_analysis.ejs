@@ -1,0 +1,110 @@
+﻿<div ng-app="wemsAnalysisApp" ng-controller="WemsAnalysisController as wemsAnalysisVM" ng-cloak style="height: 100%; width:100%; margin:0; padding:0" class="container">
+    <div style="height: 44px; width: 100%; border:1px #dcdcdc solid">
+        <div class="container" style="float:right; padding: 0">
+          <form class="form-inline" role="form" style="float:right; margin:2px">
+            <div class="form-group">
+              <label>Device</label>
+              <select class="form-control" style="width: 100px" ng-init='wemsAnalysisVM.selectedDeviceInfo = wemsAnalysisVM.deviceInfoList[0]'
+                    ng-model="wemsAnalysisVM.selectedDeviceInfo" ng-options="deviceInfo.DeviceName for deviceInfo in wemsAnalysisVM.deviceInfoList" ng-change="wemsAnalysisVM.onSelectDevice()"></select>
+            </div>
+            <button class="btn btn-default" ng-click="wemsAnalysisVM.onShowPrintPage()">Print</button>
+          </form>  
+        </div>
+    </div>
+    <div id="wems_analysis_firstRow_content" style="height: 44px; width: 100%; border:1px #dcdcdc solid">
+        <div class="btn-group" style="float:left; margin:2px">
+            <label class="btn btn-default">
+                <input name="analysisUnit" type="radio" ng-change="wemsAnalysisVM.onChangeAnalysisUnit()" ng-model="wemsAnalysisVM.selectedAnalysisUnit" value="kW">전력
+            </label>
+            <label class="btn btn-default">
+                <input name="analysisUnit" type="radio" ng-change="wemsAnalysisVM.onChangeAnalysisUnit()" ng-model="wemsAnalysisVM.selectedAnalysisUnit" value="won">비용
+            </label>
+        </div>
+        <div class="btn-group" style="float:right; margin:2px">
+            <label class="btn btn-default">
+                <input name="dateUnit" type="radio" ng-change="wemsAnalysisVM.onChangeDateUnit()" ng-model="wemsAnalysisVM.selectedDateUnit" value="day">1 Day
+            </label>
+            <label class="btn btn-default">
+                <input name="dateUnit" type="radio" ng-change="wemsAnalysisVM.onChangeDateUnit()" ng-model="wemsAnalysisVM.selectedDateUnit" value="week">1 Week
+            </label>
+            <label class="btn btn-default">
+                <input name="dateUnit" type="radio" ng-change="wemsAnalysisVM.onChangeDateUnit()" ng-model="wemsAnalysisVM.selectedDateUnit" value="month">1 Month
+            </label>
+            <label class="btn btn-default">
+                <input name="dateUnit" type="radio" ng-change="wemsAnalysisVM.onChangeDateUnit()" ng-model="wemsAnalysisVM.selectedDateUnit" value="year">1 Year
+            </label>
+        </div>
+        <div style="width:210px; height: 35px; float:right; margin-top:3px; margin-bottom:2px">
+            <div class="form-group">
+                <div class='input-group date' id='analysisDatePicker'>
+                    <input type='text' class="form-control" id="analysisDateinput" style="background-color: white" readonly />
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="wems_analysis_secondRow_content" style="width:100%">
+        <div id="wems_cycleTime_content" style="width:50%; float:right; border:1px #dcdcdc solid">
+            <canvas id="wemsCycleTimeContent" style="width:100%; height:396px"></canvas>
+        </div>
+        <div id="wems_power_content" style="width:50%; float:right; border:1px #dcdcdc solid">
+            <canvas id="wemsPowerContent" style="width:100%; height:396px; padding: 0px"></canvas>
+        </div>
+    </div>
+    <div id="wems_analysis_third_content" style="width:100%">
+        <div id="wems_powerEfficiency2_content" style="width:50%; float:right; border:1px #dcdcdc solid">
+            <canvas id="wemsPowerEfficiencyLineContent" style="width:100%; height:396px; width:100%; text-align:right"></canvas>
+        </div>
+        <div id="wems_powerEfficiency1_content" style="width:50%; float:right; border:1px #dcdcdc solid">
+            <canvas id="wemsPowerEfficiencyBarContent" style="width:100%; height:396px; text-align:left"></canvas>
+        </div>
+    </div>
+    <div id="wems_analysis_fourth_content" style="width:100%; float:left; border:1px #dcdcdc solid">
+        <table style="width: 476px; border: 1px solid grey; border-collapse: collapse; padding: 5px; margin-top: 5px; margin-bottom: 3px">
+            <tr style="width: 100%">
+                <td style="width: 13%; border: 1px solid grey; border-collapse: collapse; padding: 5px; background-color: #f1f1f1">기간</td>
+                <td style="width: 87%; border: 1px solid grey; border-collapse: collapse; padding: 5px">{{wemsAnalysisVM.analysisPeriod}}</td>
+            </tr>
+        </table>
+        <table style="width: 100%; border-collapse: collapse; padding: 5px; margin-bottom: 5px">
+            <tr style="height: 50px" ng-repeat="powerEfficiencyRow in wemsAnalysisVM.powerEfficiencyRows">
+                <td ng-repeat="powerEfficiency in powerEfficiencyRow">
+                    <table style="width: 100%; height: 25px; border: 1px solid grey; border-collapse: collapse; padding: 5px">
+                        <tr style="width: 100%; background-color: #f1f1f1">
+                            <td style="width: 30%; border: 1px solid grey; border-collapse: collapse; padding: 5px">{{powerEfficiency.DeviceHeader}}</td>
+                            <td style="width: 70%; border: 1px solid grey; border-collapse: collapse; padding: 5px">{{powerEfficiency.PowerEfficiencyHeader}}</td>
+                        </tr>
+                    </table>
+                    <table style="width: 100%; height: 25px; border: 1px solid grey; border-collapse: collapse; padding: 5px">
+                        <tr style="width: 100%; background-color: #ffffff">
+                            <td style="width: 30%; border: 1px solid grey; border-collapse: collapse; padding: 5px">{{powerEfficiency.Device}}</td>
+                            <td style="width: 70%; border: 1px solid grey; border-collapse: collapse; padding: 5px">{{powerEfficiency.PowerEfficiency}}</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div id="wems_analysis_fifth_content" style="width:100%">
+        <table style="border: 1px solid grey; border-collapse: collapse; margin-bottom: 15px; padding: 5px; width:100%">
+            <tr style="height: 25px; background-color: #f1f1f1">
+                <th style="border: 1px solid grey; border-collapse: collapse; padding: 5px; text-align:center">시간</th>
+                <th style="border: 1px solid grey; border-collapse: collapse; padding: 5px; text-align:center">장비</th>
+                <th style="border: 1px solid grey; border-collapse: collapse; padding: 5px; text-align:center">{{wemsAnalysisVM.powerSummaryTitle}}</th>
+                <th style="border: 1px solid grey; border-collapse: collapse; padding: 5px; text-align:center">누적 사이클 타임(sec)</th>
+                <th style="border: 1px solid grey; border-collapse: collapse; padding: 5px; text-align:center">전력량 효율(%)</th>
+            </tr>
+            <tr style="height: 25px" ng-repeat="analysisDataRow in wemsAnalysisVM.analysisDataRows">
+                <td style="border: 1px solid grey; border-collapse: collapse; padding: 5px">{{analysisDataRow.Date}}</td>
+                <td style="border: 1px solid grey; border-collapse: collapse; padding: 5px">{{analysisDataRow.DeviceName}}</td>
+                <td style="border: 1px solid grey; border-collapse: collapse; padding: 5px">{{analysisDataRow.Power}}</td>
+                <td style="border: 1px solid grey; border-collapse: collapse; padding: 5px">{{analysisDataRow.CumulativeCycleTime}}</td>
+                <td style="border: 1px solid grey; border-collapse: collapse; padding: 5px">{{analysisDataRow.PowerEfficiency}}</td>
+            </tr>
+        </table>
+        <button id="wemsMoreResultButton" class="btn btn-default" ng-click="wemsAnalysisVM.onShowMoreResult()">결과 더보기</button>
+    </div>
+  <script src="/wems/wemsAnalysisController.js"></script>
+</div>

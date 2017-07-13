@@ -1,0 +1,83 @@
+                <div id="pdasAnalysisModal" role="dialog" class="modal fade">
+                  <div style="width:1200px; height:1400px; background-color: #646464;" class="modal-dialog">
+                    <div style="width:100%; height:100%" class="modal-contents">
+                      <div style="height: 5%; background-color: #ffffff; color:#FFF" class="modal-header">
+                        <div class="container-fluid">
+                          <div class="row">
+                            <div class="col-sm-10">
+                              <h3 style="text-align:left; color:black" class="modal-title">PAS</h3>
+                            </div>
+                            <div class="col-sm-1">
+                              <button type="button" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-cog"></span></button>
+                            </div>
+                            <div class="col-sm-1">
+                              <button type="button" data-dismiss="modal" class="close">x</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div ng-app="pdasAnalysisApp" ng-controller="pdasAnalysisController as analysis" style="height:90%;" class="modal-body">
+                        <div style="height:100%" class="container-fluid">
+                          <div style="height:5%" class="row">
+                            <div class="col-sm-8"></div>
+                            <div style="float:right" class="col-sm-4">
+                              <div class="col-xs-4">
+                                <label style="color:white;">기간  </label>
+                                <select id="period" ng-model="selectedPeriod" ng-options="x.title for x in period" ng-change="selectPeriod()" class="form-control"></select>
+                              </div>
+                              <div class="col-xs-4">
+                                <label for="machine" style="color:white;">호기</label>
+                                <select id="machine" ng-model="selectedMachine" ng-options="x.title for x in machines" ng-change="filteringCurrentData()" class="form-control"></select>
+                              </div>
+                            </div>
+                          </div>
+                          <div style="height:4%" class="row">
+                            <button type="button" class="btn btn-primary">Trend분석(전류데이터)</button>
+                          </div>
+                          <div style="height:29%; background-color:#486268" class="row">
+                            <div style="height:10%; float:right" class="col-sm-3">
+                              <label style="color:white; font-size:70%" class="checkbox-inline">주행모터</label>
+                              <input type="checkbox" ng-model="motorType.DrivingMotor" ng-change="filteringCurrentData()" ng-true-value="DrivingMotor" ng-false-value="">
+                              <label style="color:white; font-size:70%" class="checkbox-inline">승강모터</label>
+                              <input type="checkbox" ng-model="motorType.HoistingMotor" ng-change="filteringCurrentData()" ng-true-value="HoistingMotor" ng-false-value="">
+                              <label style="color:white; font-size:70%" class="checkbox-inline">포크모터</label>
+                              <input type="checkbox" ng-model="motorType.ForkMotor" ng-change="filteringCurrentData()" ng-true-value="ForkMotor" ng-false-value="">
+                            </div>
+                            <div style="height:90%">
+                              <canvas id="currentTrendChart" style="height:100%; width:90%; margin:10"></canvas>
+                            </div>
+                          </div>
+                          <div style="height:1%" class="row">                           </div>
+                          <div style="height:30%;" class="row">
+                            <div style="height:100%;background-color:#486268" class="col-sm-6">
+                              <div style="height:10%;" class="row">
+                                <button type="button" class="btn btn-primary">설비종합효율(%)</button>
+                              </div>
+                              <div style="height:90%; border:1px #f99 solid" class="row"></div>
+                            </div>
+                            <div style="height:100%;background-color:#486268" class="col-sm-6">
+                              <div style="height:10%;" class="row">
+                                <button type="button" class="btn btn-primary">Cycle Time(sec)</button>
+                              </div>
+                              <div style="height:40%;border:1px #f99 solid" class="row"></div>
+                              <div style="height:10%;" class="row">
+                                <button type="button" class="btn btn-primary">재고현황(%)</button>
+                              </div>
+                              <div style="height:40%; border:1px #f99 solid" class="row"></div>
+                            </div>
+                          </div>
+                          <div style="height:2%" class="row"></div>
+                          <div style="height:28%; background-color:#486268" class="row">
+                            <div style="height:10%" class="row">
+                              <div class="col-sm-12">
+                                <button type="button" class="btn btn-primary">Trend분석(종합효율)</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div style="height:5%" class="modal-footer"></div>
+                      <script src="/pdas/pdasAnalysisController.js"></script>
+                    </div>
+                  </div>
+                </div>
