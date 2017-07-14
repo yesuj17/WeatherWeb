@@ -20,7 +20,6 @@ var analysisSummaryRowCount = 50;
 var analysisSummaryPageCount = 0;
 function WemsAnalysisController($scope, $http) {
     var wemsAnalysisVM = this;
-
     $('#wemsDetailModal').on('show.bs.modal', onShowWemsDetailModal);
 
     wemsAnalysisVM.powerEfficiencyRows = [];
@@ -546,7 +545,7 @@ function WemsAnalysisController($scope, $http) {
             headers: { 'Authorization': 'Basic YmVlcDpib29w' }
         }
 
-        return $http.get('/wems/analysisData/', config);
+        return $http.get('/wems/getAnalysisData/', config);
     }
 
     function getNumberWithCommas(item) {
@@ -1017,7 +1016,7 @@ function WemsAnalysisController($scope, $http) {
 
     // On Show Print Page Handler
     function onShowPrintPageHandler() {
-
+        window.print();
     }
 
     // On Select Device Handler

@@ -67,8 +67,29 @@ module.exports.getAnalysisData = function (req, res) {
     }
 }
 
+module.exports.getManagementData = function (req, res) {
+}
+
 // POST Restful API Handler
 // PUT Restful API Handler
+module.exports.updateManagementData = function (req, res) {
+    var param = {
+        'PowerEfficiency1': req.body.PowerEfficiency1,
+        'PowerEfficiency2': req.body.PowerEfficiency2,
+        'StandardPower': req.body.StandardPower,
+        'CostPerKW': CostPerKW
+    };
+
+    wemsDBManager.updateManagementData(param, function (result, err) {
+        if (result) {
+            res.end();
+        }
+        else {
+            res.status(505).json({ error: err });
+        }
+    });
+}
+
 // DELETE Restful API Handler
 
 // WEMS Method
@@ -289,3 +310,4 @@ function calPowerEfficiencyDataPerDate(power, cycleTime) {
     var hours = cycleTime / 3600;
     return Number((((power / hours.toFixed(3)) / standardPower) * 100).toFixed(2));
 }
+
