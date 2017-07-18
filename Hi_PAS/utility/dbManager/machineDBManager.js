@@ -61,10 +61,12 @@ module.exports.addMachineInfo = function (machineInfo, next) {
                 info.Type = machineInfo.Type;
                 info.Name = machineInfo.Name;
                 info.ID = machineInfo.ID;
+                info.CellCount = machineInfo.CellCount;
             }
             else {
                 info.Type = machineInfo.Type;
                 info.Name = machineInfo.Name;
+                info.CellCount = machineInfo.CellCount;
             }
                         
             info.save(function (err) {

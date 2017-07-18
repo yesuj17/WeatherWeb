@@ -1,6 +1,13 @@
 {
   "home": "Home",
-  "detail": "Detail",
-  "setting": "Setting",
-  "cancel": "Cancel"
+  "S_WEMS_detail": "Detail",
+  "S_WEMS_setting": "Setting",
+  "S_WEMS_cancel": "Cancel",
+	"S_PMS_DailyEventGroupTitle": "Daily",
+	"S_PMS_WeeklyEventGroupTitle": "Weekly",
+	"S_PMS_MonthlyEventGroupTitle": "Monthly",
+	"S_PMS_EventDetailTableColCode": "Code",
+	"S_PMS_EventDetailTableColTitle": "Title",
+	"S_PMS_EventDetailScheduleMoveButton": "Change",
+	"S_PMS_CalendarConfirmChangeEventScheduleMsg": "S_PMS_CalendarConfirmChangeEventScheduleMsg"
 }

@@ -1,4 +1,5 @@
-﻿var mongoose = require('mongoose');
+﻿require('date-utils');
+var mongoose = require('mongoose');
 var async = require('async');
 var UserInfoSchema = require('../../models/dbSchema/UserInfoSchema.js');
 var NoticeInfoSchema = require('../../models/dbSchema/NoticeInfoSchema.js');
@@ -390,25 +391,25 @@ module.exports.deleteNoticeData = function (param, next) {
     });
 }
 
-module.exports.InsertMotherdata = function (InputmotherData, next) {
-    console.log("InsertMotherdata 실행");
+module.exports.CreateMotherData = function (InputmotherData, next) {
+    //debug console.log("CreateMotherData 실행");
     //input data 유효성 check
     if (!InputmotherData) {
-        console.log(" [InsertMotherdata]modeherData가 널임.");
-        next(4, 'motherData null');
+       //debug console.log(" [CreateMotherData]modeherData가 널임.");
+      //  next(4, 'motherData null');
         return;
     }
     // 들어오는 input data중 동일한 data를 가져오는 쿼리( code값으로 식별)
     motherDataSchema.findOne({ Code: InputmotherData.Code }, function (err, doc) {
         if (err) {
-            console.log(" [InsertMotherdata]스키마에서 찾다가 에러남.");
-            next(3, err);
+          //debug  console.log(" [CreateMotherData]스키마에서 찾다가 에러남.");
+         //   next(3, err);
             return;
         }
         //data이미 가 있으면 중복처리
         if (doc) {
-            console.log(" [InsertMotherdata]스키마에 이미 존재");
-            next(2, 'duplicate');
+          //debug  console.log(" [CreateMotherData]스키마에 이미 존재");
+         //   next(2, 'duplicate');
             return;
         }
     });
@@ -428,23 +429,84 @@ module.exports.InsertMotherdata = function (InputmotherData, next) {
     a.nonTimeBaseMainValue = InputmotherData.nonTimeBaseMainValue;
     a.nonTimeBaseWarringUnit = InputmotherData.nonTimeBaseWarringUnit;
     a.nonTimeBaseWarringValue = InputmotherData.nonTimeBaseWarringValue;
-    a.Relation = InputmotherData.Relation;
+    a.Relation = InputmotherData.Relation.split(',');
     a.Type = InputmotherData.Type;
     a.Level = InputmotherData.Level;
 
     a.save(function (err) {
         if (err) {
             console.error(err);
-            console.log(" [InsertMotherdata]model 저장실패");
-            next(5, 'fail save');
+          //debug  console.log(" [CreateMotherData]model 저장실패");
+          //  next(5, 'fail save');
             return;
         } else {
-            console.log(" [InsertMotherdata]model 저장 성공");
-            next(1, 'success save');
+          //debug  console.log(" [CreateMotherData]model 저장 성공");
+          //  next(1, 'success save');
         }
     });
 }
 
+
+module.exports.getEventGroupList = function (param, next) {
+
+    if (!param) {
+        next(false, 'param null');
+        return;    
+    }
+
+    // XXX  test code. will be removed.
+    var eventGroupList = [];
+    for (var i = 1; i < 31; i++) {
+
+        var eventDate = new Date().toFormat('YYYY-MM') + '-' + ((i < 10) ? ('0' + i) : i);
+        eventGroupList.push({
+            Date: eventDate,
+            GroupType: 'daily',
+            ExistMemo: 'false'
+        });  
+
+        if (i % 7 == 3) {
+
+            eventGroupList.push({
+                Date: eventDate,
+                GroupType: 'weekly',
+                ExistMemo: 'true'
+            });              
+        }
+
+        if (i == 17) {
+
+            eventGroupList.push({
+                Date: eventDate,
+                GroupType: 'monthly',
+                ExistMemo: 'false'
+            });  
+        }     
+    }    
+
+    next(true, eventGroupList);
+}
+
+module.exports.getEventList = function (param, next) {
+
+    if (!param) {
+        next(false, 'param null');
+        return;
+    }
+    
+    /* XXX  test code. will be removed. */
+    var eventList = [];
+    for (var i = 1; i < 9; i++) {
+       
+        eventList.push({
+            UID: "10000" + i,
+            Code: "PM" + Math.floor((Math.random() * (9999 - 1000)) + 1000),
+            Title: 'Task Task Task Task Task'
+        });
+    }  
+
+    next(true, eventList);
+}
 
 module.exports.InitPMSDB = function (next) {
     var defaultUserData         =   { UserName: 'Admin', UserLevel: 'Admin' };
@@ -533,4 +595,49 @@ function onDefaultUserLevelData(param, next) {
                 next(true);
             }
         });
+}
+module.exports.getMothersData = function (next) {
+    //debug console.log("getMothersData 실행");
+    motherDataSchema.find().select().exec(function (err, doc) {
+        if (err) {
+            console.err(err);
+            next(1, err, doc/* doc : null */)//err발생.
+        }
+        next(0, err/* err: null */, doc); //정상처리
+    });
+}
+module.exports.dropMothersData = function () {
+   //debug console.log("MothersData Drop!");
+    dropCollection(motherDataSchema);
+    /* var promise = dropCollection(motherDataSchema);
+    promise.then(function (text) {
+        console.log(text);
+    }, function (error) {
+        console.log("스키마없다.");
+        console.log(error);
+    });*/
+}
+function dropCollection(motherDataSchema) {
+    var collection = mongoose.connection.collections[motherDataSchema.collection.collectionName];
+    collection.drop(function (err) {
+       //debug console.log("Drop Error :",err);
+    });
+    // Remove mongoose's internal records of this
+    // temp. model and the schema associated with it
+    for (var i = 0; i < mongoose.models.length; i++) {
+        if (mongoose.models[i].name == "PMSmotherSchema") {
+            console.log("mongoose.models에서 PMSmotherSchema 찾음, 삭제");
+            delete mongoose.models[PMSmotherSchema];
+        }
+        if (i == mongoose.models.length - 1)
+            console.log("mongoose.models에서 PMSmotherSchema는 없음. 삭제 안해도 됨.");
+    }
+    for (var j = 0; j < mongoose.modelSchemas.length; j++) {
+        if (mongoose.modelSchemas[j].name == "PMSmotherSchema") {
+            console.log("mongoose.modelSchemas에서 PMSmotherSchema 찾음, 삭제");
+            delete mongoose.modelSchemas[PMSmotherSchema];
+        }
+        if (j == mongoose.modelSchemas.length - 1)
+            console.log("mongoose.modelSchemas에서 PMSmotherSchema는 없음. 삭제 안해도 됨.");
+    }
 }

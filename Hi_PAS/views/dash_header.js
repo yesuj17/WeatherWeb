@@ -1,4 +1,5 @@
-﻿// login User
+﻿
+// login User
 var userName = $('#userName').text();
 
 // User Management Modal hide Event
@@ -378,10 +379,10 @@ function getUserData(pageSize, moreCount) {
 
     $http.get('/pms/getUsersData', {
         params: {
-            pageSize: pageSizeValue,
-            pageIndex: pageIndexValue,
-            filter: filterValue,
-            search: searchValue,
+            pageSizeValue: pageSizeValue,
+            pageIndexValue: pageIndexValue,
+            filterValue: filterValue,
+            searchValue: searchValue,
             date: (new Date()).getTime()
         }
     }).then(function (response) {
@@ -406,10 +407,10 @@ function getNoticeData(pageSize, moreCount) {
 
     $http.get('/pms/getNoticesData', {
         params: {
-            pageSize: pageSizeValue,
-            pageIndex: pageIndexValue,
-            filter: filterValue,
-            search: searchValue,
+            pageSizeValue: pageSizeValue,
+            pageIndexValue: pageIndexValue,
+            filterValue: filterValue,
+            searchValue: searchValue,
             user: userValue,
             date: (new Date()).getTime()
         }
@@ -436,7 +437,7 @@ function getNoticeDataNewCount() {
 
     $http.get('/pms/getNoticesDataNewCount', {
         params: {
-            user: userValue,
+            userValue: userValue,
             date: (new Date()).getTime()
         }
     }).then(function (response) {
@@ -542,6 +543,8 @@ function deleteUserData(user) {
     $http.delete('/pms/deleteUserData', {
         params: {
             userName: user.UserName,
+            userEmail: user.UserEmail,
+            userPhone: user.UserPhone
         }
     })
         .success(function (data, status, headers, config) {

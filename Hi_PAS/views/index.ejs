@@ -12,6 +12,7 @@
     <script src="/bootstrap_v3.3.7/js/bootstrap.min.js"></script>
     <script src="/moment-2.18.1/moment-with-locales.js">       </script>
     <script src="/fullcalendar-3.4.0/fullcalendar.js"> </script>
+	<script src="/fullcalendar-3.4.0/locale-all.js"> </script>
     <script src="/chart.js_v2.6.0/Chart.min.js"></script>
     <script src="/eonasdan-bootstrap-datetimepicker_v4.17.47/bootstrap-datetimepicker.min.js"></script>
     <meta charset="utf-8">
@@ -28,6 +29,7 @@
           .module('app', [])
           .controller('DashBoardController', ['$scope', '$http', DashBoardController]);
       function DashBoardController ($scope, $http){    
+	      dashVM = this;
 	  		  
 		  <% include ./dash_header.js %>
 		  <% include ./dash_pm.js %>
@@ -37,14 +39,14 @@
           /* onLoad() */
           angular.element(document).ready(function () {
               header_OnLoad();
-              pm_OnLoad();
+              pms_OnLoad();
               wems_OnLoad();
               pdas_OnLoad();
           });
       }
     </script>    
   </head>
-  <body ng-app="app" ng-controller="DashBoardController as dashboard">
+  <body ng-app="app" ng-controller="DashBoardController as dashVM">
     <div id="header" style="display: table-row; height: 50px; width:100%;">
       <div style="display: table; margin: 0px; width: 100%; height: 100%; background-color: #000000">   
         <!--/ dash_header.ejs start                          -->

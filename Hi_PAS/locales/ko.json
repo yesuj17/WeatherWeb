@@ -1,6 +1,13 @@
 {
   "home": "홈",
-  "detail": "더보기",
-  "setting": "설정",
-  "cancel": "취소"
+  "S_WEMS_detail": "더보기",
+  "S_WEMS_setting": "설정",
+  "S_WEMS_cancel": "취소",
+	"S_PMS_DailyEventGroupTitle": "일일점검",
+	"S_PMS_WeeklyEventGroupTitle": "주간점검",
+	"S_PMS_MonthlyEventGroupTitle": "월간점검",
+	"S_PMS_EventDetailTableColCode": "관리코드",
+	"S_PMS_EventDetailTableColTitle": "점검명",
+	"S_PMS_EventDetailScheduleMoveButton": "점검일정변경",
+	"S_PMS_CalendarConfirmChangeEventScheduleMsg": "점검 일정을 변경하시겠습니까?"
 }

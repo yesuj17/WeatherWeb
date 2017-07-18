@@ -13,29 +13,22 @@ module.exports.loginUserData = function (req, res) {
 }
 
 module.exports.addUserLevelData = function (req, res) {
-    var param = {
-        'level': req.body.level,
-        'levelName': req.body.levelName
-    };
+    var userLevelData = JSON.parse(JSON.stringify(req.body));
 
-    dbManager.insertUserLevelData(param, function (result, err) {
+    dbManager.insertUserLevelData(userLevelData, function (result, err) {
         if (result) {
             res.end();
         }
         else {
             res.status(505).json({ error: err });
         }
-    })
+    });
 }
 
 module.exports.addUserData = function (req, res) {
-    var param = {
-        'userName': req.body.userName,
-        'userEmail': req.body.userEmail,
-        'userPhone': req.body.userPhone
-    };
+    var userData = JSON.parse(JSON.stringify(req.body));
 
-    dbManager.insertUserData(param, function (result, err) {
+    dbManager.insertUserData(userData, function (result, err) {
         if (result) {
             res.end();
         }
@@ -46,15 +39,9 @@ module.exports.addUserData = function (req, res) {
 }
 
 module.exports.addNoticeData = function (req, res) {
-    var param = {
-        'noticeTitle': req.body.noticeTitle,
-        'noticeEndDate': req.body.noticeEndDate,
-        'noticeOption': req.body.noticeOption,
-        'noticeWriter': req.body.noticeWriter,
-        'noticeContent': req.body.noticeContent
-    }
-
-    dbManager.insertNoticeData(param, function (result, err) {
+    var noticeData = JSON.parse(JSON.stringify(req.body));
+    
+    dbManager.insertNoticeData(noticeData, function (result, err) {
         if (result) {
             res.end();
         }
@@ -65,12 +52,9 @@ module.exports.addNoticeData = function (req, res) {
 }
 
 module.exports.addNoticeUserReadData = function (req, res) {
-    var param = {
-        'noticeId': req.body.noticeId,
-        'noticeReadUser': req.body.noticeReadUser
-    }
-
-    dbManager.insertNoticeUserReadData(param, function (result, err) {
+    var noticeUserReadData = JSON.parse(JSON.stringify(req.body));
+    
+    dbManager.insertNoticeUserReadData(noticeUserReadData, function (result, err) {
         if (result) {
             res.end();
         }
@@ -81,13 +65,9 @@ module.exports.addNoticeUserReadData = function (req, res) {
 }
 
 module.exports.updateUserData = function (req, res) {
-    var param = {
-        'userName': req.body.userName,
-        'userEmail': req.body.userEmail,
-        'userPhone': req.body.userPhone
-    };
+    var userData = JSON.parse(JSON.stringify(req.body));
 
-    dbManager.updateUserData(param, function (result, err) {
+    dbManager.updateUserData(userData, function (result, err) {
         if (result) {
             res.end();
         }
@@ -98,16 +78,9 @@ module.exports.updateUserData = function (req, res) {
 }
 
 module.exports.updateNoticeData = function (req, res) {
-    var param = {
-        'noticeId': req.body.noticeId,
-        'noticeTitle': req.body.noticeTitle,
-        'noticeEndDate': req.body.noticeEndDate,
-        'noticeOption': req.body.noticeOption,
-        'noticeWriter': req.body.noticeWriter,
-        'noticeContent': req.body.noticeContent
-    };
+    var noticeData = JSON.parse(JSON.stringify(req.body));
 
-    dbManager.updateNoticeData(param, function (result, err) {
+    dbManager.updateNoticeData(noticeData, function (result, err) {
         if (result) {
             res.end();
         }
@@ -118,11 +91,9 @@ module.exports.updateNoticeData = function (req, res) {
 }
 
 module.exports.getLoginData = function (req, res) {
-    var param = {
-        'UserName': req.query.UserName
-    };
-
-    dbManager.findUserData(param, function (result, err, user) {
+    var logInData = JSON.parse(JSON.stringify(req.query));
+    
+    dbManager.findUserData(logInData, function (result, err, user) {
         if (result) {
             req.session.user = user;
             res.redirect('/');
@@ -134,20 +105,15 @@ module.exports.getLoginData = function (req, res) {
 }
 
 module.exports.getUsersData = function (req, res) {
-    var param = {
-        'pageSizeValue': req.query.pageSize,
-        'pageIndexValue': req.query.pageIndex,
-        'filterValue': req.query.filter,
-        'searchValue': req.query.search
-    };
-
-    dbManager.findUsersData(param, function (result, err, users) {
+    var usersData = JSON.parse(JSON.stringify(req.query));
+  
+    dbManager.findUsersData(usersData, function (result, err, users) {
         if (result) {
             var userArray = [];
             for (var index in users) {
 
                 var pmsUserInfo = {};
-                pmsUserInfo.UserIndex = Number(param.pageSizeValue * param.pageIndexValue) + Number(index);
+                pmsUserInfo.UserIndex = Number(usersData.pageSizeValue * usersData.pageIndexValue) + Number(index);
                 pmsUserInfo.UserName = users[index].UserName;
                 pmsUserInfo.UserEmail = users[index].UserEmail;
                 pmsUserInfo.UserPhone = users[index].UserPhone;
@@ -164,10 +130,9 @@ module.exports.getUsersData = function (req, res) {
 }
 
 module.exports.getNoticesDataNewCount = function (req, res) {
-    var param = {
-        'userValue': req.query.user
-    };
-    dbManager.findNoticesDataNewCount(param, function (result, err, count) {
+    var noticesDataNewCount = JSON.parse(JSON.stringify(req.query));
+    
+    dbManager.findNoticesDataNewCount(noticesDataNewCount, function (result, err, count) {
         if (result) {
             res.send({ 'Count': count });
         }
@@ -178,15 +143,9 @@ module.exports.getNoticesDataNewCount = function (req, res) {
 }
 
 module.exports.getNoticesData = function (req, res) {
-    var param = {
-        'pageSizeValue': req.query.pageSize,
-        'pageIndexValue': req.query.pageIndex,
-        'filterValue': req.query.filter,
-        'searchValue': req.query.search,
-        'user': req.query.user
-    };
-
-    dbManager.findNoticesData(param, function (result, err, notices) {
+    var noticesData = JSON.parse(JSON.stringify(req.query));
+  
+    dbManager.findNoticesData(noticesData, function (result, err, notices) {
         if (result) {
             var noticeArray = [];
 
@@ -204,11 +163,11 @@ module.exports.getNoticesData = function (req, res) {
                 pmsNoticeInfo.NoticeOption = notices[index].Option;
                 pmsNoticeInfo.NoticeContent = notices[index].Content;
                 pmsNoticeInfo.NoticeEndDate = convertDateToString(notices[index].EndDate);
-                pmsNoticeInfo.NoticeIndex = Number(param.pageSizeValue * param.pageIndexValue) + Number(index);
+                pmsNoticeInfo.NoticeIndex = Number(noticesData.pageSizeValue * noticesData.pageIndexValue) + Number(index);
 
                 pmsNoticeInfo.NoticeRead = false;
                 for (var readIndex in notices[index].ReadInfo) {
-                    if (notices[index].ReadInfo[readIndex].name == param.user) {
+                    if (notices[index].ReadInfo[readIndex].name == noticesData.user) {
                         pmsNoticeInfo.NoticeRead = true;
                         break;
                     }
@@ -231,13 +190,9 @@ module.exports.getNoticesData = function (req, res) {
 }
 
 module.exports.deleteUserData = function (req, res) {
-    var param = {
-        'userName': req.query.userName,
-        'userEmail': req.query.userEmail,
-        'userPhone': req.query.userPhone,
-    };
-
-    dbManager.deleteUserData(param, function (result, err) {
+    var userData = JSON.parse(JSON.stringify(req.query));
+    
+    dbManager.deleteUserData(userData, function (result, err) {
         if (result) {
             res.end();
         }
@@ -248,11 +203,9 @@ module.exports.deleteUserData = function (req, res) {
 }
 
 module.exports.deleteNoticeData = function (req, res) {
-    var param = {
-        'noticeId': req.query.noticeId
-    };
+    var noticeData = JSON.parse(JSON.stringify(req.query));
 
-    dbManager.deleteNoticeData(param, function (result, err) {
+    dbManager.deleteNoticeData(noticeData, function (result, err) {
         if (result) {
             res.end();
         }
@@ -269,32 +222,7 @@ module.exports.AddMotherData = function (req, res) {
     saveMotherDataJsonToDB(motherdata);
 }
 saveMotherDataJsonToDB = function (input) {
-    dbManager.InsertMotherdata(input, function (result, err) {
-        if (result == 1/*정상처리*/) {
-            console.log("[AddMotherData]data 정상 처리");
-
-        }
-        else if (result == 2/*중복 발생*/) {
-            console.log("[AddMotherData]중복 발생");
-
-        }
-        else if (result == 3/*findone error 발생*/) {
-            console.log("[AddMotherData]findone error 발생");
-            //res.status(505).json({ error: err });
-        }
-        else if (result == 4/*InsertData가 null*/) {
-            console.log("[AddMotherData]InsertData가 null");
-
-        }
-        else if (result == 5/*Model save 실패*/) {
-            console.log("[AddMotherData]model save 실패");
-
-        }
-        else {
-            console.log("[AddMotherData] 뭐.");
-
-        }
-    });
+    dbManager.CreateMotherData(input)
 }
 
 var storage = multer.diskStorage({ //업로드 된 파일의 저장 장소 정의.
@@ -314,7 +242,7 @@ var upload = multer({ // 저장 장소 저장 하고 확장자 설정.( xls, xls
         }
         callback(null, true);
     }
-}).single('file');
+}).single('ExcelFile');
 module.exports.ImportExcel = function (req, res) {
     var exceltojson;
     //위에서 설정된 upload 매소드 실행.
@@ -350,18 +278,26 @@ module.exports.ImportExcel = function (req, res) {
                     return res.json({ error_code: 1, err_desc: err, data: null });
                 }
                 //추출한 제이슨. db에 저장한다. 
-                res.json({ error_code: 0, err_desc: null, data: result });
-                for (var i = 0; ((i < result.length) && result[i].코드 != ""); i++) {
-                    //컴버터가 필요하다. excel 양식 -> schema 양식에 맞게.
-                    var convertdJson = CoverteforSave(result[i]);
-                    //변환이 끝난 json 은 저장 
-                    saveMotherDataJsonToDB(convertdJson);
-                }
+                //res.json({ error_code: 0, err_desc: null, data: result });
+                dbManager.dropMothersData();
+                saveMotherDataArrayToDB(result);
+                //res.redirect('..');
+                res.end();
             });
         } catch (e) {
             res.json({ error_code: 1, err_desc: "Corupted excel file" });
         }
     })
+}
+saveMotherDataArrayToDB = function (result) {
+    for (var i = 0; ((i < result.length) && result[i].코드 != ""); i++) {
+        //컴버터가 필요하다. excel 양식 -> schema 양식에 맞게.
+        var convertdJson = CoverteforSave(result[i]);
+        //변환이 끝난 json 은 저장 
+        saveMotherDataJsonToDB(convertdJson);
+        //  if (true != result) 비동기라 undefind 가 넘어와서 종료됨. 리턴값 무시 
+        //      return result;  
+    }
 }
 CoverteforSave = function (rawjson) {
     var result = motherjson;
@@ -400,4 +336,52 @@ function convertDateToString(cDate) {
     }
 
     return convertDate;
+}
+
+module.exports.getEventGroupList = function (req, res) {
+
+    var param = req.query.month;
+
+    dbManager.getEventGroupList( param, function (result, eventGroupList) {
+        if (result == true) {
+            res.json(eventGroupList);
+        }
+        else {
+            res.status(505).json({ error: "Internal Error"});
+        }
+    });
+}
+
+module.exports.getEventList = function (req, res) {
+
+    var param = {
+        targetDate: req.query.TargetDate,
+        groupType : req.query.GroupType
+    };
+    
+
+    dbManager.getEventList(param, function (result, eventList) {
+        if (result == true) {
+            res.json(eventList);
+        }
+        else {
+            res.status(505).json({ error: "Internal Error" });
+        }
+    });
+}
+
+
+module.exports.DisplayGridMotherdata = function (req, res) {
+    //mother data를 가져온다.
+    //debug console.log("Display 함수 호출");
+    //getMothersData를 가져올 때 결과 처리 함수.
+    var callback = function (result, err, doc) {
+        if (true == result) {
+            res.status(505).json({ error: err });
+        }
+        else/*(result == 0) */ {
+            res.send(doc);
+        }
+    }
+    dbManager.getMothersData(callback);
 }

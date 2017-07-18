@@ -16,7 +16,7 @@ var PMSmotherSchema = new Schema({
     nonTimeBaseMainValue: Number,
     nonTimeBaseWarringUnit: String,
     nonTimeBaseWarringValue: Number,
-    Relation: String,
+    Relation: [],
     Type: String,
     Level: Number
 });

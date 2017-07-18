@@ -1,14 +1,14 @@
 ﻿<div ng-app="wemsManagementApp" ng-controller="WemsManagementController as wemsManagementVM" style="height: 100%; width:100%; margin:0; padding:0" class="container">
-  <div id="wems_management_firstRow_content" style="height: 30%; width: 100%; padding: 0">
+  <div id="ID_WEMS_managementFirstRowContent" style="height: 30%; width: 100%; padding: 0">
     <div class="container" style="width:100%; text-align:left; margin-top:3px; margin-bottom:3px; padding: 0">
       <label style="font-size: 20px">일일 전력량 효율 기준 설정</label>
     </div>
-    <div class="container" style="width:100%; padding: 0; margin-top:3px; margin-bottom:3px; text-align:left; border:1px #dcdcdc solid">
+    <div class="container" style="width:100%; padding: 0; margin-top:3px; margin-bottom:10px; text-align:left; border:1px #dcdcdc solid">
       <form class="form-inline" role="form" style="text-align:left; margin:3px">
         <div class="form-group" style="margin-right: 10px">
-          <label style="font-size: 15px" for="powerEfficiency1">전력량 효율 기준값1</label>
+          <label style="font-size: 15px" for="threshold1">전력량 효율 기준값1</label>
           <ng-form name="numberForm">
-            <input name="number" type="number" class="form-control" id="powerEfficiency1" ng-model="wemsManagementVM.powerEfficiency1" ng-keyup="wemsmanagementVM.onCheckNumber($event)"></input>
+            <input name="number" type="number" class="form-control" id="ID_WEMS_threshold1" ng-model="wemsManagementVM.threshold1" ng-pattern="/^\d+$/"></input>
             <!--ng-pattern="/^[0-9]+$/" required=""
             <span ng-show="numberForm.number.$error.pattern" style="color:red">Enter only number.</span>
             -->
@@ -16,44 +16,48 @@
           <label style="font-size: 15px">%</label>
         </div>
         <div class="form-group">
-          <label style="font-size: 15px" for="powerEfficiency2">전력량 효율 기준값2</label>
-          <input type="text" class="form-control" id="powerEfficiency2" ng-model="wemsManagementVM.powerEfficiency2" ng-keypress="wemsmanagementVM.onCheckNumber($event)"></input>
+          <label style="font-size: 15px" for="threshold2">전력량 효율 기준값2</label>
+          <input type="text" class="form-control" id="ID_WEMS_threshold2" ng-model="wemsManagementVM.threshold2" ng-keypress="wemsmanagementVM.onCheckNumber($event)"></input>
           <label style="font-size: 15px">%</label>
         </div>
       </form>
     </div>
   </div>
-  <div id="wems_management_secondRow_content" style="height: 30%; width:100%">
+  <div id="ID_WEMS_managementSecondRowContent" style="height: 30%; width:100%">
     <div class="container" style="width:100%; text-align:left; margin-top:3px; margin-bottom:3px; padding: 0">
       <label style="font-size: 20px">기준 사용 전력량 설정</label>
     </div>
-    <div class="container" style="width:100%; padding: 0; margin-top:3px; margin-bottom:3px; text-align:left; border:1px #dcdcdc solid">
+    <div class="container" style="width:100%; padding: 0; margin-top:3px; margin-bottom:10px; text-align:left; border:1px #dcdcdc solid">
       <form class="form-inline" role="form" style="text-align:left; margin:3px">
         <div class="form-group">
           <label style="font-size: 15px" for="standardPower">기준 사이클 타임(1hr)대비 기준 누적 전력값</label>
-          <input type="text" class="form-control" id="standardPower" ng-model="wemsManagementVM.standardPower" ng-keypress="wemsManagementVM.onCheckNumber($event)"></input>
+          <input type="text" class="form-control" id="ID_WEMS_standardPower" ng-model="wemsManagementVM.standardPower" ng-keypress="wemsManagementVM.onCheckNumber($event)"></input>
           <label style="font-size: 15px">kW</label>
         </div>
       </form>
     </div>
   </div>
-  <div id="wems_management_third_content" style="width:100%; height: 30%; width:100%">
+  <div id="ID_WEMS_managementThirdContent" style="width:100%; height: 30%; width:100%">
     <div class="container" style="width:100%; text-align:left; margin-top:3px; margin-bottom:3px; padding: 0">
       <label style="font-size: 20px">전력 비용 설정</label>
     </div>
-    <div class="container" style="width:100%; padding: 0; margin-top:3px; margin-bottom:3px; text-align:left; border:1px #dcdcdc solid">
+    <div class="container" style="width:100%; padding: 0; margin-top:3px; margin-bottom:10px; text-align:left; border:1px #dcdcdc solid">
       <form class="form-inline" role="form" style="text-align:left; margin:3px">
         <div class="form-group">
-          <label style="font-size: 15px" for="costPerKW">kW당 전력 비용</label>
-          <input type="text" class="form-control" id="costPerKW" ng-model="wemsManagementVM.costPerKW" ng-keypress="wemsManagementVM.onCheckNumber($event)"></input>
+          <label style="font-size: 15px" for="cost">kW당 전력 비용</label>
+          <input type="text" class="form-control" id="ID_WEMS_cost" ng-model="wemsManagementVM.cost" ng-keypress="wemsManagementVM.onCheckNumber($event)"></input>
           <label style="font-size: 15px">원</label>
         </div>
       </form>
     </div>
   </div>
-  <div id="wems_management_fourth_content" style="height: 10%; width:100%; vertical-align: middle; text-align: right; margin:3px">
-    <button type="button" style="margin:3px" class="btn btn-default btn-md" ng-click="wemsManagementVM.onClickSetting()">설정</button>
-    <button type="button" style="margin:3px" class="btn btn-default btn-md" ng-click="wemsManagementVM.onClickCancel()">취소</button>
+  <div id="ID_WEMS_managementFourthContent" style="height: 10%; width:100%; vertical-align: middle; text-align: right; margin:3px">
+    <button type="button" style="margin:3px" class="btn btn-default btn-md" ng-click="wemsManagementVM.onClickSetting()">
+      <%=__('S_WEMS_setting')%>
+    </button>
+    <button type="button" style="margin:3px" class="btn btn-default btn-md" ng-click="wemsManagementVM.onClickCancel()">
+      <%=__('S_WEMS_cancel')%>
+    </button>
   </div>
   <script src="/wems/wemsManagementController.js"></script>
 </div>

@@ -6,8 +6,8 @@ var powerChart;
 var cumulativeCycleTimeChart;
 var powerEfficiencyBarChart;
 var powerEfficiencyLineChart;
-var $analysisDatePicker = $('#analysisDatePicker');
-var $wemsMoreResultButton = $('#wemsMoreResultButton');
+var $analysisDatePicker = $('#ID_WEMS_analysisDatePicker');
+var $wemsMoreResultButton = $('#ID_WEMS_wemsMoreResultButton');
 var currentAnalysisDataSet;
 var analysisSummaryDataList = [];
 /* XXX Must Get From DB */
@@ -20,7 +20,7 @@ var analysisSummaryRowCount = 50;
 var analysisSummaryPageCount = 0;
 function WemsAnalysisController($scope, $http) {
     var wemsAnalysisVM = this;
-    $('#wemsDetailModal').on('show.bs.modal', onShowWemsDetailModal);
+    $('#ID_WEMS_detailModal').on('show.bs.modal', onShowWemsDetailModal);
 
     wemsAnalysisVM.powerEfficiencyRows = [];
     wemsAnalysisVM.analysisDataRows = [];
@@ -173,7 +173,7 @@ function WemsAnalysisController($scope, $http) {
         }
 
         var ctx = document
-            .getElementById('wemsPowerContent')
+            .getElementById('ID_WEMS_powerChart')
             .getContext('2d');
 
         var labels = getDateLabel(analysisDataSet);
@@ -247,7 +247,7 @@ function WemsAnalysisController($scope, $http) {
         }
 
         var ctx = document
-            .getElementById('wemsCycleTimeContent')
+            .getElementById('ID_WEMS_cycleTimeChart')
             .getContext('2d');
 
         var labels = getDateLabel(analysisDataSet);
@@ -320,7 +320,7 @@ function WemsAnalysisController($scope, $http) {
         }
 
         var ctx = document
-            .getElementById('wemsPowerEfficiencyBarContent')
+            .getElementById('ID_WEMS_powerEfficiencyBarContent')
             .getContext('2d');
 
         var labels = getDeviceLabel(analysisDataSet);
@@ -386,7 +386,7 @@ function WemsAnalysisController($scope, $http) {
         }
 
         var ctx = document
-            .getElementById('wemsPowerEfficiencyLineContent')
+            .getElementById('ID_WEMS_powerEfficiencyLineChart')
             .getContext('2d');
 
         var labels = getDateLabel(analysisDataSet);

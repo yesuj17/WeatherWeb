@@ -9,7 +9,9 @@
     <div id="wems_bRight_content" style="height: 100%; width:10%; float:right; border:2px #f99 solid">
       <div style="height: 85%; width:100%; float:right; border:2px #f99 solid"></div>
       <div style="height: 15%; width:100%; float:right; border:2px #f99 solid; text-align: center">
-        <button type="button" data-toggle="modal" data-target="#wemsDetailModal" data-backdrop="static" data-keyboard="false" class="btn btn-primary btn-md">더보기</button>
+        <button type="button" data-toggle="modal" data-target="#ID_WEMS_detailModal" data-backdrop="static" data-keyboard="false" class="btn btn-primary btn-md">
+          <%=__('S_WEMS_detail')%>
+        </button>
         <!-- wems_detail_layout.ejs start-->
         <% include ./wems/wems_detail_layout.ejs %>
         <!-- wems_detail_layout.ejs end-->

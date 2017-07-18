@@ -21,7 +21,7 @@
     <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{349c5851-65df-11da-9384-00065b846f21};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
     <ProjectView>ShowAllFiles</ProjectView>
     <NodejsPort>1337</NodejsPort>
-    <StartWebBrowser>true</StartWebBrowser>
+    <StartWebBrowser>False</StartWebBrowser>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -35,12 +35,15 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="controllers\pdas\pdasAnalysisController.js" />
+    <Compile Include="controllers\pms\pmsController.js" />
     <Compile Include="controllers\wems\wemsAnalysisController.js" />
+    <Compile Include="controllers\wems\wemsDetailLayoutController.js" />
     <Compile Include="controllers\wems\wemsManagementController.js" />
     <Compile Include="models\dbSchema\MachineCycleDataSchema.js" />
     <Compile Include="models\dbSchema\MachineErrorDataSchema.js" />
     <Compile Include="models\dbSchema\MachineInfoSchema.js" />
     <Compile Include="models\dbSchema\MachineRealTimeDataSchema.js" />
+    <Compile Include="models\dbSchema\ManagementDataSchema.js" />
     <Compile Include="models\dbSchema\NoticeInfoSchema.js" />
     <Compile Include="models\dbSchema\PMSmotherSchema.js" />
     <Compile Include="models\dbSchema\UserInfoSchema.js" />
@@ -55,6 +58,7 @@
     <Compile Include="public\chart.js_v2.6.0\Chart.min.js" />
     <Compile Include="public\eonasdan-bootstrap-datetimepicker_v4.17.47\bootstrap-datetimepicker.min.js" />
     <Compile Include="public\fullcalendar-3.4.0\fullcalendar.js" />
+    <Compile Include="public\fullcalendar-3.4.0\locale-all.js" />
     <Compile Include="public\jsBarcode\JsBarcode.all.min.js" />
     <Compile Include="public\moment-2.18.1\moment-with-locales.js" />
     <Compile Include="restfulAPIHandlers\dataGeneratorRestfulAPIHandler.js" />

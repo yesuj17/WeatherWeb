@@ -1,59 +1,43 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>PMS</title>    
-			
-    <link rel="stylesheet" href="/bootstrap_v3.3.7/css/bootstrap.min.css">
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="/bootstrap_v3.3.7/js/bootstrap.min.js">   </script>
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.3.1/angular-ui-router.min.js"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular-touch.js"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular-animate.js"></script>
-    <script src="http://ui-grid.info/docs/grunt-scripts/csv.js"></script>
-    <script src="http://ui-grid.info/docs/grunt-scripts/pdfmake.js"></script>
-    <script src="http://ui-grid.info/docs/grunt-scripts/vfs_fonts.js"></script>
-    <script src="http://ui-grid.info/release/ui-grid.js"></script>
-    <link rel="stylesheet" href="http://ui-grid.info/release/ui-grid.css" type="text/css">	
-	
-    <meta charset="utf-8">
-    <style type="text/css">
-      html{
-          height:100%
-      }
-      body {
-          display:table; height: 100%; width:100%
-      }  
-    </style>
-	
-	<script>
-          	            
-	</script>  
-  </head>         
-    <body>
-    <div id="header" style="display: table-row; height: 10%; width:100%;">
-      <div style="margin: 0px; height: 100%">        
-        <!-- pms_head.ejs start   --><!DOCTYPE html>
-		<% include ./pms_head.ejs %>
-        <!-- pms_head.ejs end-->
-      </div>
+<div id="PMSmodal" role="dialog" class="modal fade">
+    <div style="width:1200px; background-color: white;" class="modal-dialog">
+        <div style="width:100%; height:100%" class="modal-contents">
+            <div style="height: 5%; background-color: #ffffff; color:#FFF" class="modal-header">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm-11">
+                            <h3 style="text-align:left; color:black" class="modal-title">PMS</h3>
+                        </div>
+                      <div class="col-sm-1">
+                        <button class="close" data-dismiss="modal" type="button" style="color:red;" >
+                          x
+                        </button>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div ng-app="appPm" ng-controller="controllerpmgrid as DataTable" class="modal-body">
+                <div style="" class="container-fluid">
+                    <div class="row">
+                        <div class="col-lg-12"></div>
+                        <div class="col-lg-1"></div>
+                        <div id="header" style="display: table-row; height: 10%; width:100%;"></div>
+                        <div style="margin: 0px; height: 100%">
+						                <% include ./pms_head.ejs %>
+                        </div>
+                        <div id="content" style="display: table-row; height: 85%; width:100%;"></div>
+                        <div id="left_content" style="height: 100px; width:10%; float:left; border:2px #f99 solid">
+						                <% include ./pms_side.ejs %>
+                        </div>
+                        <div id="right_content" style="height: 100%; width:90%; float:right;border:2px #f99 solid">
+						                <% include ./BodyFrame/body_index.ejs %>
+                        </div>
+                        <div id="footer" style="display: table-row; height: 5%; width:100%; border:2px #f99 solid">
+                            <h6>CopyRight</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script src="/pms/pmsController.js"></script>
+        </div>
     </div>
-    <div id="content" style="display: table-row; height: 85%; width:100%;">       
-      <div id="left_content" style="height: 100%; width:10%; float:left; border:2px #f99 solid">
-        <!-- pms_side.ejs start--><!DOCTYPE html>
-		<% include ./pms_side.ejs %>
-        <!-- pms_side.ejs end-->
-      </div>
-      <div id="right_content" style="height: 100%; width:90%; float:right;border:2px #f99 solid">
-        <!-- bodyframe/body_index.ejs start-->
-		<% include ./BodyFrame/body_index.ejs %>
-        <!-- bodyframe/body_index.ejs end            -->
-      </div>
-    </div>
-    <div id="footer" style="display: table-row; height: 5%; width:100%; border:2px #f99 solid">
-      <h6>CopyRight                                         </h6>
-    </div>
-  </body>
-</html>
+</div>

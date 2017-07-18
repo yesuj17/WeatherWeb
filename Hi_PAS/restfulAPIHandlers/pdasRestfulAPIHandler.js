@@ -1,88 +1,145 @@
 ﻿/* PdAS Restful API Handler */
 var dbManager = require('../utility/dbManager/commonDBManager');
 var pdasDBManager = require('../utility/dbManager/pdasDBManager');
+var async = require('async');
 
 module.exports.PdAS = function (req, res) {
     res.render('./pdas/pdas', { title: 'PdAS' });
 }
 
 module.exports.DataAnalysis = function (req, res) {
-    var period = parseInt(req.params.period);
-    if(!period)
-        period = 1;
+    var fromDate = new Date(req.params.fromDate);
+    var toDate = new Date(req.params.toDate);
+    var period = Math.floor((toDate - fromDate) / 1000 / 60 / 60 / 24);
 
-    var now = getTimeStamp();
-    var fromDate = new Date(now);
-    var toDate = new Date(now);
+    fromDate.setHours(0, 0, 0, 0);
+    toDate.setHours(23, 59, 59, 999);
 
-    fromDate.setUTCDate(fromDate.getUTCDate() - (period - 1));
-    fromDate.setUTCHours(0);
-    fromDate.setUTCMinutes(0);
-    fromDate.setUTCSeconds(0);
-    fromDate.setUTCMilliseconds(0);
-
-    pdasDBManager.getCurrentTrendData(fromDate, toDate, period, responseCurrentTrend);
-    function responseCurrentTrend(err, datas) {
+    async.series([
+        function (callback) {
+            pdasDBManager.getCurrentTrendData(fromDate, toDate, period, callback);
+        },
+        function (callback) {
+            pdasDBManager.getCycleTimeData(fromDate, toDate, callback);
+        }
+    ], function (err, result) {
         if (err) {
-            return res.status(500).send(err);
+            console.log(err.message);
+            res.status(500).send('Database access failure.');
         }
         else {
-            var resDataSets = {
-                Machines: [],
-                CurrentData : {
-                    labels: [],
-                    dataSets: []
-                },
-                PerformanceData : {},
-                CycleTimeData : {}
+            var resResult = {
+                Machines:       [],
+                CurrentData:    {},
+                CycleTimeData:  {},
+                IStockRateData: {}
             };
-            var intervals = [];
-            var machines = [];
-            var motorInx = [];
-            var tmpArr = [];
-            datas.forEach(setLabels);
-            function setLabels(element) {
-                if (intervals.indexOf(element._id.timeKey.toUTCString()) < 0) {
-                    intervals.push(element._id.timeKey.toUTCString());
-                    resDataSets.CurrentData.labels.push((element._id.timeKey));
-                    tmpArr.push(0);
+            setResponseCurrentData(result[0], resResult);
+            setResponseCycleTimeData(result[1], resResult, callback);
+            function callback(err) {
+                if(err) {
+                    return res.status(500).send(err);
                 }
-                if (machines.indexOf(element._id.MachineID) < 0) {
-                    machines.push(element._id.MachineID);
-                }
+                else
+                    return res.json(resResult);
             }
-            resDataSets.Machines = machines;
-            var motors = ['DrivingMotor', 'HoistingMotor', 'ForkMotor']
-            var inx = 0;
-            for (var i in machines) {
-                motorInx.push(inx);
-                for (var cnt = 0; cnt < 3; cnt++) {
-                    var dataset = new Object;
-                    dataset.label = machines[i] + '_' + motors[cnt];
-                    dataset.datas = tmpArr.slice(0);
-                    resDataSets.CurrentData.dataSets.push(dataset);
-                    inx++;
-                }
-            }
-            for (var ipx in intervals) {
-                datas.forEach(setDataSets);
-                function setDataSets(element) {
-                    if (intervals[ipx] != element._id.timeKey.toUTCString())
-                        return;
-                    var indx = ipx;
-                    var mcInx = machines.indexOf(element._id.MachineID);
-                    if (mcInx < 0)
-                        return;
-                    var subDatas = resDataSets.CurrentData.dataSets[motorInx[mcInx]].datas;
-                    subDatas[ipx] = element.value.DrivingMotorCurrentAvg;
-                    subDatas = resDataSets.CurrentData.dataSets[motorInx[mcInx]+1].datas;
-                    subDatas[ipx] = element.value.HoistingMotorCurrentAvg;
-                    subDatas = resDataSets.CurrentData.dataSets[motorInx[mcInx] + 2].datas;
-                    subDatas[ipx] = element.value.ForkMotorCurrentAvg;
-                }
-            }
-            return res.json(resDataSets);
         }
+    });
+}
+
+function setResponseCurrentData(datas, rsResult) {
+    var resDataSets = {
+        labels: [],
+        dataSets: []
+    };
+    var intervals = [];
+    var machines = [];
+    var motorInx = [];
+    var tmpArr = [];
+    datas.forEach(setLabels);
+    function setLabels(element) {
+        if (intervals.indexOf(element._id.timeKey.toString()) < 0) {
+            intervals.push(element._id.timeKey.toString());
+            resDataSets.labels.push((element._id.timeKey));
+            tmpArr.push(0);
+        }
+        if (machines.indexOf(element._id.MachineID) < 0) {
+            machines.push(element._id.MachineID);
+        }
+    }
+    rsResult.Machines = machines;
+    var motors = ['DrivingMotor', 'HoistingMotor', 'ForkMotor']
+    var inx = 0;
+    for (var i in machines) {
+        motorInx.push(inx);
+        for (var cnt = 0; cnt < 3; cnt++) {
+            var dataset = new Object;
+            dataset.label = machines[i] + '_' + motors[cnt];
+            dataset.datas = tmpArr.slice(0);
+            resDataSets.dataSets.push(dataset);
+            inx++;
+        }
+    }
+    for (var ipx in intervals) {
+        datas.forEach(setDataSets);
+        function setDataSets(element) {
+            if (intervals[ipx] != element._id.timeKey.toString())
+                return;
+            var indx = ipx;
+            var mcInx = machines.indexOf(element._id.MachineID);
+            if (mcInx < 0)
+                return;
+            var subDatas = resDataSets.dataSets[motorInx[mcInx]].datas;
+            subDatas[ipx] = element.value.DrivingMotorCurrentAvg.toFixed(1);
+            subDatas = resDataSets.dataSets[motorInx[mcInx] + 1].datas;
+            subDatas[ipx] = element.value.HoistingMotorCurrentAvg.toFixed(1);
+            subDatas = resDataSets.dataSets[motorInx[mcInx] + 2].datas;
+            subDatas[ipx] = element.value.ForkMotorCurrentAvg.toFixed(1);
+        }
+    }
+    rsResult.CurrentData = resDataSets;
+}
+
+function setResponseCycleTimeData(datas, resResult, FnEnd) {
+
+    pdasDBManager.getCellCountForAllMachine('SC',callback);
+    function callback(err, machineInfo) {
+        if(err)
+            return FnEnd(err.message);
+        var cycleTimeDataSets = {
+            labels : [],
+            datasets: []
+        };
+        var iStockRateDataSets = {
+            labels: [],
+            datasets: []
+        };
+        var cycleDataset = {
+            data: []
+        };
+        var iStockDataset = {
+            data: []
+        };
+        datas.forEach(setDataSet);
+        function setDataSet(element) {
+            var cellCnt = 0;
+            machineInfo.forEach(function(data){
+                if(data.ID != element.value.MachineID){
+                    return;
+                }
+                cellCnt = data.CellCount;
+            });
+            cycleTimeDataSets.labels.push(element.value.MachineID);
+            iStockRateDataSets.labels.push(element.value.MachineID);
+            cycleDataset.data.push(element.value.cycleTimeAvg);
+            iStockDataset.data.push(element.value.iStockAvg / cellCnt);
+        }
+        cycleTimeDataSets.datasets.push(cycleDataset);
+        iStockRateDataSets.datasets.push(iStockDataset);
+        
+        resResult.CycleTimeData = cycleTimeDataSets;
+        resResult.IStockRateData = iStockRateDataSets;
+        return FnEnd();
     }
 }
 
@@ -116,43 +173,4 @@ module.exports.CurrentData = function (req, res) {
         console.log("machineRealTimeDataJson Save Success.");
         res.send(machineRealTimeDataJson);
     }
-}
-
-module.exports.CycleData = function (req, res) {
-    res.render('./pdas/pdas', { title: 'Cycle Data' });
-}
-
-var randomScalingFactor = function () {
-    return Math.round(Math.random() * (30 - 20) + 20);
-};
-
-var getTimeStamp = function (tmpDate) {
-    var d;
-    if (tmpDate)
-        d = new Date(tmpDate);
-    else
-        d = new Date();
-
-    var s =
-        leadingZeros(d.getFullYear(), 4) + '-' +
-        leadingZeros(d.getMonth() + 1, 2) + '-' +
-        leadingZeros(d.getDate(), 2) + ' ' +
-
-        leadingZeros(d.getHours(), 2) + ':' +
-        leadingZeros(d.getMinutes(), 2) + ':' +
-        leadingZeros(d.getSeconds(), 2) + ':' +
-        leadingZeros(d.getMilliseconds(), 2) + 'Z';
-
-    return s;
-}
-
-var leadingZeros = function (n, digits) {
-    var zero = '';
-    n = n.toString();
-
-    if (n.length < digits) {
-        for (i = 0; i < digits - n.length; i++)
-            zero += '0';
-    }
-    return zero + n;
 }

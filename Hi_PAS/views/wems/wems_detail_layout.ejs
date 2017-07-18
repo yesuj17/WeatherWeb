@@ -1,25 +1,24 @@
 <!-- Modal-->
-<div id="wemsDetailModal" role="dialog" class="modal fade">
-  <div style="width: 1500px; height: auto" class="modal-dialog">
+<div id="ID_WEMS_detailModal" ng-app="wemsDetailLayoutApp" ng-controller="wemsDetailLayoutController as wemsDetailLayoutVM" role="dialog" class="modal fade" style="resizable=">
+  <div id="ID_WEMS_detailModalDialog" style="width: auto; height: auto; display:table" class="modal-dialog">
     <!-- Modal content-->
     <div style="height: 100%; overflow-x: hidden; overflow-y: auto" class="modal-content">
       <div style="height: 3%; background-color: #337AB7; color:#FFF; border-bottom:2px dashed #337AB7" class="modal-header">
         <button type="button" data-dismiss="modal" class="close">×</button>
         <h4 style="text-align: left" class="modal-title">Hi-PAS</h4>
       </div>
-      <div style="height: 94%; width: 100%" class="modal-body">
-        <div id="left_content" style="height: 100%; width: 10%; padding:0">
-          <div style="height: 100%; padding: 0" class="container">
-            <ul class="nav nav-tabs">
-              <li class="active">
-                <a  href="#section_analysis" data-toggle="tab" style="padding-top: 12px; padding-bottom: 12px">Anaysis</a>
-              </li>
-              <li>
-                <a href="#section_management" data-toggle="tab" style="padding-top: 12px; padding-bottom: 12px">Mangement</a>
-              </li>
-            </ul>
-          </div>
-          <!--
+      <div style="height: 94%" class="modal-body">
+        <div style="height: 100%; width: auto; padding: 0" class="container">
+          <ul class="nav nav-tabs">
+            <li class="active">
+              <a  href="#ID_WEMS_analysisSection" data-toggle="tab" style="padding-top: 12px; padding-bottom: 12px">Anaysis</a>
+            </li>
+            <li>
+              <a href="#ID_WEMS_managementSection" data-toggle="tab" style="padding-top: 12px; padding-bottom: 12px">Mangement</a>
+            </li>
+          </ul>
+        </div>
+        <!--
           <div style="height: 100%" class="sidebar-nav">
             <div role="navigation" style="border-radius: 0px" class="navbar navbar-default">
               <div class="navbar-header">
@@ -43,22 +42,20 @@
             </div>
           </div>
           -->
-        </div>
-        <div id="right_content" style="height: 100%; width: 100%">
-          <div style="height: 100%; width:100%" class="tab-content">
-            <div id="section_analysis" style="height: 100%; width:100%" class="tab-pane active fade in content">
-              <!-- wems_detail_analysis.html start-->
-              <% include ./wems_detail_analysis.ejs %>
-              <!-- wems_detail_analysis.html end-->
-            </div>
-            <div id="section_management" style="height: 100%; width:48%" class="tab-pane fade">
-              <!-- wems_detail_management.html start-->﻿
-              <% include ./wems_detail_management.ejs %>						
+        <div style="height: 100%" class="tab-content">
+          <div id="ID_WEMS_analysisSection" style="height: 100%; width: 1500px" class="tab-pane active fade in content">
+            <!-- wems_detail_analysis.html start-->
+            <% include ./wems_detail_analysis.ejs %>
+            <!-- wems_detail_analysis.html end-->
+          </div>
+          <div id="ID_WEMS_managementSection" style="height: 100%; width: 720px" class="tab-pane fade">
+            <!-- wems_detail_management.html start-->﻿
+            <% include ./wems_detail_management.ejs %>						
               <!-- wems_detail_management.html end-->
-            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+  <script src="/wems/wemsDetailLayoutController.js"></script>
 </div>

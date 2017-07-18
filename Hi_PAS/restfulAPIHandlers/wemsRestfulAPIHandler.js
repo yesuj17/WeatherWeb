@@ -68,16 +68,31 @@ module.exports.getAnalysisData = function (req, res) {
 }
 
 module.exports.getManagementData = function (req, res) {
+    wemsDBManager.getManagementData(function (err, result) {
+        if (err) {
+            res.status(505).json({ error: err });
+            return;
+        }
+
+        var managementData = JSON.stringify({
+            "Threshold1": result.Threshold1,
+            "Threshold2": result.Threshold2,
+            "StandardPower": result.StandardPower,
+            "Cost": result.Cost
+        });
+
+        res.send(managementData);
+    });
 }
 
 // POST Restful API Handler
 // PUT Restful API Handler
 module.exports.updateManagementData = function (req, res) {
     var param = {
-        'PowerEfficiency1': req.body.PowerEfficiency1,
-        'PowerEfficiency2': req.body.PowerEfficiency2,
+        'Threshold1': req.body.Threshold1,
+        'Threshold2': req.body.Threshold2,
         'StandardPower': req.body.StandardPower,
-        'CostPerKW': CostPerKW
+        'Cost': req.body.Cost
     };
 
     wemsDBManager.updateManagementData(param, function (result, err) {

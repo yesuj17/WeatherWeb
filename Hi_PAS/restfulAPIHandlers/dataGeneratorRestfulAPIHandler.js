@@ -46,9 +46,10 @@ var addSeconds = function (currTime, addSeconds) {
 }
 
 var GenerateMachineRealTimeData = function (req, arrMCRealTimeData) {
-    const baseWorkHour = 8;
+    const baseWorkHour = 2;
 
-    var periodFrom = new Date(req.body.periodFrom + "T08:00:00Z");  //작업시작시간 초기화
+    var periodFrom = new Date(req.body.periodFrom);  //작업시작시간 초기화
+    periodFrom.setHours(08,00,00,000);
     var periodTo = new Date(req.body.periodTo);
     var SCCnt = req.body.SCCnt;
 
@@ -81,7 +82,8 @@ var GenerateMachineCycleData = function (req, arrMachineCycleData, arrErrorData)
     var SCCnt = req.body.SCCnt;
     var errRate = req.body.errRate;
 
-    var periodFrom = new Date(req.body.periodFrom + "T08:00:00Z");  //작업시작시간 초기화
+    var periodFrom = new Date(req.body.periodFrom);  //작업시작시간 초기화
+    periodFrom.setHours(08,00,00,000);
     var periodTo = new Date(req.body.periodTo);
     // 각 호기별 일일작업 정보 저장
     var arrTmpMachineCycleData = [];
@@ -205,7 +207,7 @@ var GenerateMachineCycleData = function (req, arrMachineCycleData, arrErrorData)
             machineCycleData.LaserDistanceMeterTotalUsedTime = targetSC.LaserDistanceMeterTotalUsedTime; //ms
             machineCycleData.OpticalRepeaterTotalUsedTime = targetSC.OpticalRepeaterTotalUsedTime; //ms
             machineCycleData.Weight = 100;
-            machineCycleData.InventoryCount = 200;
+            machineCycleData.InventoryCount =  Math.floor((Math.random() * (300 - 101)) + 100);
 
             arrMachineCycleData.push(machineCycleData);
             byWorkLoad[0].workLoad++;

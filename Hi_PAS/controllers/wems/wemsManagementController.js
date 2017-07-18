@@ -2,42 +2,37 @@
     .module('wemsManagementApp', ['chart.js'])
     .controller('WemsManagementController', ['$scope', '$http', WemsManagementController]);
 
-var oldPowerEfficiency1 = 0;
-var oldPowerEfficiency2 = 0;
+var oldThreshold1 = 0;
+var oldThreshold2 = 0;
 var oldStandardPower = 0;
-var oldCostPerKW = 0;
+var oldCost = 0;
 function WemsManagementController($scope, $http) {
     var wemsManagementVM = this;
-    $('#wemsDetailModal').on('show.bs.modal', onShowWemsDetailModal);
-
-    wemsManagementVM.powerEfficiency1 = 0;
-    wemsManagementVM.powerEfficiency2 = 0;
-    wemsManagementVM.standardPower = 0;
-    wemsManagementVM.costPerKW = 0;
+    $('#ID_WEMS_detailModal').on('show.bs.modal', onShowWemsDetailModal);
 
     wemsManagementVM.onCheckNumber = onCheckNumberHandler;
-    wemsManagementVM.onSettingClick = onSettingClickHandler;
-    wemsManagementVM.onCancelClick = onCancelClickHandler;
+    wemsManagementVM.onClickSetting = onClickSettingHandler;
+    wemsManagementVM.onClickCancel = onClickCancelHandler;
 
     //////////////////////////////////////////////////////////////////////
     // On Show Wems Detail Modal 
     function onShowWemsDetailModal() {
-        /// initializeManagementData();
+        initializeManagementData();
     }
 
     // Initialzie Management Data
     function initializeManagementData() {
         getManagementData()
             .then(function (res, status, headers, config) {
-                wemsManagementVM.powerEfficiency1 = res.data.PowerEfficiency1;
-                wemsManagementVM.powerEfficiency2 = res.data.PowerEfficiency2;
+                wemsManagementVM.threshold1 = res.data.Threshold1;
+                wemsManagementVM.threshold2 = res.data.Threshold2;
                 wemsManagementVM.standardPower = res.data.StandardPower;
-                wemsManagementVM.costPerKW = res.data.CostPerKW;
+                wemsManagementVM.cost = res.data.Cost;
 
-                oldPowerEfficiency1 = res.data.PowerEfficiency1;
-                oldPowerEfficiency2 = res.data.PowerEfficiency2;
+                oldThreshold1 = res.data.Threshold1;
+                oldThreshold2 = res.data.Threshold2;
                 oldStandardPower = res.data.StandardPower;
-                oldCostPerKW = res.data.CostPerKW;
+                oldCost = res.data.Cost;
             })
             .catch(function (e) {
                 var newMessage = 'XHR Failed for getPowerData'
@@ -70,20 +65,20 @@ function WemsManagementController($scope, $http) {
     }
 
     // On Setting Click Handler
-    function onSettingClickHandler() {
-        $http.post('/wems/updateManagementData/', {
-            PowerEfficiency1: wemsManagementVM.powerEfficiency1,
-            PowerEfficiency2: wemsManagementVM.powerEfficiency2,
+    function onClickSettingHandler() {
+        $http.put('/wems/updateManagementData/', {
+            Threshold1: wemsManagementVM.threshold1,
+            Threshold2: wemsManagementVM.threshold2,
             StandardPower: wemsManagementVM.standardPower,
-            CostPerKW: wemsManagementVM.costPerKW
+            Cost: wemsManagementVM.cost
         })
             .success(function (res, status, headers, config) {
-                oldPowerEfficiency1 = wemsManagementVM.powerEfficiency1;
-                oldPowerEfficiency2 = wemsManagementVM.powerEfficiency2;
+                oldThreshold1 = wemsManagementVM.threshold1;
+                oldThreshold2 = wemsManagementVM.threshold2;
                 oldStandardPower = wemsManagementVM.standardPower;
-                oldCostPerKW = wemsManagementVM.costPerKW;
+                oldCost = wemsManagementVM.cost;
 
-                console.log("Management data updating is success.");
+                alert("Management data updating is successed!");
             })
             .error(function (res, status, headers, config) {
                 alert("Management data updating is failed!");
@@ -92,34 +87,34 @@ function WemsManagementController($scope, $http) {
     }
 
     // On Cancel Click Handler
-    function onCancelClickHandler() {
+    function onClickCancelHandler() {
         revertManagementData();
     }
 
     // Revert Management Data
     function revertManagementData(currentTargetID) {
         switch (currentTargetID) {
-            case "powerEfficiency1":
-                wemsManagementVM.powerEfficiency1 = oldPowerEfficiency1;
+            case "threshold1":
+                wemsManagementVM.threshold1 = oldThreshold1;
                 break;
 
-            case "powerEfficiency2":
-                wemsManagementVM.powerEfficiency2 = oldPowerEfficiency2;
+            case "threshold2":
+                wemsManagementVM.threshold2 = oldThreshold2;
                 break;
 
             case "standardPower":
                 wemsManagementVM.standardPower = oldStandardPower;
                 break;
 
-            case "costPerKW":
-                wemsManagementVM.costPerKW = oldCostPerKW;
+            case "cost":
+                wemsManagementVM.cost = oldCost;
                 break;
 
             default:
-                wemsManagementVM.powerEfficiency1 = oldPowerEfficiency1;
-                wemsManagementVM.powerEfficiency2 = oldPowerEfficiency2;
+                wemsManagementVM.threshold1 = oldThreshold1;
+                wemsManagementVM.threshold2 = oldThreshold2;
                 wemsManagementVM.standardPower = oldStandardPower;
-                wemsManagementVM.costPerKW = oldCostPerKW;
+                wemsManagementVM.cost = oldCost;
                 break;
         }
     }

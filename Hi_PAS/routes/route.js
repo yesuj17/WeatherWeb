@@ -21,7 +21,7 @@ var wemsDELETEList;
 var pdasGETList = [
     ['/pdas', pdasRestfulAPIHandler.PdAS],
     //['/pdas/dataAnalysis', pdasRestfulAPIHandler.DataAnalysis],
-    ['/pdas/dataAnalysis/:period', pdasRestfulAPIHandler.DataAnalysis]
+    ['/pdas/dataAnalysis/:fromDate/:toDate', pdasRestfulAPIHandler.DataAnalysis]
 ];
 
 var pdasPOSTList = [
@@ -37,7 +37,10 @@ var pmsGETList = [
     ['/pms/getUsersData', pmsRestfulAPIHandler.getUsersData],
     ['/pms/getNoticesData', pmsRestfulAPIHandler.getNoticesData],
     ['/pms/getNoticesDataNewCount', pmsRestfulAPIHandler.getNoticesDataNewCount],
-    ['/pms/pms_main', pmsRestfulAPIHandler.pmsrend]
+    ['/pms/getEventGroupList', pmsRestfulAPIHandler.getEventGroupList],
+    ['/pms/getEventList', pmsRestfulAPIHandler.getEventList],    
+    ['/pms/pms_main', pmsRestfulAPIHandler.pmsrend],
+    ['/pms/displaytable', pmsRestfulAPIHandler.DisplayGridMotherdata]
 ];
 
 var pmsPOSTList = [
@@ -49,7 +52,7 @@ var pmsPOSTList = [
     ['/pms/addNoticeData', pmsRestfulAPIHandler.addNoticeData],
     ['/pms/addNoticeUserReadData', pmsRestfulAPIHandler.addNoticeUserReadData],
     ['/pms/insertMother', pmsRestfulAPIHandler.AddMotherData],
-    ['/upload', pmsRestfulAPIHandler.ImportExcel]
+    ['/pms/createmother', pmsRestfulAPIHandler.ImportExcel]
 ];
 
 var pmsPUTList = [
