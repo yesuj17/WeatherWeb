@@ -37,6 +37,7 @@
     <Compile Include="controllers\pdas\pdasAnalysisController.js" />
     <Compile Include="controllers\pms\pmsController.js" />
     <Compile Include="controllers\wems\wemsAnalysisController.js" />
+    <Compile Include="controllers\wems\wemsAnalysisPreviewController.js" />
     <Compile Include="controllers\wems\wemsDetailLayoutController.js" />
     <Compile Include="controllers\wems\wemsManagementController.js" />
     <Compile Include="models\dbSchema\MachineCycleDataSchema.js" />
@@ -175,6 +176,7 @@
     <Content Include="views\wems\wems_detail_analysis.ejs" />
     <Content Include="views\wems\wems_detail_layout.ejs" />
     <Content Include="views\wems\wems_detail_management.ejs" />
+    <Content Include="views\wems\wems_popup_analysis_print.ejs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="bin\" />
