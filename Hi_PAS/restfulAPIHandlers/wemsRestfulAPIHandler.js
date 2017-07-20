@@ -5,6 +5,7 @@ var machineAnalysisData = require('../models/wems/machineAnalysisData.json');
 // GET Restful API Handler
 /* XXX Must Fix Standard Power Data */
 var standardPower = 600000;
+var analysisPreviewData;
 module.exports.getAnalysisData = function (req, res) {
     if (!wemsDBManager) {
         return;
@@ -85,8 +86,16 @@ module.exports.getManagementData = function (req, res) {
     });
 }
 
-module.exports.postAnalysisPreview = function (req, res) {
-    res.send(req.body);
+module.exports.updateAnalysisPreviewData = function (req, res) {
+    analysisPreviewData = {
+        analysisPreviewData: JSON.stringify(req.body)
+    };
+
+    res.end();
+}
+
+module.exports.getAnalysisPreview = function (req, res) {
+    res.render('./wems/wems_popup_analysis_print', analysisPreviewData);
 }
 
 // POST Restful API Handler

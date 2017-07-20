@@ -1016,8 +1016,7 @@ function WemsAnalysisController($scope, $http, $rootScope) {
 
     // On Show Print Page Handler
     function onShowPrintPageHandler() {
-        var analysisPreviewWindow = window.open('', 'Analysis Preview', 'width=800, height=1000 toolbar=no, menubar=no, resizable=no, scrollbars=yes');
-        $http.post('/wems/analysisPreview', {
+        $http.post('/wems/updateAnalysisPreviewData', {
                 costPerkW: costPerkW,
                 currentFactor: currentFactor,
                 analysisPeriod: wemsAnalysisVM.analysisPeriod,
@@ -1026,26 +1025,28 @@ function WemsAnalysisController($scope, $http, $rootScope) {
                 currentAnalysisDataSet: currentAnalysisDataSet
             })
             .success(function (data, status, headers, config) {
-                $rootScope.$broadcast('analysisPreviewData', data);
+                var analysisPreviewWidnow = window.open('/wems/analysisPreview', 'Analysis Preview', 'width=800, height=1000 toolbar=no, menubar=no, resizable=no, scrollbars=yes');
+                if (analysisPreviewWidnow) {
+                    analysisPreviewWidnow.focus();
+                }
             })
             .error(function (data, status, header, config) {
                 console.log(data.error);
             });
 
         /* XXX
-        var showAnalysisPreviewPageForm = $('#ID_WEMS_analysisPreviewPageForm');
-        showAnalysisPreviewPageForm.action = 'wems/analysisPreview';
+        var showAnalysisPreviewPageForm = angular.element('#ID_WEMS_analysisPreviewPageForm');
+        showAnalysisPreviewPageForm.action = '/wems/analysisPreview';
         showAnalysisPreviewPageForm.method = 'post';
         showAnalysisPreviewPageForm.target = 'Analysis Preview';
-        wemsAnalysisVM.analysisPreviewData = {
-            "costPerkW": costPerkW,
-            "currentFactor": currentFactor,
-            "analysisPeriod": wemsAnalysisVM.analysisPeriod,
-            "selectedDeviceInfo": wemsAnalysisVM.selectedDeviceInfo,
-            "analysisSummaryRows": wemsAnalysisVM.analysisDataRows.length,
-            "currentAnalysisDataSet": currentAnalysisDataSet
+        showAnalysisPreviewPageForm.analysisPreviewData.value = {
+            costPerkW: costPerkW,
+            currentFactor: currentFactor,
+            analysisPeriod: wemsAnalysisVM.analysisPeriod,
+            selectedDeviceInfo: wemsAnalysisVM.selectedDeviceInfo,
+            analysisSummaryRows: wemsAnalysisVM.analysisDataRows.length,
+            currentAnalysisDataSet: currentAnalysisDataSet
         };
-
         showAnalysisPreviewPageForm.submit()
         */
     }

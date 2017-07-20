@@ -29,23 +29,17 @@ function wemsAnalysisPreviewController($scope, $http, $document) {
     wemsAnalysisPreviewVM.powerSummaryTitle;
 
     wemsAnalysisPreviewVM.onShowPrintPage = onShowPrintPageHandler;
-
-    scope.$on('analysisPreviewData', function (event, arg) {
-        initializeAnalysisPreviewData(arg);
-    });
-    //wemsAnalysisPreviewVM.onLoad = initializeAnalysisPreviewData;
+    wemsAnalysisPreviewVM.onLoad = initializeAnalysisPreviewData;
 
     //////////////////////////////////////////////////////////////////////
     // On Print Page Handler
     function onShowPrintPageHandler() {
-        if (analysisDataForPreview) {
-            alert("뿅");
-        }
         window.print();
     }
 
     // Initialize Analysis Preview Data
-    function initializeAnalysisPreviewData(data) {
+    function initializeAnalysisPreviewData(initializeData) {
+        var analysisDataForPreview = JSON.parse(initializeData);
         if (analysisDataForPreview) {
             costPerkW = analysisDataForPreview.costPerkW;
             currentFactor = analysisDataForPreview.currentFactor;
@@ -53,8 +47,6 @@ function wemsAnalysisPreviewController($scope, $http, $document) {
             wemsAnalysisPreviewVM.selectedDeviceInfo = analysisDataForPreview.selectedDeviceInfo;
             analysisSummaryRows = analysisDataForPreview.analysisSummaryRows;
             currentAnalysisDataSet = analysisDataForPreview.currentAnalysisDataSet;
-        } else {
-            alert("뿅");
         }
 
         refreshPowerData(currentAnalysisDataSet);
