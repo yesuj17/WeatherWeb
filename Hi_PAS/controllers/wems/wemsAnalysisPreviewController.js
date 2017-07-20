@@ -1,23 +1,24 @@
 ﻿angular
     .module('wemsAnalysisPreviewApp', [])
-    .controller('wemsAnalysisPreviewController', ['$scope', '$http', wemsAnalysisPreviewController]);
+    .controller('wemsAnalysisPreviewController', ['$scope', '$http', '$document', wemsAnalysisPreviewController]);
+
+var wemsAnalysisPreviewVM;
+var analysisDataForPreview;
 
 var powerChart;
 var cumulativeCycleTimeChart;
 var powerEfficiencyBarChart;
 var powerEfficiencyLineChart;
-var currentAnalysisDataSet;
-var analysisSummaryDataList = [];
-/* XXX Must Get From DB */
-var costPerkW = 0.3;
-var currentFactor = 1;
 
-/* XXX Max Summary Column Number */
-var maxCol = 8;
-var analysisSummaryRowCount = 50;
-var analysisSummaryPageCount = 0;
-function wemsAnalysisPreviewController($scope, $http) {
-    var wemsAnalysisPreviewVM = this;
+var currentAnalysisDataSet;
+var analysisSummaryRows = 0;
+var analysisSummaryDataList = [];
+var costPerkW;
+var currentFactor;
+
+var maxCol = 3;
+function wemsAnalysisPreviewController($scope, $http, $document) {
+    wemsAnalysisPreviewVM = this;
 
     wemsAnalysisPreviewVM.powerEfficiencyRows = [];
     wemsAnalysisPreviewVM.analysisDataRows = [];
@@ -27,98 +28,39 @@ function wemsAnalysisPreviewController($scope, $http) {
     wemsAnalysisPreviewVM.selectedAnalysisUnit;
     wemsAnalysisPreviewVM.powerSummaryTitle;
 
-    initializeAnalysisData();
+    wemsAnalysisPreviewVM.onShowPrintPage = onShowPrintPageHandler;
 
-    // Initialize Analysis Data
-    function initializeAnalysisData() {
-        wemsAnalysisPreviewVM.selectedDateUnit = "day";
-        wemsAnalysisPreviewVM.selectedAnalysisUnit = "kW";
-        wemsAnalysisPreviewVM.powerSummaryTitle = "사용 전력량(kW)";
+    scope.$on('analysisPreviewData', function (event, arg) {
+        initializeAnalysisPreviewData(arg);
+    });
+    //wemsAnalysisPreviewVM.onLoad = initializeAnalysisPreviewData;
 
-        var startDate = new Date();
-        startDate.setHours(0, 0, 0, 0);
-        var endDate = new Date();
-        endDate.setHours(23, 59, 59, 999);
-
-        wemsAnalysisPreviewVM.analysisPeriod = getTimeStamp(startDate) + " ~ " + getTimeStamp(endDate);
-        getAnalysisData()
-            .then(function (res, status, headers, config) {
-                currentAnalysisDataSet = res.data;
-
-                initializeDeviceInfoList(res.data);
-                initializePowerData(res.data);
-                initializeCumulativeCycleTimeData(res.data);
-                initializePowerEfficiency(res.data);
-                initializeAnalysisSummayData(res.data);
-            })
-            .catch(function (e) {
-                var newMessage = 'XHR Failed for getPowerData'
-                if (e.data && e.data.description) {
-                    newMessage = newMessage + '\n' + e.data.description;
-                }
-
-                e.data.description = newMessage;
-                /// logger.error(newMessage);
-            });
+    //////////////////////////////////////////////////////////////////////
+    // On Print Page Handler
+    function onShowPrintPageHandler() {
+        if (analysisDataForPreview) {
+            alert("뿅");
+        }
+        window.print();
     }
 
-    // Initialize Power Data
-    function initializePowerData(analysisDataSet) {
-        refreshPowerData(analysisDataSet);
-    }
-
-    // Initialize Cumulative Cycle Time Data
-    function initializeCumulativeCycleTimeData(analysisDataSet) {
-        refreshCumulativeCycleTimeData(analysisDataSet);
-    }
-
-    // Initialize Power Efficiency
-    function initializePowerEfficiency(analysisDataSet) {
-        refreshPowerEfficiency(analysisDataSet);
-    }
-
-    // Initialzie Analysis Summary Data
-    function initializeAnalysisSummayData(analysisDataSet) {
-        refreshAnalysisSummary(analysisDataSet);
-    }
-
-    // Initialzie DeviceInfo List
-    function initializeDeviceInfoList(analysisDataSet) {
-        refreshDeviceInfoList(analysisDataSet);
-    }
-
-    // Refresh Analysis Data
-    function refreshAnalysisData(period) {
-        var start = performance.now();
-        if (period) {
-            wemsAnalysisPreviewVM.analysisPeriod
-                = getTimeStamp(period.startDate)
-                + " ~ "
-                + getTimeStamp(period.endDate);
+    // Initialize Analysis Preview Data
+    function initializeAnalysisPreviewData(data) {
+        if (analysisDataForPreview) {
+            costPerkW = analysisDataForPreview.costPerkW;
+            currentFactor = analysisDataForPreview.currentFactor;
+            wemsAnalysisPreviewVM.analysisPeriod = analysisDataForPreview.analysisPeriod;
+            wemsAnalysisPreviewVM.selectedDeviceInfo = analysisDataForPreview.selectedDeviceInfo;
+            analysisSummaryRows = analysisDataForPreview.analysisSummaryRows;
+            currentAnalysisDataSet = analysisDataForPreview.currentAnalysisDataSet;
+        } else {
+            alert("뿅");
         }
 
-        getAnalysisData(period)
-            .then(function (res, status, headers, config) {
-                currentAnalysisDataSet = res.data;
-
-                refreshDeviceInfoList(res.data);
-                refreshPowerData(res.data);
-                refreshCumulativeCycleTimeData(res.data);
-                refreshPowerEfficiency(res.data);
-                refreshAnalysisSummary(res.data);
-                var end = performance.now();
-                console.log("====================================================");
-                console.log("Call Refresh Analysis " + (end - start) + " milliseconds.");
-                console.log("====================================================");
-            })
-            .catch(function (e) {
-                var newMessage = 'XHR Failed for getPowerData'
-                if (e.data && e.data.description) {
-                    newMessage = newMessage + '\n' + e.data.description;
-                }
-
-                e.data.description = newMessage;
-            });
+        refreshPowerData(currentAnalysisDataSet);
+        refreshCumulativeCycleTimeData(currentAnalysisDataSet);
+        refreshPowerEfficiency(currentAnalysisDataSet);
+        refreshAnalysisSummary(currentAnalysisDataSet);
     }
 
     // Refresh Power Data
@@ -441,66 +383,11 @@ function wemsAnalysisPreviewController($scope, $http) {
             }
         }
 
-        showMoreAnalysisSummaryData(true);
-    }
-
-    // Show More Analysis Summay Data
-    function showMoreAnalysisSummaryData(isInitialize) {
-        if (isInitialize == true) {
-            analysisSummaryPageCount = 0;
-            wemsAnalysisPreviewVM.analysisDataRows = [];
-        }
-
-        var startRowIndex = analysisSummaryPageCount * analysisSummaryRowCount;
-        var endRowIndex = startRowIndex + analysisSummaryRowCount;
-        if (analysisSummaryDataList.length < endRowIndex) {
-            endRowIndex = analysisSummaryDataList.length;
-            $wemsMoreResultButton.hide();
-        } else {
-            $wemsMoreResultButton.show();
-        }
-
-        for (var analysisSummaryIndex = startRowIndex;
-            analysisSummaryIndex < endRowIndex;
+        for (var analysisSummaryIndex = 0;
+            analysisSummaryIndex < analysisSummaryRows;
             analysisSummaryIndex++) {
             wemsAnalysisPreviewVM.analysisDataRows.push(analysisSummaryDataList[analysisSummaryIndex]);
         }
-
-        analysisSummaryPageCount++;
-    }
-
-    // Refresh Device Info List
-    function refreshDeviceInfoList(analysisDataSet) {
-        if (!analysisDataSet) {
-            return;
-        }
-
-        wemsAnalysisPreviewVM.deviceInfoList = [];
-        wemsAnalysisPreviewVM.deviceInfoList.push({
-            DeviceID: 0,
-            DeviceName: 'All'
-        });
-
-        for (var deviceIndex = 0;
-            deviceIndex < analysisDataSet.DeviceIDList.length;
-            deviceIndex++) {
-            wemsAnalysisPreviewVM.deviceInfoList.push({
-                DeviceID: analysisDataSet.DeviceIDList[deviceIndex],
-                DeviceName: 'S.C' + analysisDataSet.DeviceIDList[deviceIndex]
-            });
-        }
-
-        wemsAnalysisPreviewVM.selectedDeviceInfo = wemsAnalysisPreviewVM.deviceInfoList[0];
-    }
-
-    // Get Analysis Data
-    function getAnalysisData(period) {
-        var config = {
-            params: period,
-            headers: { 'Authorization': 'Basic YmVlcDpib29w' }
-        }
-
-        return $http.get('/wems/getAnalysisData/', config);
     }
 
     function getNumberWithCommas(item) {
@@ -904,44 +791,6 @@ function wemsAnalysisPreviewController($scope, $http) {
                 zero += '0';
         }
         return zero + number;
-    }
-
-    // On Change Analysis Unit Handler
-    function onChangeAnalysisUnitHandler() {
-        switch (wemsAnalysisPreviewVM.selectedAnalysisUnit) {
-            case "kW":
-                currentFactor = 1;
-                break;
-
-            case "won":
-                currentFactor = costPerkW;
-                break;
-
-            default:
-                currentFactor = 1;
-                break;
-        }
-
-        refreshPowerData(currentAnalysisDataSet);
-        refreshAnalysisSummary(currentAnalysisDataSet);
-    }
-
-    // On Show More Result Handler
-    function onShowMoreResultHandler() {
-        showMoreAnalysisSummaryData(false);
-    }
-
-    // On Show Print Page Handler
-    function onShowPrintPageHandler() {
-        window.open('wems/analysisPreview', 'popup', 'toolbar=no, menubar=no, resizable=yes');
-    }
-
-    // On Select Device Handler
-    function onSelectDeviceHandler() {
-        refreshPowerData(currentAnalysisDataSet);
-        refreshCumulativeCycleTimeData(currentAnalysisDataSet);
-        refreshPowerEfficiency(currentAnalysisDataSet);
-        refreshAnalysisSummary(currentAnalysisDataSet);
     }
 
     // Get X Scale Label String

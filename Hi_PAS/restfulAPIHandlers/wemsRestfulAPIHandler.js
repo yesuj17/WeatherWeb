@@ -85,8 +85,8 @@ module.exports.getManagementData = function (req, res) {
     });
 }
 
-module.exports.getAnalysisPreview = function (req, res) {
-    res.render('./wems/wems_popup_analysis_print.ejs', { title: 'WEMS Analysis Preview' });
+module.exports.postAnalysisPreview = function (req, res) {
+    res.send(req.body);
 }
 
 // POST Restful API Handler

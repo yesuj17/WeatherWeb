@@ -8,6 +8,9 @@
                 ng-model="wemsAnalysisVM.selectedDeviceInfo" ng-options="deviceInfo.DeviceName for deviceInfo in wemsAnalysisVM.deviceInfoList" ng-change="wemsAnalysisVM.onSelectDevice()"></select>
         </div>
         <button class="btn btn-default" ng-click="wemsAnalysisVM.onShowPrintPage()">Print</button>
+        <form id="ID_WEMS_analysisPreviewPageForm">
+          <input type="hidden" ng-model="wemsAnalysisVM.analysisPreviewData"/>
+        </form>
       </form>
     </div>
   </div>

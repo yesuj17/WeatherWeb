@@ -1,59 +1,56 @@
 ﻿<!DOCTYPE html>
-<html>
+<html style="width:800px">
   <head>
     <title>Analysis Preview</title>
-	<link rel="stylesheet" href="/stylesheets/style.css" media="print">
     <link rel="stylesheet" href="/bootstrap_v3.3.7/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/eonasdan-bootstrap-datetimepicker_v4.17.47/css/bootstrap-datetimepicker.min.css">
-    <link rel="stylesheet" href="/fullcalendar-3.4.0/fullcalendar.css">
-    <link rel="stylesheet" href="/fullcalendar-3.4.0/fullcalendar.print.css" media="print">
     <link rel="stylesheet" href="/font-awesome-4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="/stylesheets/print.css" type="text/css" media="print">
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.min.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="/bootstrap_v3.3.7/js/bootstrap.min.js"></script>
-    <script src="/moment-2.18.1/moment-with-locales.js">       </script>
-    <script src="/fullcalendar-3.4.0/fullcalendar.js"> </script>
-	<script src="/fullcalendar-3.4.0/locale-all.js"> </script>
     <script src="/chart.js_v2.6.0/Chart.min.js"></script>
-    <script src="/eonasdan-bootstrap-datetimepicker_v4.17.47/bootstrap-datetimepicker.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jQuery.print/1.5.1/jQuery.print.min.js"></script>
     <meta charset="utf-8">
-    <style type="text/css">
-      html{
-          height:100%
-      }
-      body {
-          display:table; height: 100%; width:100%
-      } 
-    </style>  
   </head>
-  <body>
-	 <button class="btn btn-default" ng-click="wemsAnalysisVM.onShowPrintPage()">Print</button>
-    <div id="ID_WEMS_popup_analysisPrintPage" ng-app="wemsAnalysisPreviewApp" ng-controller="wemsAnalysisPreviewController as wemsAnalysisPreviewVM" ng-cloak="" style="height: 100%; width:100%; margin:0; padding:0; display: block" class="container">
-	  <div id="ID_WEMS_analysisPrintArea" style="padding = 0">
-		<div id="ID_WEMS_analysisSecondRowContent" style="width:100%">
-		  <div id="ID_WEMS_cycleTimeContent" style="width:50%; float:right; border:1px #dcdcdc solid">
-			<canvas id="ID_WEMS_cycleTimeChart" style="width:100%; height:396px"></canvas>
-		  </div>
-		  <div id="ID_WEMS_powerContent" style="width:50%; float:right; border:1px #dcdcdc solid">
-			<canvas id="ID_WEMS_powerChart" style="width:100%; height:396px; padding: 0px"></canvas>
+  <body ng-app="wemsAnalysisPreviewApp" ng-controller="wemsAnalysisPreviewController as wemsAnalysisPreviewVM">
+    <div id="ID_WEMS_popup_analysisPrintPage" ng-init="wemsAnalysisPreviewVM.onLoad()" style="height: 100%; width:100%; padding:0">
+	  <div class="noPrint" style="margin:5px">
+        <form class="form-inline" role="form">
+			<label style="font-size:130%">WEMS Analysis Preview</label>
+           	<button class="btn btn-default" ng-click="wemsAnalysisPreviewVM.onShowPrintPage()" style="float:right; margin-right:12px">Print</button>
+        </form>
+      </div>
+	  <div id="ID_WEMS_analysisPeriodPrint">
+		<form class="form-inline" role="form">
+			<table style="width: 476px; border-collapse: collapse; padding: 0">
+				<tr style="width: 100%">
+					<td style="width: 13%; border: 1px solid grey; border-collapse: collapse; padding: 5px; background-color: #f1f1f1">기간</td>
+					<td style="width: 87%; border: 1px solid grey; border-collapse: collapse; padding: 5px">{{wemsAnalysisPreviewVM.analysisPeriod}}</td>
+				</tr>
+			</table>
+		</form>
+	  </div>
+	  <div style="padding = 0">
+		<div id="ID_WEMS_analysisPowerPrint" style="width:100%">
+		  <div id="ID_WEMS_powerContent" style="width:100%; border:1px #dcdcdc solid">
+			<canvas id="ID_WEMS_powerChart" style="width:100%; height:350px; padding: 0px"></canvas>
 		  </div>
 		</div>
-		<div id="ID_WEMS_analysisThirdContent" style="width:100%">
-		  <div id="ID_WEMS_powerEfficiency2Content" style="width:50%; float:right; border:1px #dcdcdc solid">
-			<canvas id="ID_WEMS_powerEfficiencyLineChart" style="width:100%; height:396px; width:100%; text-align:right"></canvas>
-		  </div>
-		  <div id="ID_WEMS_powerEfficiency1_content" style="width:50%; float:right; border:1px #dcdcdc solid">
-			<canvas id="ID_WEMS_powerEfficiencyBarContent" style="width:100%; height:396px; text-align:left"></canvas>
+		<div id="ID_WEMS_analysisCycletimePrint" style="width:100%; margin-top:5px">
+		  <div id="ID_WEMS_cycleTimeContent" style="width:100%; border:1px #dcdcdc solid">
+			<canvas id="ID_WEMS_cycleTimeChart" style="width:100%; height:350px"></canvas>
 		  </div>
 		</div>
-		<div id="ID_WEMS_analysisFourthContent" style="width:100%; float:left; border:1px #dcdcdc solid">
-		  <table style="width: 476px; border: 1px solid grey; border-collapse: collapse; padding: 5px; margin-top: 5px; margin-bottom: 3px">
-			<tr style="width: 100%">
-			  <td style="width: 13%; border: 1px solid grey; border-collapse: collapse; padding: 5px; background-color: #f1f1f1">기간</td>
-			  <td style="width: 87%; border: 1px solid grey; border-collapse: collapse; padding: 5px">{{wemsAnalysisPreviewVM.analysisPeriod}}</td>
-			</tr>
-		  </table>
+		<div id="ID_WEMS_analysisPowerEfficiency1Print" style="width:100%; margin-top:5px">
+		  <div id="ID_WEMS_powerEfficiency1_content" style="width:100%; border:1px #dcdcdc solid">
+			<canvas id="ID_WEMS_powerEfficiencyBarContent" style="width:100%; height:350px"></canvas>
+		  </div>
+		</div>
+		<div id="ID_WEMS_analysisPowerEfficiency2Print" style="width:100%; margin-top:5px">
+		  <div id="ID_WEMS_powerEfficiency2Content" style="width:100%; border:1px #dcdcdc solid">
+			<canvas id="ID_WEMS_powerEfficiencyLineChart" style="width:100%; height:350px; width:100%"></canvas>
+		  </div>
+		</div>
+		<div id="ID_WEMS_analysisSummary1Print" style="width:100%; float:left; border:1px #dcdcdc solid; margin-top:5px">
 		  <table style="width: 100%; border-collapse: collapse; padding: 5px; margin-bottom: 5px">
 			<tr style="height: 50px" ng-repeat="powerEfficiencyRow in wemsAnalysisPreviewVM.powerEfficiencyRows">
 			  <td ng-repeat="powerEfficiency in powerEfficiencyRow">
@@ -73,7 +70,7 @@
 			</tr>
 		  </table>
 		</div>
-		<div id="ID_WEMS_analysisFifthContent" style="width:100%">
+		<div id="ID_WEMS_analysisSummary2Print" style="width:100%">
 		  <table style="border: 1px solid grey; border-collapse: collapse; margin-bottom: 15px; padding: 5px; width:100%">
 			<tr style="height: 25px; background-color: #f1f1f1">
 			  <th style="border: 1px solid grey; border-collapse: collapse; padding: 5px; text-align:center">시간</th>

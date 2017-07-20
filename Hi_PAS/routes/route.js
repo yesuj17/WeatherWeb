@@ -7,11 +7,12 @@ var dataGeneratorRestfulAPIHandler = require('../restfulAPIHandlers/dataGenerato
 /* WEMS Restful API Handler */
 var wemsGETList = [
     ['/wems/getAnalysisData', wemsRestfulAPIHandler.getAnalysisData],
-    ['/wems/getManagementData', wemsRestfulAPIHandler.getManagementData],
-    ['/wems/analysisPreview', wemsRestfulAPIHandler.getAnalysisPreview]
+    ['/wems/getManagementData', wemsRestfulAPIHandler.getManagementData]
 ];
 
-var wemsPOSTList;
+var wemsPOSTList = [
+    ['/wems/analysisPreview', wemsRestfulAPIHandler.postAnalysisPreview]
+];
 var wemsPUTList = [
     ['/wems/updateManagementData', wemsRestfulAPIHandler.updateManagementData]
 ];

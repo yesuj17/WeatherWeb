@@ -1,6 +1,6 @@
 ﻿angular
     .module('wemsAnalysisApp', ['chart.js'])
-    .controller('WemsAnalysisController', ['$scope', '$http', WemsAnalysisController]);
+    .controller('WemsAnalysisController', ['$scope', '$http', '$rootScope', WemsAnalysisController]);
 
 var powerChart;
 var cumulativeCycleTimeChart;
@@ -18,7 +18,7 @@ var currentFactor = 1;
 var maxCol = 8;
 var analysisSummaryRowCount = 50;
 var analysisSummaryPageCount = 0;
-function WemsAnalysisController($scope, $http) {
+function WemsAnalysisController($scope, $http, $rootScope) {
     var wemsAnalysisVM = this;
     $('#ID_WEMS_detailModal').on('show.bs.modal', onShowWemsDetailModal);
 
@@ -1016,7 +1016,38 @@ function WemsAnalysisController($scope, $http) {
 
     // On Show Print Page Handler
     function onShowPrintPageHandler() {
-        window.open('wems/analysisPreview', 'popup', 'toolbar=no, menubar=no, resizable=yes');
+        var analysisPreviewWindow = window.open('', 'Analysis Preview', 'width=800, height=1000 toolbar=no, menubar=no, resizable=no, scrollbars=yes');
+        $http.post('/wems/analysisPreview', {
+                costPerkW: costPerkW,
+                currentFactor: currentFactor,
+                analysisPeriod: wemsAnalysisVM.analysisPeriod,
+                selectedDeviceInfo: wemsAnalysisVM.selectedDeviceInfo,
+                analysisSummaryRows: wemsAnalysisVM.analysisDataRows.length,
+                currentAnalysisDataSet: currentAnalysisDataSet
+            })
+            .success(function (data, status, headers, config) {
+                $rootScope.$broadcast('analysisPreviewData', data);
+            })
+            .error(function (data, status, header, config) {
+                console.log(data.error);
+            });
+
+        /* XXX
+        var showAnalysisPreviewPageForm = $('#ID_WEMS_analysisPreviewPageForm');
+        showAnalysisPreviewPageForm.action = 'wems/analysisPreview';
+        showAnalysisPreviewPageForm.method = 'post';
+        showAnalysisPreviewPageForm.target = 'Analysis Preview';
+        wemsAnalysisVM.analysisPreviewData = {
+            "costPerkW": costPerkW,
+            "currentFactor": currentFactor,
+            "analysisPeriod": wemsAnalysisVM.analysisPeriod,
+            "selectedDeviceInfo": wemsAnalysisVM.selectedDeviceInfo,
+            "analysisSummaryRows": wemsAnalysisVM.analysisDataRows.length,
+            "currentAnalysisDataSet": currentAnalysisDataSet
+        };
+
+        showAnalysisPreviewPageForm.submit()
+        */
     }
 
     // On Select Device Handler
