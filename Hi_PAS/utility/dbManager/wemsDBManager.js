@@ -1,5 +1,6 @@
 ﻿var MachineCycleDataSchema = require('../../models/dbSchema/MachineCycleDataSchema.js');
 var ManagementDataSchema = require('../../models/dbSchema/ManagementDataSchema.js');
+var MachineInfoSchema = require('../../models/dbSchema/MachineInfoSchema.js');
 var async = require('async');
 
 // Insert to Mongo DB
@@ -9,6 +10,7 @@ module.exports.updateManagementData = updateManagementData;
 // Select from Mongo DB
 module.exports.getMachineCycleData = getMachineCycleData;
 module.exports.getManagementData = getManagementData;
+module.exports.getMachineIDList = getMachineIDList;
 
 // Delete from Mongo DB
 
@@ -54,14 +56,15 @@ function getManagementData(next) {
     async.waterfall([
         function (next) {
             ManagementDataSchema.
-                findOne({})
-                .exec(function (err, managementData) {
+                findOne({}).
+                exec(function (err, managementData) {
                     if (!managementData) {
                         managementData = new ManagementDataSchema();
-                        managementData.Threshold1 = 0;
-                        managementData.Threshold2 = 0;
-                        managementData.StandardPower = 0;
-                        managementData.Cost = 0;
+                        /* XXX Defualt 값 결정 필요 */
+                        managementData.Threshold1 = 80;
+                        managementData.Threshold2 = 90;
+                        managementData.StandardPower = 600000;
+                        managementData.Cost = 0.3;
                     }
 
                     next(err, managementData);
@@ -75,6 +78,7 @@ function getManagementData(next) {
     ], next);
 }
 
+// Update Management Data
 function updateManagementData(param, next) {
     if (!param) {
         next(false, 'param null');
@@ -82,8 +86,8 @@ function updateManagementData(param, next) {
     }
 
     ManagementDataSchema.
-        findOneAndUpdate({}, param, { upsert: true })
-        .exec(function (err, managementData) {
+        findOneAndUpdate({}, param, { upsert: true }).
+        exec(function (err, managementData) {
         if (err) {
             next(false, err);
             return;
@@ -108,4 +112,23 @@ function updateManagementData(param, next) {
             next(true);
         });
     });
+}
+
+// Get Machine ID List
+function getMachineIDList(machineType, next) {
+    MachineInfoSchema.
+        find().
+        where('Type').equals(machineType).
+        select('ID').
+        sort('ID').
+        lean().
+        exec(function (err, machineIDList) {
+            if (err) {
+                next(err);
+                return;
+            }
+
+            next(err, machineIDList);
+            return;
+        });
 }

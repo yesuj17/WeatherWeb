@@ -3,24 +3,31 @@
     <div class="container" style="width:100%; text-align:left; margin-top:3px; margin-bottom:3px; padding: 0">
       <label style="font-size: 20px">일일 전력량 효율 기준 설정</label>
     </div>
-    <div class="container" style="width:100%; padding: 0; margin-top:3px; margin-bottom:10px; text-align:left; border:1px #dcdcdc solid">
-      <form class="form-inline" role="form" style="text-align:left; margin:3px">
+    <div class="container" style="width:100%; padding: 0; margin-top:3px; margin-bottom:10px; border:1px #dcdcdc solid">
+      <form name="thresholdForm" class="form-inline" role="form" style="text-align:left; margin:3px">
         <div class="form-group" style="margin-right: 10px">
-          <label style="font-size: 15px" for="threshold1">전력량 효율 기준값1</label>
-          <ng-form name="numberForm">
-            <input name="number" type="number" class="form-control" id="ID_WEMS_threshold1" ng-model="wemsManagementVM.threshold1" ng-pattern="/^\d+$/"></input>
-            <!--ng-pattern="/^[0-9]+$/" required=""
-            <span ng-show="numberForm.number.$error.pattern" style="color:red">Enter only number.</span>
-            -->
-          </ng-form>
-          <label style="font-size: 15px">%</label>
+          <label style="font-size: 14px" for="threshold1">전력량 효율 기준값1</label>
+          <input name="threshold1" type="text" class="form-control" id="ID_WEMS_threshold1" ng-model="wemsManagementVM.threshold1" ng-pattern="/(^0$)|(^[1-9]\d{0,8}$)/" required="" maxlength="3"></input>
+          <label style="font-size: 14px">%</label>
         </div>
         <div class="form-group">
-          <label style="font-size: 15px" for="threshold2">전력량 효율 기준값2</label>
-          <input type="text" class="form-control" id="ID_WEMS_threshold2" ng-model="wemsManagementVM.threshold2" ng-keypress="wemsmanagementVM.onCheckNumber($event)"></input>
-          <label style="font-size: 15px">%</label>
+          <label style="font-size: 14px" for="threshold2">전력량 효율 기준값2</label>
+          <input name="threshold2" type="text" class="form-control" id="ID_WEMS_threshold2" ng-model="wemsManagementVM.threshold2" ng-pattern="/(^0$)|(^[1-9]\d{0,8}$)/" required="" maxlength="3"></input>
+          <label style="font-size: 14px">%</label>
         </div>
       </form>
+    </div>
+    <div style="padding: 0; text-align:left" ng-show='thresholdForm.threshold1.$error.pattern'>
+      <span style='color:Red; font-size: 14px; font-weight: bold'>Your threshold1 format is invalid, Please check it again.</span>
+    </div>
+    <div style="padding: 0; text-align:left" ng-show='thresholdForm.threshold2.$error.pattern'>
+      <span style='color:Red; font-size: 14px; font-weight: bold'>Your threshold2 format is invalid, Please check it again.</span>
+    </div>
+    <div style="padding: 0; text-align:left" ng-show='thresholdForm.threshold1.$error.required'>
+      <span style='color:Red; font-size: 14px; font-weight: bold'>Your threshold1 data is empty, Please input data.</span>
+    </div>
+    <div style="padding: 0; text-align:left" ng-show='thresholdForm.threshold2.$error.required'>
+      <span style='color:Red; font-size: 14px; font-weight: bold'>Your threshold2 data is empty, Please input data.</span>
     </div>
   </div>
   <div id="ID_WEMS_managementSecondRowContent" style="height: 30%; width:100%">
@@ -28,13 +35,19 @@
       <label style="font-size: 20px">기준 사용 전력량 설정</label>
     </div>
     <div class="container" style="width:100%; padding: 0; margin-top:3px; margin-bottom:10px; text-align:left; border:1px #dcdcdc solid">
-      <form class="form-inline" role="form" style="text-align:left; margin:3px">
+      <form name="standardPowerForm" class="form-inline" role="form" style="text-align:left; margin:3px">
         <div class="form-group">
-          <label style="font-size: 15px" for="standardPower">기준 사이클 타임(1hr)대비 기준 누적 전력값</label>
-          <input type="text" class="form-control" id="ID_WEMS_standardPower" ng-model="wemsManagementVM.standardPower" ng-keypress="wemsManagementVM.onCheckNumber($event)"></input>
-          <label style="font-size: 15px">kW</label>
+          <label style="font-size: 14px" for="standardPower">기준 사이클 타임(1hr)대비 기준 누적 전력값</label>
+          <input name="standardPower" type="text" class="form-control" id="ID_WEMS_standardPower" ng-model="wemsManagementVM.standardPower" ng-pattern="/(^0$)|(^[1-9]\d{0,9}$)/" required="" maxlength="10"></input>
+          <label style="font-size: 14px">kW</label>
         </div>
       </form>
+    </div>
+    <div style="padding: 0; text-align:left" ng-show='standardPowerForm.standardPower.$error.pattern'>
+      <span style='color:Red; font-size: 14px; font-weight: bold'>Your standardPower format is invalid, Please check it again.</span>
+    </div>
+    <div style="padding: 0; text-align:left" ng-show='standardPowerForm.standardPower.$error.required'>
+      <span style='color:Red; font-size: 14px; font-weight: bold'>Your standardPower data is empty, Please input data.</span>
     </div>
   </div>
   <div id="ID_WEMS_managementThirdContent" style="width:100%; height: 30%; width:100%">
@@ -42,17 +55,27 @@
       <label style="font-size: 20px">전력 비용 설정</label>
     </div>
     <div class="container" style="width:100%; padding: 0; margin-top:3px; margin-bottom:10px; text-align:left; border:1px #dcdcdc solid">
-      <form class="form-inline" role="form" style="text-align:left; margin:3px">
+      <form name="costForm" class="form-inline" role="form" style="text-align:left; margin:3px">
         <div class="form-group">
-          <label style="font-size: 15px" for="cost">kW당 전력 비용</label>
-          <input type="text" class="form-control" id="ID_WEMS_cost" ng-model="wemsManagementVM.cost" ng-keypress="wemsManagementVM.onCheckNumber($event)"></input>
-          <label style="font-size: 15px">원</label>
+          <label style="font-size: 14px" for="cost">kW당 전력 비용</label>
+          <input name="cost" type="text" class="form-control" id="ID_WEMS_cost" ng-model="wemsManagementVM.cost" ng-pattern="/(^0$)|(^[1-9]\d{0,8}$)/" required="" maxlength="5"></input>
+          <label style="font-size: 14px">원</label>
         </div>
       </form>
     </div>
+    <div style="padding: 0; text-align:left" ng-show='costForm.cost.$error.pattern'>
+      <span style='color:Red; font-size: 14px; font-weight: bold'>Your cost format is invalid, Please check it again.</span>
+    </div>
+    <div style="padding: 0; text-align:left" ng-show='costForm.cost.$error.required'>
+      <span style='color:Red; font-size: 14px; font-weight: bold'>Your cost data is empty, Please input data.</span>
+    </div>
   </div>
   <div id="ID_WEMS_managementFourthContent" style="height: 10%; width:100%; vertical-align: middle; text-align: right; margin:3px">
-    <button type="button" style="margin:3px" class="btn btn-default btn-md" ng-click="wemsManagementVM.onClickSetting()">
+    <button type="button" style="margin:3px" class="btn btn-default btn-md" ng-click="wemsManagementVM.onClickSetting()" 
+            ng-disabled ="thresholdForm.threshold1.$error.pattern 
+            || thresholdForm.threshold2.$error.pattern
+            || standardPowerForm.standardPower.$error.pattern
+            || costForm.cost.$error.pattern">
       <%=__('S_WEMS_setting')%>
     </button>
     <button type="button" style="margin:3px" class="btn btn-default btn-md" ng-click="wemsManagementVM.onClickCancel()">

@@ -1,7 +1,7 @@
 ﻿angular
     .module('wemsDetailLayoutApp', ['chart.js'])
-    .controller('wemsDetailLayoutController', ['$scope', '$http', wemsDetailLayoutController]);
+    .controller('WemsDetailLayoutController', ['$scope', '$http', WemsDetailLayoutController]);
 
-function wemsDetailLayoutController($scope, $http) {
+function WemsDetailLayoutController($scope, $http) {
     var wemsDetailLayoutVM = this;
 };

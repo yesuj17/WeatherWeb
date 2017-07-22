@@ -40,13 +40,17 @@ var pmsGETList = [
     ['/pms/getUsersData', pmsRestfulAPIHandler.getUsersData],
     ['/pms/getNoticesData', pmsRestfulAPIHandler.getNoticesData],
     ['/pms/getNoticesDataNewCount', pmsRestfulAPIHandler.getNoticesDataNewCount],
+    ['/pms/displaytable', pmsRestfulAPIHandler.DisplayGridMotherdata],
+
+    /* Calendar API ***********************************************/
+    ['/pms/getMemoInfoList', pmsRestfulAPIHandler.getMemoInfoList],    
+    ['/pms/getMemoInfo', pmsRestfulAPIHandler.getMemoInfo],
     ['/pms/getEventGroupList', pmsRestfulAPIHandler.getEventGroupList],
-    ['/pms/getEventList', pmsRestfulAPIHandler.getEventList],    
-    ['/pms/pms_main', pmsRestfulAPIHandler.pmsrend],
-    ['/pms/displaytable', pmsRestfulAPIHandler.DisplayGridMotherdata]
+    ['/pms/getEventList', pmsRestfulAPIHandler.getEventList],            
 ];
 
 var pmsPOSTList = [
+    ['/pms/validateUserData', pmsRestfulAPIHandler.validateUserData],
     ['/pms/loginUserData', pmsRestfulAPIHandler.loginUserData],
     ['/pms/addUserLevelData', pmsRestfulAPIHandler.addUserLevelData],
     ['/pms/addUserData', pmsRestfulAPIHandler.addUserData],
@@ -55,7 +59,11 @@ var pmsPOSTList = [
     ['/pms/addNoticeData', pmsRestfulAPIHandler.addNoticeData],
     ['/pms/addNoticeUserReadData', pmsRestfulAPIHandler.addNoticeUserReadData],
     ['/pms/insertMother', pmsRestfulAPIHandler.AddMotherData],
-    ['/pms/createmother', pmsRestfulAPIHandler.ImportExcel]
+    ['/pms/createmother', pmsRestfulAPIHandler.ImportExcel],
+
+    /* Calendar API ***********************************************/
+    ['/pms/updateEventGroupSchedule', pmsRestfulAPIHandler.updateEventGroupSchedule],
+    ['/pms/updateEventsSchedule', pmsRestfulAPIHandler.updateEventsSchedule]
 ];
 
 var pmsPUTList = [
@@ -88,6 +96,7 @@ module.exports = function (app, io) {
             res.render('index', { user: req.session.user });
         }
     });
+
     /* Restful API */
     /* Set WEMS Restful API Handler */
     if (wemsGETList) {
@@ -156,6 +165,7 @@ module.exports = function (app, io) {
 
     /* Web Socket */
     io.on('connection', function (socket) {
+        console.log("webosocket connected");
     });
 }
 

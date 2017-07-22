@@ -1,6 +1,6 @@
 ﻿angular
     .module('wemsAnalysisApp', ['chart.js'])
-    .controller('WemsAnalysisController', ['$scope', '$http', '$rootScope', WemsAnalysisController]);
+    .controller('WemsAnalysisController', ['$scope', '$http', WemsAnalysisController]);
 
 var powerChart;
 var cumulativeCycleTimeChart;
@@ -10,16 +10,20 @@ var $analysisDatePicker = $('#ID_WEMS_analysisDatePicker');
 var $wemsMoreResultButton = $('#ID_WEMS_moreResultButton');
 var currentAnalysisDataSet;
 var analysisSummaryDataList = [];
-/* XXX Must Get From DB */
-var costPerkW = 0.3;
+var costPerkW = 0;
 var currentFactor = 1;
+var currentAnalysisUnit = "kW";
+var standardPower = 0;
 
-/* XXX Max Summary Column Number */
+/* Const Max Summary Column Number */
 var maxCol = 8;
 var analysisSummaryRowCount = 50;
 var analysisSummaryPageCount = 0;
-function WemsAnalysisController($scope, $http, $rootScope) {
+function WemsAnalysisController($scope, $http) {
     var wemsAnalysisVM = this;
+    $scope.$on('initalizeManagementDataEvent', initializeManagementData);
+    $scope.$on('updateManagementDataEvent', updateManagementData);
+
     $('#ID_WEMS_detailModal').on('show.bs.modal', onShowWemsDetailModal);
 
     wemsAnalysisVM.powerEfficiencyRows = [];
@@ -58,13 +62,13 @@ function WemsAnalysisController($scope, $http, $rootScope) {
         wemsAnalysisVM.analysisPeriod = getTimeStamp(startDate) + " ~ " + getTimeStamp(endDate);
         getAnalysisData()
             .then(function (res, status, headers, config) {
-                currentAnalysisDataSet = res.data;
-
                 initializeDeviceInfoList(res.data);
                 initializePowerData(res.data);
                 initializeCumulativeCycleTimeData(res.data);
                 initializePowerEfficiency(res.data);
                 initializeAnalysisSummayData(res.data);
+
+                currentAnalysisDataSet = res.data;
             })
             .catch(function (e) {
                 var newMessage = 'XHR Failed for getPowerData'
@@ -144,13 +148,14 @@ function WemsAnalysisController($scope, $http, $rootScope) {
 
         getAnalysisData(period)
             .then(function (res, status, headers, config) {
-                currentAnalysisDataSet = res.data;
-
                 refreshDeviceInfoList(res.data);
                 refreshPowerData(res.data);
                 refreshCumulativeCycleTimeData(res.data);
                 refreshPowerEfficiency(res.data);
                 refreshAnalysisSummary(res.data);
+
+                currentAnalysisDataSet = res.data;
+
                 var end = performance.now();
                 console.log("====================================================");
                 console.log("Call Refresh Analysis " + (end - start) + " milliseconds.");
@@ -185,7 +190,7 @@ function WemsAnalysisController($scope, $http, $rootScope) {
 
         var titleName = '사용 전력량';
         var yAxesLabel = '( kW )';
-        if (currentFactor != 1) {
+        if (currentAnalysisUnit != "kW") {
             titleName = '사용 전력 비용';
             yAxesLabel = '( 1000 KRW )';
         }
@@ -309,6 +314,8 @@ function WemsAnalysisController($scope, $http, $rootScope) {
 
     // Refresh Power Efficiency
     function refreshPowerEfficiency(analysisDataSet) {
+        calPowerEfficiencyData(analysisDataSet.AnalysisData);
+
         refreshPowerEfficiencyBarChart(analysisDataSet);
         refreshPowerEfficientyLineChart(analysisDataSet);
     }
@@ -451,9 +458,9 @@ function WemsAnalysisController($scope, $http, $rootScope) {
         if (!analysisDataSet || !analysisDataSet.AnalysisData) {
             return;
         }
-
+        
         wemsAnalysisVM.powerSummaryTitle = "사용 전력량(kW)";
-        if (currentFactor != 1) {
+        if (currentAnalysisUnit != "kW") {
             wemsAnalysisVM.powerSummaryTitle = "사용 전력 비용(1000 KRW)";
         }
 
@@ -658,7 +665,7 @@ function WemsAnalysisController($scope, $http, $rootScope) {
                 }
 
                 var calAnalysisData = analysisDataPerDevice[0].Power * currentFactor;
-                if (currentFactor != 1) {
+                if (currentAnalysisUnit != "kW") {
                     calAnalysisData = Number(calAnalysisData.toFixed(2));
                 }
 
@@ -991,6 +998,7 @@ function WemsAnalysisController($scope, $http, $rootScope) {
 
     // On Change Analysis Unit Handler
     function onChangeAnalysisUnitHandler() {
+        currentAnalysisUnit = wemsAnalysisVM.selectedAnalysisUnit;
         switch (wemsAnalysisVM.selectedAnalysisUnit) {
             case "kW":
                 currentFactor = 1;
@@ -1018,6 +1026,7 @@ function WemsAnalysisController($scope, $http, $rootScope) {
     function onShowPrintPageHandler() {
         $http.post('/wems/updateAnalysisPreviewData', {
                 costPerkW: costPerkW,
+                currentAnalysisUnit: currentAnalysisUnit,
                 currentFactor: currentFactor,
                 analysisPeriod: wemsAnalysisVM.analysisPeriod,
                 selectedDeviceInfo: wemsAnalysisVM.selectedDeviceInfo,
@@ -1033,22 +1042,6 @@ function WemsAnalysisController($scope, $http, $rootScope) {
             .error(function (data, status, header, config) {
                 console.log(data.error);
             });
-
-        /* XXX
-        var showAnalysisPreviewPageForm = angular.element('#ID_WEMS_analysisPreviewPageForm');
-        showAnalysisPreviewPageForm.action = '/wems/analysisPreview';
-        showAnalysisPreviewPageForm.method = 'post';
-        showAnalysisPreviewPageForm.target = 'Analysis Preview';
-        showAnalysisPreviewPageForm.analysisPreviewData.value = {
-            costPerkW: costPerkW,
-            currentFactor: currentFactor,
-            analysisPeriod: wemsAnalysisVM.analysisPeriod,
-            selectedDeviceInfo: wemsAnalysisVM.selectedDeviceInfo,
-            analysisSummaryRows: wemsAnalysisVM.analysisDataRows.length,
-            currentAnalysisDataSet: currentAnalysisDataSet
-        };
-        showAnalysisPreviewPageForm.submit()
-        */
     }
 
     // On Select Device Handler
@@ -1082,6 +1075,94 @@ function WemsAnalysisController($scope, $http, $rootScope) {
         }
 
         return xScaleLabelString;
+    }
+
+    // initialize Management Data
+    function initializeManagementData(event, managementData) {
+        if (!managementData) {
+            return;
+        }
+
+        var newStandardPower = managementData.StandardPower;
+        if (standardPower != newStandardPower) {
+            standardPower = newStandardPower;
+        }
+
+        var newCostPerkW = managementData.Cost / 1000;
+        if (costPerkW == newCostPerkW) {
+            return;
+        }
+
+        costPerkW = newCostPerkW;
+        if (currentAnalysisUnit != "kW") {
+            currentFactor = costPerkW;
+        }
+    }
+
+    // Update Management Data
+    function updateManagementData(event, managementData) {
+        if (!managementData) {
+            return;
+        }
+
+        var newStandardPower = managementData.StandardPower;
+        if (standardPower != newStandardPower) {
+            standardPower = newStandardPower;
+            refreshPowerEfficiency(currentAnalysisDataSet);
+        }
+
+        var newCostPerkW = managementData.Cost / 1000;
+        if (costPerkW == newCostPerkW) {
+            return;
+        }
+
+        costPerkW = newCostPerkW;
+        if (currentAnalysisUnit != "kW") {
+            currentFactor = costPerkW;
+
+            refreshPowerData(currentAnalysisDataSet);
+            refreshAnalysisSummary(currentAnalysisDataSet);
+        }
+    }
+
+    // Cal Power Efficiency 
+    function calPowerEfficiencyData(analysisDataList) {
+        if (!analysisDataList) {
+            return analysisDataList;
+        }
+
+        for (var analysisDataIndex = 0;
+            analysisDataIndex < analysisDataList.length;
+            analysisDataIndex++) {
+            if (!analysisDataList[analysisDataIndex] || !analysisDataList[analysisDataIndex].AnalysisDataPerDate) {
+                continue;
+            }
+
+            for (var analysisDataPerDateIndex = 0;
+                analysisDataPerDateIndex < analysisDataList[analysisDataIndex].AnalysisDataPerDate.length;
+                analysisDataPerDateIndex++) {
+                var analysisDataPerDate
+                    = analysisDataList[analysisDataIndex].AnalysisDataPerDate[analysisDataPerDateIndex];
+                if (!analysisDataPerDate) {
+                    continue;
+                }
+
+                analysisDataPerDate.PowerEfficiency
+                    = calPowerEfficiencyDataPerDate(analysisDataPerDate.Power, analysisDataPerDate.CycleTime);
+            }
+        }
+
+        return analysisDataList;
+    }
+
+    // Cal Power Efficiency Per Date
+    function calPowerEfficiencyDataPerDate(power, cycleTime) {
+        if (!standardPower || (standardPower == 0)) {
+            return 0;
+        }
+
+        var hours = cycleTime / 3600;
+        return Number((((power / hours.toFixed(3)) / standardPower) * 100).toFixed(2));
     }
 }   
 

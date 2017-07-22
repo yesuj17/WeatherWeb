@@ -2,9 +2,10 @@
 var wemsDBManager = require('../utility/dbManager/wemsDBManager');
 var machineAnalysisData = require('../models/wems/machineAnalysisData.json');
 
-// GET Restful API Handler
 /* XXX Must Fix Standard Power Data */
 var standardPower = 600000;
+
+// GET Restful API Handler
 var analysisPreviewData;
 module.exports.getAnalysisData = function (req, res) {
     if (!wemsDBManager) {
@@ -33,32 +34,42 @@ module.exports.getAnalysisData = function (req, res) {
     console.log(period.endDate);
     console.log("===========================");
 
-    /* XXX Must Get DeviceID From DB */
-    var deviceIDList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-
     var machineCycleDataPerDeviceList = [];
-    deviceIDList.forEach(generateDeviceMachineCycleDataHandler);
+    var machineIDList = [];
+    wemsDBManager.getMachineIDList('SC', function (err, result) {
+        if (err) {
+            res.status(505).json({ error: err });
+            return;
+        }
 
-    function generateDeviceMachineCycleDataHandler(deviceID) {
-        wemsDBManager.getMachineCycleData(period, deviceID, function (err, machineCycleDataList) {
+        for (var index = 0; index < result.length; index++) {
+            machineIDList.push(result[index].ID);
+        }
+
+        machineIDList.forEach(generateDeviceMachineCycleDataHandler);
+    });
+
+    // Generate Device Machine Cycle Data Handler
+    function generateDeviceMachineCycleDataHandler(machineID) {
+        wemsDBManager.getMachineCycleData(period, machineID, function (err, machineCycleDataList) {
             if (err) {
                 res.status(505).json({ error: err });
                 return;
             }
 
             machineCycleDataPerDeviceList.push({
-                DeviceID: deviceID,
+                DeviceID: machineID,
                 DeviceMachineCycleData: machineCycleDataList
             });
 
-            if (machineCycleDataPerDeviceList.length == deviceIDList.length) {
+            if (machineCycleDataPerDeviceList.length == machineIDList.length) {
                 machineCycleDataPerDeviceList.sort(function (a, b) {
                     return a.DeviceID - b.DeviceID;
                 });
 
                 var analysisData = generateAnalysisData(machineCycleDataPerDeviceList, period.dateUnit);
                 var anlysisDataSet = JSON.stringify({
-                    "DeviceIDList": deviceIDList,
+                    "DeviceIDList": machineIDList,
                     "AnalysisData": analysisData
                 });
 
@@ -124,7 +135,6 @@ module.exports.updateManagementData = function (req, res) {
 function generateAnalysisData(machineCycleDataPerDeviceList, dateUnit) {
     var analysisDataList = [];
     machineCycleDataPerDeviceList.forEach(generateAnalysisDataHandler);
-    calPowerEfficiencyData(analysisDataList);
 
     return analysisDataList;
 
@@ -297,45 +307,5 @@ function calPowerDataPerCycle(preMachineCycleData, machineCycleData) {
 // Cal Cycle Time Data 
 function calCycleTimeData(machineCycleData) {
     return (machineCycleData.TotalEndTime - machineCycleData.TotalStartTime) / 1000;
-}
-
-// Cal Power Efficiency 
-function calPowerEfficiencyData(analysisDataList) {
-    if (!analysisDataList) {
-        return analysisDataList;
-    }
-
-    for (var analysisDataIndex = 0;
-        analysisDataIndex < analysisDataList.length;
-        analysisDataIndex++) {
-        if (!analysisDataList[analysisDataIndex] || !analysisDataList[analysisDataIndex].AnalysisDataPerDate) {
-            continue;
-        }
-
-        for (var analysisDataPerDateIndex = 0;
-            analysisDataPerDateIndex < analysisDataList[analysisDataIndex].AnalysisDataPerDate.length;
-            analysisDataPerDateIndex++) {
-            var analysisDataPerDate
-                = analysisDataList[analysisDataIndex].AnalysisDataPerDate[analysisDataPerDateIndex];
-            if (!analysisDataPerDate) {
-                continue;
-            }
-
-            analysisDataPerDate.PowerEfficiency
-                = calPowerEfficiencyDataPerDate(analysisDataPerDate.Power, analysisDataPerDate.CycleTime);
-        }
-    }
-
-    return analysisDataList;
-}
-
-// Cal Power Efficiency Per Date
-function calPowerEfficiencyDataPerDate(power, cycleTime) {
-    if (!standardPower || (standardPower == 0)) {
-        return 0;
-    }
-
-    var hours = cycleTime / 3600;
-    return Number((((power / hours.toFixed(3)) / standardPower) * 100).toFixed(2));
 }
 

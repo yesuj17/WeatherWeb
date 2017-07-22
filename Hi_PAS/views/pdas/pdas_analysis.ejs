@@ -1,4 +1,4 @@
-<div class="modal fade" id="pdasAnalysisModal" role="dialog">
+<div class="modal fade" id="ID_PDAS_pdasAnalysisModal" role="dialog">
 	<div class="modal-dialog" style="width:1200px; height:1400px; background-color: #646464;">
 		<div class="modal-contents" style="width:100%; height:100%">
 			<div class="modal-header" style="height: 5%; background-color: #ffffff; color:#FFF">
@@ -26,22 +26,22 @@
 									<label style="color:white">From</label>
 								</div>
 								<div class="col-md-9 form-group" style="float:right">
-										<div class="input-group date" id="analysisDateTimePickerFrom" style="width:140px;">
-												<input class="form-control" id="analysisDateFrom" type="text"><span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+										<div class="input-group date" id="ID_PDAS_analysisDateTimePickerFrom" style="width:140px;">
+												<input class="form-control" id="ID_PDAS_analysisDateFrom" type="text"><span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
 										</div>
 								</div>
-									<input id="dateFromChangeFlg" type="hidden" value="false">
+									<input id="ID_PDAS_dateFromChangeFlg" type="hidden" value="false">
 							</div>
 							<div class="col-md-5">
 								<div class="col-md-1">
 										<label style="color:white"> To </label>
 								</div>
 								<div class="col-md-7 form-group">
-									<div class="input-group date" id="analysisDateTimePickerTo" style="width:140px">
-										<input class="form-control" id="analysisDateTo" type="text"><span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+									<div class="input-group date" id="ID_PDAS_analysisDateTimePickerTo" style="width:140px">
+										<input class="form-control" id="ID_PDAS_analysisDateTo" type="text"><span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
 									</div>
 								</div>
-								<input id="dateToChangeFlg" type="hidden" value="false">
+								<input id="ID_PDAS_dateToChangeFlg" type="hidden" value="false">
 								<div class="col-md-3">
 									<button class="btn btn-primary sm" ng-click="pdasAnalysisVM.changeAnalysisDate()" type="button"> Search </button>
 								</div>
@@ -51,7 +51,7 @@
 										<label style="color:white; ">호기</label>
 								</div>
 								<div class="col-md-8">
-									<select class="form-control" id="machine" ng-change="pdasAnalysisVM.filteringCurrentData()" ng-model="pdasAnalysisVM.selectedMachine" ng-options="x.title for x in pdasAnalysisVM.Machines"></select>
+									<select class="form-control" id="ID_PDAS_machine" ng-change="pdasAnalysisVM.filteringCurrentData()" ng-model="pdasAnalysisVM.selectedMachine" ng-options="x.title for x in pdasAnalysisVM.Machines"></select>
 								</div>
 							</div>
 						</div>
@@ -59,17 +59,17 @@
 					<div class="row" style="height:4%">
 						<button class="btn btn-primary" type="button">Trend분석(전류데이터)</button>
 					</div>
-					<div class="row" style="height:29%; background-color:#486268">
+					<div class="row" style="height:28%; background-color:#486268">
 						<div class="col-sm-3" style="height:10%; float:right">
 							<label class="checkbox-inline" style="color:white; font-size:70%">주행모터</label>
-							<input ng-change="pdasAnalysisVM.filteringCurrentData()" ng-false-value ng-model="pdasAnalysisVM.motorType.DrivingMotor" ng-true-value="DrivingMotor" type="checkbox">
+							<input ng-change="pdasAnalysisVM.filteringCurrentData()" ng-false-value='false' ng-model="pdasAnalysisVM.motorType.DrivingMotor" ng-true-value="DrivingMotor" type="checkbox">
 							<label class="checkbox-inline" style="color:white; font-size:70%">승강모터</label>
-							<input ng-change="pdasAnalysisVM.filteringCurrentData()" ng-false-value ng-model="pdasAnalysisVM.motorType.HoistingMotor" ng-true-value="HoistingMotor" type="checkbox">
+							<input ng-change="pdasAnalysisVM.filteringCurrentData()" ng-false-value='false' ng-model="pdasAnalysisVM.motorType.HoistingMotor" ng-true-value="HoistingMotor" type="checkbox">
 							<label class="checkbox-inline" style="color:white; font-size:70%">포크모터</label>
-							<input ng-change="pdasAnalysisVM.filteringCurrentData()" ng-false-value ng-model="pdasAnalysisVM.motorType.ForkMotor" ng-true-value="ForkMotor" type="checkbox">
+							<input ng-change="pdasAnalysisVM.filteringCurrentData()" ng-false-value='false' ng-model="pdasAnalysisVM.motorType.ForkMotor" ng-true-value="ForkMotor" type="checkbox">
 						</div>
 						<div style="height:90%">
-							<canvas id="currentTrendChart" style="height:100%; width:90%; margin:10"></canvas>
+							<canvas id="ID_PDAS_currentTrendChart" style="height:100%; width:90%; margin:10"></canvas>
 						</div>
 					</div>
 					<div class="row" style="height:1%"></div>
@@ -84,30 +84,30 @@
 														<div class="col-md-12" style="margin-top:4px">
 																<span>
 																	<label style="color:white; font-size: 16px"> 종합효율:
-																	<label style="color:#e67300; font-size: 20px"> 80%
+																	<label style="color:#e67300; font-size: 20px"> {{pdasAnalysisVM.oeeValue}}%
 																</label></label></span>
 														</div>
 												</div>
 												<div class="row" style="height:90%;">
 														<div class="col-md-12" style="height:100%;">
-																<canvas id="OEEChart" , style="height:100%; width:100%;"></canvas>
+																<canvas id="ID_PDAS_OEEChart" , style="height:100%; width:100%;"></canvas>
 														</div>
 												</div>
 										</div>
 										<div class="col-md-5" style="height:100%;">
 												<div class="row" style="height:33%">
 														<div class="col-md-12" style="height:100%; margin-top:4px;">
-																<canvas id="balancingRateChart" , style="height:100%;"></canvas>
+																<canvas id="ID_PDAS_balancingRateChart" , style="height:100%;"></canvas>
 														</div>
 												</div>
 												<div class="row" style="height:33%;">
 														<div class="col-md-12" style="height:100%;">
-																<canvas id="yieldChart" , style="height:100%;"></canvas>
+																<canvas id="ID_PDAS_yieldChart" , style="height:100%;"></canvas>
 														</div>
 												</div>
 												<div class="row" style="height:33%;">
 														<div class="col-md-12" style="height:100%;">
-																<canvas id="totalIStockRateChart" , style="height:100%;"></canvas>
+																<canvas id="ID_PDAS_totalIStockRateChart" , style="height:100%;"></canvas>
 														</div>
 												</div>
 										</div>
@@ -115,7 +115,7 @@
 						</div>
 						<div class="col-md-6" style="height:100%;">
 								<div class="row" style="height:10%;">
-									<div class='col-md-3'>
+									<div class='col-md-3' style='padding:0'>
 										<button class="btn btn-primary" type="button"> Cycle Time(sec)</button>
 									</div>
 									<div class='col-md-9' style='text-align:right; padding-top:15px'>
@@ -131,11 +131,11 @@
 								</div>
 								<div class="row" style="height:40%; background-color:#486268; margin-bottom:5px">
 									<div class='col-md-12' style='height:100%;'>
-										<canvas id="cycleTimeChart" style="height:100%; width:90%;"></canvas>
+										<canvas id="ID_PDAS_cycleTimeChart" style="height:100%; width:90%;"></canvas>
 									</div>
 								</div>
 								<div class="row" style="height:10%;">
-									<div class='col-md-3'>
+									<div class='col-md-3' style='padding:0'>
 										<button class="btn btn-primary" type="button"> 재고율(%)</button>
 									</div>
 									<div class='col-md-9' style='text-align:right; padding-top:15px'>
@@ -150,21 +150,27 @@
 									</div>
 								</div>
 								<div class="row" style="height:40%; background-color:#486268;">
-										<canvas id="iStockRateChart" , style="height:100%; width:90%;"></canvas>
+									<div class='col-md-12' style='height:100%;'>
+										<canvas id="ID_PDAS_iStockRateChart" , style="height:100%; width:90%;"></canvas>
+									</div>
 								</div>
 						</div>
 					</div>
-					<div class="row" style="height:2%"></div>
-					<div class="row" style="height:23%; background-color:#486268">
-						<div class="row" style="height:10%">
-							<div class="col-md-12">
-								<button class="btn btn-primary" type="button">Trend분석(종합효율)</button>
-							</div>
+					<div class="row" style="height:1.5%"></div>
+					<div class="row" style="height:3.5%">
+						<button class="btn btn-primary" type="button">Trend분석(종합효율)</button>
+					</div>
+					<div class="row" style="height:21%; background-color:#486268">
+						<div style="height:100%">
+							<canvas id="ID_PDAS_OEETrendChart" style="height:100%; width:90%;"></canvas>
 						</div>
+					</div>
 					</div>
 				</div>
 			</div>
-			<div class="modal-footer" style="height:5%"></div>
+			<div class="modal-footer" style="height:5%">
+
+			</div>
 			<script src="/pdas/pdasAnalysisController.js"></script>
 		</div>
 	</div>

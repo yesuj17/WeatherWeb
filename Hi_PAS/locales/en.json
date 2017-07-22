@@ -9,5 +9,12 @@
 	"S_PMS_EventDetailTableColCode": "Code",
 	"S_PMS_EventDetailTableColTitle": "Title",
 	"S_PMS_EventDetailScheduleMoveButton": "Change",
-	"S_PMS_CalendarConfirmChangeEventScheduleMsg": "S_PMS_CalendarConfirmChangeEventScheduleMsg"
+    "S_PMS_CalendarConfirmChangeEventScheduleMsg": "S_PMS_CalendarConfirmChangeEventScheduleMsg",
+    "S_PMS_MemoTableColTimeStamp": "S_PMS_MemoTableColTimeStamp",
+    "S_PMS_MemoTableColTimeUser": "S_PMS_MemoTableColTimeUser",
+    "S_PMS_MemoTableColTimeTaskCode": "S_PMS_MemoTableColTimeTaskCode",
+    "S_PMS_MemoTableColTimeTaskMemo": "S_PMS_MemoTableColTimeTaskMemo",
+    "S_PMS_CalendarConfirmChangeEventScheduleAutoSyncMsg": "S_PMS_CalendarConfirmChangeEventScheduleAutoSyncMsg",
+    "S_COMMON_Cancel": "CANCEL",
+    "S_COMMON_Ok": "OK"
 }

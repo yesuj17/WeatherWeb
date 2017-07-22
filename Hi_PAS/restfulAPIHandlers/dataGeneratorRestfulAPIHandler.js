@@ -121,8 +121,9 @@ var GenerateMachineCycleData = function (req, arrMachineCycleData, arrErrorData)
         while (dailyWorkLoad > 0) {
             // 물동량이 가장 적게 할당된 호기 선택
             var byWorkLoad = arrTmpMachineCycleData.slice(0);
-            byWorkLoad.sort(function (a, b) { return a.workLoad - b.workLoad; });
-            var targetSC = byWorkLoad[0];
+            //byWorkLoad.sort(function (a, b) { return a.workLoad - b.workLoad; });
+            var randMachine = Math.floor(Math.random() * SCCnt);
+            var targetSC = byWorkLoad[randMachine];
             // Dummy data 생성
             var machineCycleData = JSON.parse(JSON.stringify(machineCycleDataJson));
             machineCycleData.JobID = targetSC.jobID++;
@@ -219,7 +220,7 @@ var GenerateMachineCycleData = function (req, arrMachineCycleData, arrErrorData)
 var GenerateErrorData = function (cycleInfo) {
     var errorData = JSON.parse(JSON.stringify(machineErrorDataJson));
     errorData.MachineID = cycleInfo.MachineID;
-    errorData.CurrDate = cycleInfo.currTime;
+    errorData.CurrDate = new Date(cycleInfo.currTime);
     errorData.JobNo = cycleInfo.jobID;
     errorData.ErrCode = Math.floor(Math.random() * 1000) + 1;
     errorData.ErrMsg = "Dummy error message";

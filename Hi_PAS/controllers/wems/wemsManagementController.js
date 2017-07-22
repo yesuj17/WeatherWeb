@@ -1,14 +1,20 @@
 ﻿angular
     .module('wemsManagementApp', ['chart.js'])
-    .controller('WemsManagementController', ['$scope', '$http', WemsManagementController]);
+    .controller('WemsManagementController', ['$scope', '$http', '$rootScope', WemsManagementController]);
 
 var oldThreshold1 = 0;
 var oldThreshold2 = 0;
 var oldStandardPower = 0;
 var oldCost = 0;
-function WemsManagementController($scope, $http) {
+function WemsManagementController($scope, $http, $rootScope) {
     var wemsManagementVM = this;
     $('#ID_WEMS_detailModal').on('show.bs.modal', onShowWemsDetailModal);
+    $('#ID_WEMS_detailPageTab a').on('shown.bs.tab', function (e) {
+        if (e.target.hash === "#ID_WEMS_managementSection") {
+            $scope.$apply(revertManagementData);
+        }
+
+    });
 
     wemsManagementVM.onCheckNumber = onCheckNumberHandler;
     wemsManagementVM.onClickSetting = onClickSettingHandler;
@@ -33,6 +39,8 @@ function WemsManagementController($scope, $http) {
                 oldThreshold2 = res.data.Threshold2;
                 oldStandardPower = res.data.StandardPower;
                 oldCost = res.data.Cost;
+
+                $rootScope.$broadcast('initalizeManagementDataEvent', res.data);
             })
             .catch(function (e) {
                 var newMessage = 'XHR Failed for getPowerData'
@@ -77,6 +85,13 @@ function WemsManagementController($scope, $http) {
                 oldThreshold2 = wemsManagementVM.threshold2;
                 oldStandardPower = wemsManagementVM.standardPower;
                 oldCost = wemsManagementVM.cost;
+
+                $rootScope.$broadcast('updateManagementDataEvent', {
+                    Threshold1: wemsManagementVM.threshold1,
+                    Threshold2: wemsManagementVM.threshold2,
+                    StandardPower: wemsManagementVM.standardPower,
+                    Cost: wemsManagementVM.cost
+                });
 
                 alert("Management data updating is successed!");
             })

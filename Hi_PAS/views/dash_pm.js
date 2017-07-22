@@ -4,10 +4,13 @@
 
 /* Variables */
 dashVM.pmsEventList = [];
+dashVM.pmsMemoList = null;
+dashVM.pmsChangeSelectedEventInfo = null;
 
 /* Export Function declare */
 dashVM.pmsChangeSelectedEventSchedule = pmsChangeSelectedEventSchedule;
 dashVM.pmsOnSelectedEvent = pmsOnSelectedEvent;
+dashVM.pmsShowMemo = pmsShowMemo;
 
 /* OnLoad() call from index */
 function pms_OnLoad() {
@@ -33,17 +36,19 @@ function pms_OnLoad() {
                 var b = $('#ID_PMS_dashCalendar').fullCalendar('getDate');
 
                 dashPMSGetEventGroupList(b.format('YYYY-MM'));
-                dashPMSGetMemoList(b.format('YYYY-MM'));            
+                dashPMSGetMemoInfoList(b.format('YYYY-MM'));            
             }
         },
         eventClick: function (event, jsEvent, view) {
             dashPMSOnClickEventGroup(event);	            
         },
-        eventDrop: function (event, delta, revertFunc) {
+        eventDrop: function (event, delta, revertFunc) {            
             if (confirm('<%=__('S_PMS_CalendarConfirmChangeEventScheduleMsg') %>') == true) {
 
+                var res = confirm('<%=__('S_PMS_CalendarConfirmChangeEventScheduleAutoSyncMsg') %>');
+
                 // Update Schedule
-                //updateTaskDate(event);
+                dashPMSChangeEventGroupSchedule(res, event);
             }
             else {
                 revertFunc();
@@ -56,7 +61,15 @@ function pms_OnLoad() {
 
 function pmsChangeSelectedEventSchedule() {
 
-    /* XXX not implemented yet */
+    var changePostSchedule = false;
+
+    if (confirm('<%=__('S_PMS_CalendarConfirmChangeEventScheduleMsg') %>') == true) {        
+        changePostSchedule = confirm('<%=__('S_PMS_CalendarConfirmChangeEventScheduleAutoSyncMsg') %>');        
+    }
+    else {
+        return;        
+    }
+    
     var idList = [];
 
     for (var i = 0; i < dashVM.pmsEventList.length; i++) {
@@ -64,17 +77,23 @@ function pmsChangeSelectedEventSchedule() {
         if (res == true) {
             idList.push(dashVM.pmsEventList[i].UID);
         }
-    } 
+    }
 
-    var reqParams = {
-        TargetDate: $('#ID_PMS_dashSelectedDate').val(),
-        GroupType: $('#ID_PMS_dashSelectedEventGroupType').val(),      
-        EventUIDs: idList
-    };
+    $('#ID_PMS_dashCalendarGroupEventListModal').modal('toggle');
+  
+    $http.post('/pms/updateEventsSchedule', {
+        params: {
+            SourceDate: $('#ID_PMS_dashSelectedDate').val(),
+            TargetDate: $('#ID_PMS_dashCalendarChangeScheduleTargetDate').val(),
+            GroupType: $('#ID_PMS_dashSelectedEventGroupType').val(),
+            OptChangePostSchedule: changePostSchedule,
+            EventUIDs: idList
+        }
+    }).then(function (response) {
 
-    var jsonData = JSON.stringify(reqParams);
-
-    console.log(reqParams);
+    }, function (err) {
+        console.log(err);
+    });   
 
 }
 
@@ -83,42 +102,69 @@ function pmsOnSelectedEvent() {
     for (var i = 0; i < dashVM.pmsEventList.length; i++) {
         var res = $('#ID_PMS_eventUID-' + dashVM.pmsEventList[i].UID).prop('checked');
         if (res == true) {
-            $('#ID_dashPMSScheduleMoveButton').css('display', 'block');
+            $('#ID_dashPMSScheduleMoveControl').css('display', 'block');
             return;
         }            
     }
 
-    $('#ID_dashPMSScheduleMoveButton').css('display', 'none');
+    $('#ID_dashPMSScheduleMoveControl').css('display', 'none');
+}
+
+function pmsShowMemo(targetDate) {
+
+    $http.get('/pms/GetMemoInfo', {
+        params: {
+            TargetDate: targetDate            
+        }
+    }).then(function (response) {
+        if (response.data) {
+            $('#ID_PMS_dashCalendarMemoInfoModal').modal();
+            dashVM.pmsMemoList = response.data;                 
+        }
+    }, function (err) {
+        console.log(err);
+    });
 }
 
 
-/* Private functions */
+/* Private functions ****************************************************************/
 function dashPMSConvertToCalenderEvent(info) {
 
     var res;
-    var title, backColor;
+    var title, backColor, txtColor;
 
     if (info.GroupType == "daily") {
         title = '<%=__('S_PMS_DailyEventGroupTitle') %>';
-        backColor = '#66CCCC';
+        backColor = 'rgba(102, 204, 204, 1)';
+        txtColor = 'rgba(0, 0, 0, 1)';        
     }
     else if (info.GroupType == "weekly") {
         title = '<%=__('S_PMS_WeeklyEventGroupTitle') %>';
-        backColor = '#CC66FF';
+        backColor = 'rgba(204, 102, 255, 1)';
+        txtColor = 'rgba(0, 0, 0, 1)';        
     }
     else if (info.GroupType == "monthly") {
         title = '<%=__('S_PMS_MonthlyEventGroupTitle') %>';
-        backColor = '#0033CC';
+        backColor = 'rgba(0, 51, 204, 1)';
+        txtColor = 'rgba(0, 0, 0, 1)';        
     }
     else {
         return null;
+    }
+
+    var calDate = new Date(info.Date);
+    var today = new Date();
+    var isPastDay = calDate < today;
+    if (isPastDay == true) {
+        backColor = backColor.replace(/[^,]+(?=\))/, '0.3')
+        txtColor = txtColor.replace(/[^,]+(?=\))/, '0.3')
     }
 
     res = {
         title: title,
         start: info.Date,
         backgroundColor: backColor,
-        textColor: '#FFFFFF',
+        textColor: txtColor,
         existMemo: info.ExistMemo,
         groupType: info.GroupType
     };
@@ -143,20 +189,38 @@ function dashPMSGetEventList(event) {
     });
 }
 
-function dashPMSGetMemoList(month) {
+function dashPMSGetMemoInfoList(month) {
 
-    /* XXX not implemented yet */
+    $http.get('/pms/GetMemoInfoList', {
+        params: {
+            month: month
+        }
+    }).then(function (response) {
+        if (response.data) {
+            
+            var infos = response.data;
+
+            for (var i = 0; i < infos.length; i++) {
+                dashPMSEnableMemoIcon(infos[i].Date, infos[i].Exist);            
+            }    
+        }
+
+    }, function (err) {
+        console.log(err);
+    });    
 }
 
-function dashPMSEnableMemoIcon(date, enable) {
+function dashPMSEnableMemoIcon(targetDate, enable) {
 
-    var el = $('[data-date="' + date + '"]');
+    var el = $('[data-date="' + targetDate + '"]');
 
     if (el) {
         var prevHtml = el[1].innerHTML;
 
-        if (enable == true) {
-            el[1].innerHTML = prevHtml + '<i class="fa fa-envelope" aria-hidden="true" style="color: #FFCC00"></i>';
+        if (enable == "true") {
+            var memoHtml = '<i class="fa fa-envelope" aria-hidden="true" style="color: #FFCC00" ng-click=dashVM.pmsShowMemo("' + targetDate + '")></i>';            
+            el[1].innerHTML = prevHtml + memoHtml;
+            $compile(el)($scope);            
         }
         else {
             var startIndex = prevHtml.indexOf('<i');
@@ -164,7 +228,6 @@ function dashPMSEnableMemoIcon(date, enable) {
 
             if (startIndex != -1) {
                 var matchString = prevHtml.substring(startIndex, endIndex + 3);
-
                 el[1].innerHTML = prevHtml.replace(matchString, '');
             }
         }
@@ -202,12 +265,36 @@ function dashPMSGetEventGroupList(month) {
 
 
 function dashPMSOnClickEventGroup(event) {
-
-    // Show modal
+    
     $('#ID_PMS_dashCalendarGroupEventListModal').modal();
+
+    $('#ID_dashPMSScheduleMoveControl').css('display', 'none');
     $('#ID_PMS_dashCalendarGroupEventListTitle').html(event.title + ' (' + event.start.format() + ')');
     $('#ID_PMS_dashSelectedEventGroupType').val(event.groupType);
     $('#ID_PMS_dashSelectedDate').val(event.start.format());
+    
+    $('#ID_PMS_dashCalendarChangeScheduleDatePicker').datetimepicker({
+        locale: 'ko',
+        format: 'YYYY-MM-DD',
+        dayViewHeaderFormat: 'YYYY MMMM',
+        ignoreReadonly: true
+    });		
+    $('#ID_PMS_dashCalendarChangeScheduleTargetDate').val(event.start.format());
 
     dashPMSGetEventList(event);
+}
+
+function dashPMSChangeEventGroupSchedule(changePostSchedule, event) {
+    $http.post('/pms/updateEventGroupSchedule', {
+        params: {
+            GroupType: event.groupType,
+            SourceDate: event.start._i,
+            TargetDate: event.start.format(),
+            OptChangePostSchedule: changePostSchedule    
+        }
+    }).then(function (response) {
+        
+    }, function (err) {
+        console.log(err);
+    });    
 }

@@ -8,6 +8,7 @@ var currentTrendChart;
 var cycleTimeChart;
 var iStockRateChart;
 var OEEChart;
+var OEETrendChart;
 var balancingRateChart;
 var yieldChart;
 var totalIStockRateChart;
@@ -33,42 +34,44 @@ function pdasAnalysisController($scope, $http) {
     pdasAnalysisVM.avgIStockRate = 0;
     pdasAnalysisVM.maxIStockRate = 0;
     pdasAnalysisVM.minIStockRate = 0;
+    // OEE
+    pdasAnalysisVM.oeeValue = 0;
 
-    var $analysisDateTimePickerFrom = $('#analysisDateTimePickerFrom');
-    var $analysisDateTimePickerTo = $('#analysisDateTimePickerTo');
-    $('#analysisDateTimePickerFrom').datetimepicker({
+    var $analysisDateTimePickerFrom = $('#ID_PDAS_analysisDateTimePickerFrom');
+    var $analysisDateTimePickerTo = $('#ID_PDAS_analysisDateTimePickerTo');
+    $('#ID_PDAS_analysisDateTimePickerFrom').datetimepicker({
         format: 'YYYY/MM/DD',
         showClose: true,
         defaultDate: new Date(),
     }).on('dp.change', function(e){
         var fromDate = new Date(e.date);
         var maxDate = new Date(fromDate.getTime() + MILLISECONDS_OF_THE_YEAR);
-        $('#analysisDateTimePickerTo').data("DateTimePicker").maxDate(maxDate);
-        $('#analysisDateTimePickerTo').data("DateTimePicker").minDate(e.date);
-        $('#dateFromChangeFlg').val('true');
+        $('#ID_PDAS_analysisDateTimePickerTo').data("DateTimePicker").maxDate(maxDate);
+        $('#ID_PDAS_analysisDateTimePickerTo').data("DateTimePicker").minDate(e.date);
+        $('#ID_PDAS_dateFromChangeFlg').val('true');
     });
 
-    $('#analysisDateTimePickerTo').datetimepicker({
+    $('#ID_PDAS_analysisDateTimePickerTo').datetimepicker({
         format: 'YYYY/MM/DD',
         showClose: true,
         defaultDate: new Date(),
     }).on('dp.change', function(e){
         var toDate = new Date(e.date);
         var minDate = new Date(toDate.getTime() - MILLISECONDS_OF_THE_YEAR);
-        $('#analysisDateTimePickerFrom').data("DateTimePicker").minDate(minDate);
-        $('#analysisDateTimePickerFrom').data("DateTimePicker").maxDate(e.date);
-        $('#dateToChangeFlg').val('true');
+        $('#ID_PDAS_analysisDateTimePickerFrom').data("DateTimePicker").minDate(minDate);
+        $('#ID_PDAS_analysisDateTimePickerFrom').data("DateTimePicker").maxDate(e.date);
+        $('#ID_PDAS_dateToChangeFlg').val('true');
     });
 
     initializePdasAnalysisApp();
 
     pdasAnalysisVM.changeAnalysisDate = function() {
-        if($('#dateFromChangeFlg').val() == 'false' && $('#dateToChangeFlg').val() == 'false') {
+        if($('#ID_PDAS_dateFromChangeFlg').val() == 'false' && $('#ID_PDAS_dateToChangeFlg').val() == 'false') {
             return;
         }
         var period = {
-            from: new Date($('#analysisDateFrom').val()),
-            to: new Date($('#analysisDateTo').val())
+            from: new Date($('#ID_PDAS_analysisDateFrom').val()),
+            to: new Date($('#ID_PDAS_analysisDateTo').val())
         }
         // Step 1. 선택된 기alert($scope.dateTo);간의 분석데이터 수집
         getAnalysisData(period, updateAnalysisContents);
@@ -81,10 +84,12 @@ function pdasAnalysisController($scope, $http) {
                 updateCurrentTrendChart(anaysisData.CurrentData);
                 createCycleTimeChart(anaysisData.CycleTimeData);
                 createIStockRateChart(anaysisData.IStockRateData);
+                createOEESummaryChart(anaysisData.OEESummaryData);
+                createOEETrendChart(anaysisData.OEETrendData);
             }
         }
-        $('#dateFromChangeFlg').val('false');
-        $('#dateToChangeFlg').val('false');
+        $('#ID_PDAS_dateFromChangeFlg').val('false');
+        $('#ID_PDAS_dateToChangeFlg').val('false');
     }
 
     pdasAnalysisVM.filteringCurrentData = function() {
@@ -129,8 +134,8 @@ function pdasAnalysisController($scope, $http) {
     // Initialize Analysis Data
     function initializePdasAnalysisApp() {
         var period = {
-            from: new Date($('#analysisDateFrom').val()),
-            to:   new Date($('#analysisDateTo').val())
+            from: new Date($('#ID_PDAS_analysisDateFrom').val()),
+            to:   new Date($('#ID_PDAS_analysisDateTo').val())
         }
         // Step 1. 분석 Data 수집
         getAnalysisData(period, createAnalysisContents);
@@ -142,10 +147,8 @@ function pdasAnalysisController($scope, $http) {
                 createCurrentTrendChart(anaysisData.CurrentData);
                 createCycleTimeChart(anaysisData.CycleTimeData);
                 createIStockRateChart(anaysisData.IStockRateData);
-                createOEEChart(null);
-                createBalancingRateChart(null);
-                createYieldChart(null);
-                createTotalISockRateChart(null);
+                createOEESummaryChart(anaysisData.OEESummaryData);
+                createOEETrendChart(anaysisData.OEETrendData);
             }
         }
     }
@@ -157,7 +160,7 @@ function pdasAnalysisController($scope, $http) {
             data: chartData,
             options: currentTrendChartOption
         }
-        var canvasObj = document.getElementById('currentTrendChart');
+        var canvasObj = document.getElementById('ID_PDAS_currentTrendChart');
         currentTrendChart = new Chart(canvasObj, chartConfig);
     }
 
@@ -181,7 +184,7 @@ function pdasAnalysisController($scope, $http) {
             for(ipx in element.data) {
                 var randomColor = getRandomColor();
                 var val = parseFloat(element.data[ipx]);
-                dataset.data.push(val.toFixed(2));
+                dataset.data.push(val.toFixed(1));
                 dataset.backgroundColor.push('rgb(210, 255, 77)');
                 if(maxCycleTime.cycleTime < val) {
                     maxCycleTime.ipx = ipx;
@@ -203,7 +206,7 @@ function pdasAnalysisController($scope, $http) {
             data: chartData,
             options: getBarChartOptions('(sec)', maxCycleTime.cycleTime)
         };
-        var canvasObj = document.getElementById('cycleTimeChart');
+        var canvasObj = document.getElementById('ID_PDAS_cycleTimeChart');
         cycleTimeChart = new Chart(canvasObj, chartConfig);
     }
 
@@ -249,29 +252,160 @@ function pdasAnalysisController($scope, $http) {
             data: chartData,
             options: getBarChartOptions('(%)', 100)
         };
-        var canvasObj = document.getElementById('iStockRateChart');
+        var canvasObj = document.getElementById('ID_PDAS_iStockRateChart');
         iStockRateChart = new Chart(canvasObj, chartConfig);
     }
 
-    function createOEEChart(OEEData) {
-        var canvasObj = document.getElementById('OEEChart');
-        gaugeChartConfig.options.title.text = 'OEE: 80%'
-        OEEChart = new Chart(canvasObj, gaugeChartConfig);    
+    function createOEESummaryChart(OEESummData) {
+        createOEEChart(OEESummData.OEE);
+        createBalancingRateChart(OEESummData.BalancingRate);
+        createYieldChart(OEESummData.Yield);
+        createTotalISockRateChart(OEESummData.IStockRate);
     }
 
-    function createBalancingRateChart(OEEData) {
-        var canvasObj = document.getElementById('balancingRateChart');
-        balancingRateChart = new Chart(canvasObj, doughnutChartConfig);    
+    function createOEETrendChart(OEETrendData) {
+        var config = {
+            type: 'line',
+            data: createOEETrendChartDatasets(OEETrendData),
+            options: OEETrendChartOption
+        }
+        var canvasObj = document.getElementById('ID_PDAS_OEETrendChart');
+        OEETrendChart = new Chart(canvasObj, config);
     }
 
-    function createYieldChart(OEEData) {
-        var canvasObj = document.getElementById('yieldChart');
-        yieldChart = new Chart(canvasObj, doughnutChartConfig);    
+    function createOEETrendChartDatasets(OEETrendData) {
+        var chartData = {
+            labels:OEETrendData.labels,
+            datasets:[]
+        }
+
+        OEETrendData.datasets.forEach(function(element){
+            var dataset = new Object();
+            dataset.label = element.label;
+            dataset.data = [];
+            element.data.forEach(function(elem){
+                dataset.data.push((elem * 100).toFixed(1));
+            });
+            dataset.borderColor = getRandomColor();
+            chartData.datasets.push(dataset);
+        });
+        return chartData;
     }
 
-    function createTotalISockRateChart(OEEData) {
-        var canvasObj = document.getElementById('totalIStockRateChart');
-        totalIStockRateChart = new Chart(canvasObj, doughnutChartConfig);    
+    function createOEEChart(oee) {
+        pdasAnalysisVM.oeeValue = (oee * 100).toFixed(1);
+        var config = {
+            type : 'doughnut',
+            data : {
+                labels: ['OEE',''],             
+                datasets:[]
+            },
+            options: doughnutChartConfig('OEE(%)')
+        }
+
+        var dataset = new Object();
+        dataset.data = [(oee*100).toFixed(1), ((1 - oee)* 100).toFixed(1)];
+        dataset.backgroundColor = [];
+        dataset.borderWidth = 0;
+        if(oee < 0.333) {
+            dataset.backgroundColor = ['rgba(255, 51, 51, 1)', 'rgba(1, 1, 1, 0.2)',];
+        }
+        else if(oee < 0.666) {
+            dataset.backgroundColor = ['rgba(255, 219, 77, 1)', 'rgba(1, 1, 1, 0.2)',];
+        }
+        else {
+            dataset.backgroundColor = ['rgba(153, 223, 89, 1)', 'rgba(1, 1, 1, 0.2)',];
+        }
+        config.data.datasets.push(dataset);
+
+        var canvasObj = document.getElementById('ID_PDAS_OEEChart');
+        OEEChart = new Chart(canvasObj, config);    
+    }
+
+    function createBalancingRateChart(balancingRate) {
+        var config = {
+            type : 'doughnut',
+            data : {
+                labels: ['분배효율',''],             
+                datasets:[]
+            },
+            options: doughnutChartConfig('분배효율(%)')
+        }
+        var dataset = new Object();
+        dataset.data = [(balancingRate*100).toFixed(1), ((1 - balancingRate)* 100).toFixed(1)];
+        dataset.backgroundColor = [];
+        dataset.borderWidth = 0;
+        if(balancingRate < 0.333) {
+            dataset.backgroundColor = ['rgba(255, 51, 51, 1)', 'rgba(1, 1, 1, 0.2)',];
+        }
+        else if(balancingRate < 0.666) {
+            dataset.backgroundColor = ['rgba(255, 219, 77, 1)', 'rgba(1, 1, 1, 0.2)',];
+        }
+        else {
+            dataset.backgroundColor = ['rgba(153, 223, 89, 1)', 'rgba(1, 1, 1, 0.2)',];
+        }
+        config.data.datasets.push(dataset);
+
+        var canvasObj = document.getElementById('ID_PDAS_balancingRateChart');
+        balancingRateChart = new Chart(canvasObj, config);    
+
+    }
+
+    function createYieldChart(yieldVal) {
+        var config = {
+            type : 'doughnut',
+            data : {
+                labels: ['양품율',''],
+                datasets:[]
+            },
+            options: doughnutChartConfig('양품율(%)')
+        }
+        //yieldVal = 0.4;
+        var dataset = new Object();
+        dataset.data = [(yieldVal*100).toFixed(1), ((1 - yieldVal)* 100).toFixed(1)];
+        dataset.backgroundColor = [];
+        dataset.borderWidth = 0;
+        if(yieldVal < 0.333) {
+            dataset.backgroundColor = ['rgba(255, 51, 51, 1)', 'rgba(1, 1, 1, 0.2)'];
+        }
+        else if(yieldVal < 0.666) {
+            dataset.backgroundColor = ['rgba(255, 219, 77, 1)', 'rgba(1, 1, 1, 0.2)'];
+        }
+        else {
+            dataset.backgroundColor = ['rgba(153, 223, 89, 1)', 'rgba(1, 1, 1, 0.2)'];
+        }
+        config.data.datasets.push(dataset);
+
+        var canvasObj = document.getElementById('ID_PDAS_yieldChart');
+        yieldChart = new Chart(canvasObj,config);    
+    }
+
+    function createTotalISockRateChart(iStockRate) {
+        var config = {
+            type : 'doughnut',
+            data : {
+                labels: ['재고율',''],
+                datasets:[]
+            },
+            options: doughnutChartConfig('재고율(%)')
+        }
+        var dataset = new Object();
+        dataset.data = [(iStockRate*100).toFixed(1), ((1 - iStockRate)* 100).toFixed(1)];
+        dataset.backgroundColor = [];
+        dataset.borderWidth = 0;
+        if(iStockRate < 0.5) {
+            dataset.backgroundColor = ['rgba(153, 223, 89, 1)', 'rgba(1, 1, 1, 0.2)',];
+        }
+        else if(iStockRate < 0.8) {
+            dataset.backgroundColor = ['rgba(255, 219, 77, 1)', 'rgba(1, 1, 1, 0.2)',];
+        }
+        else {
+            dataset.backgroundColor = ['rgba(255, 51, 51, 1)', 'rgba(1, 1, 1, 0.2)',];
+        }
+        config.data.datasets.push(dataset);
+
+        var canvasObj = document.getElementById('ID_PDAS_totalIStockRateChart');
+        totalIStockRateChart = new Chart(canvasObj, config);    
     }
 
     function updateCurrentTrendChart(currentData) {
@@ -283,12 +417,14 @@ function pdasAnalysisController($scope, $http) {
         removeCurrentTrendChartData();
         removeCycleTimeChartData();
         removeIStockRateChartData();
+        removeOEESummaryChartData();
+        removeOEETrendChartData();
     }
 
     function removeCurrentTrendChartData() {
         if(currentTrendChart) {
-            currentTrendChart.data.labels.pop();
-            currentTrendChart.data.datasets.pop();
+            currentTrendChart.data.labels.splice(0);
+            currentTrendChart.data.datasets.splice(0);
         }
     }
 
@@ -296,6 +432,7 @@ function pdasAnalysisController($scope, $http) {
         if(cycleTimeChart) {
             cycleTimeChart.data.labels.pop();
             cycleTimeChart.data.datasets.pop();
+            cycleTimeChart.destroy();
         }
     }
 
@@ -303,6 +440,37 @@ function pdasAnalysisController($scope, $http) {
         if(iStockRateChart) {
             iStockRateChart.data.labels.pop();
             iStockRateChart.data.datasets.pop();
+            iStockRateChart.destroy();
+        }
+    }
+
+    function removeOEESummaryChartData() {
+        if(OEEChart) {
+            OEEChart.data.labels.pop();
+            OEEChart.data.datasets.pop();
+            OEEChart.destroy();
+        }
+        if(balancingRateChart){
+            balancingRateChart.data.labels.pop();
+            balancingRateChart.data.datasets.pop();
+            balancingRateChart.destroy();
+        }
+        if(yieldChart){
+            yieldChart.data.labels.pop();
+            yieldChart.data.datasets.pop();
+            yieldChart.destroy();
+        }
+        if(totalIStockRateChart){
+            totalIStockRateChart.data.labels.pop();
+            totalIStockRateChart.data.datasets.pop();   
+            totalIStockRateChart.destroy();      
+        }
+    }
+
+    function removeOEETrendChartData() {
+        if(OEETrendChart) {
+            OEETrendChart.data.labels.splice(0);
+            OEETrendChart.data.datasets.splice(0);    
         }
     }
 
@@ -401,6 +569,63 @@ var currentTrendChartOption = {
                 fontSize: 9,
                 fontColor: 'white',
                 labelString: '(Am)'
+            },
+            ticks: {
+                beginAtZero: false,
+                fontColor: 'white',
+                fontSize: 9
+            }
+        }]
+    }
+}
+
+var OEETrendChartOption = {
+    responsive: true,
+    maintainAspectRatio: false,
+    legend: {
+        position: 'bottom',
+        display: true,
+        fullWidth: false,
+        labels: {
+            fontColor: 'white',
+            fontSize: 9
+        }
+    },
+    elements: {
+        point: {
+            radius: 1.5
+        },
+        line: {
+            tension: 0,
+            borderWidth: 1.2
+        }
+    },
+    scales: {
+        xAxes: [{
+            type: 'time',
+            gridLines: { display: false },
+            scaleLabel: {
+                display: false,
+                labelString: '(time)'
+            },
+            time: {
+                //unit: 'minute',
+            },
+            ticks: {
+                display: true,
+                fontColor: 'white',
+                fontSize: 9
+            }
+        }],
+        yAxes: [{
+            type: "linear",
+            display: true,
+            position: "left",
+            scaleLabel: {
+                display: true,
+                fontSize: 9,
+                fontColor: 'white',
+                labelString: '(%)'
             },
             ticks: {
                 beginAtZero: false,
@@ -510,42 +735,24 @@ var gaugeChartConfig =
 }
 
 
-var doughnutChartConfig = 
-{
-    type: "doughnut",
-    data: {
-        datasets: [
-            {
-                data: [85, 25],
-                backgroundColor: [
-                    'rgba(153, 223, 89, 1)',
-                    'rgba(0, 0, 0, 0.5)',
-                ],
-                borderWidth: 0,
-                hoverBackgroundColor: [
-                    'rgb(153, 223, 89)',
-                    'rgb(0, 0, 50)',
-                ],
-                hoverBorderWidth: 0
-            },
-        ]
-    },
-    options: {
+function doughnutChartConfig(name) {
+    return {
         responsive: true,
         maintainAspectRatio: false,
         cutoutPercentage: 50,
         rotation: Math.PI * -1.1,
         circumference: Math.PI * 1.2,
         legend: {
-            display: true
+            display: false
         },
         tooltips: {
             enabled: true
         },
         title: {
-            display: false,
-            text: '',
-            position: 'left',
+            padding: 3,
+            display: true,
+            text: name,
+            position: 'top',
             fontColor: 'white'
         }
     }

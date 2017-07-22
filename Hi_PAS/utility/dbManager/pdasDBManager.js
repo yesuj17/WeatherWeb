@@ -2,6 +2,7 @@
 var MachineRealTimeDataModel = require('../../models/dbSchema/MachineRealTimeDataSchema.js');
 var MachineCycleDataModel = require('../../models/dbSchema/MachineCycleDataSchema.js');
 var MachineInfoModel = require('../../models/dbSchema/MachineInfoSchema.js');
+var MachineErrorDataModel = require('../../models/dbSchema/MachineErrorDataSchema.js');
 var async = require('async');
 // Insert to Mongo DB
 // Update to Mongo DB
@@ -77,7 +78,7 @@ module.exports.getCurrentTrendData = function (fromDate, toDate, period, FnEnd) 
     MachineRealTimeDataModel.mapReduce(mapReduceObj, callback);
     function callback(err, datas, stats) {
         if (err)
-            return FnEnd(err.message);
+            return FnEnd(err);
         else {
             console.log('process time:' + stats.processtime + '(ms), target Data cnt:' + stats.counts.emit);
             return FnEnd(null, datas);
@@ -143,7 +144,7 @@ module.exports.getCycleTimeData = function (fromDate, toDate, FnEnd) {
     MachineCycleDataModel.mapReduce(mapReduceObj, callback);
     function callback(err, datas, stats) {
         if (err)
-            return FnEnd(err.message);
+            return FnEnd(err);
         else {
             console.log('getCycleTimeData process time:' + stats.processtime + '(ms), target Data cnt:' + stats.counts.emit);
             return FnEnd(null, datas);
@@ -159,13 +160,184 @@ module.exports.getCellCountForAllMachine = function (machineType, FnEnd) {
         .select('ID CellCount').sort({ ID: 1 });
 
     query.exec(function(err, datas){
-        if(err) {
-            return FnEnd(err.message);
-        }
-        else {
-            return FnEnd(null, datas)
-        }
+        return FnEnd(err, datas)
     });
+}
+
+module.exports.getPerformanceSummaryData = function(fromDate, toDate, period, FnEnd) {
+     if (!MachineCycleDataModel || !MachineErrorDataModel || !MachineInfoModel) {
+        return FnEnd('Database access failure');
+    }
+    async.series([
+         function (callback) {
+             getOEERawDataForEachStackerCrane(fromDate, toDate, period, callback);
+         },
+         function (callback) {
+             getErrorCntForEachStackerCrane(fromDate, toDate, period, callback);
+         }
+     ], function (err, result) {
+            return FnEnd(err,result);
+     }); 
+}
+
+var getErrorCntForEachStackerCrane = function (fromDate, toDate, period, FnEnd) {
+    if (!MachineErrorDataModel) {
+        return FnEnd('Database access failure');
+    }
+
+    var group = {
+        "_id": {
+            'Date': {
+                "$add": [{
+                        "$subtract": [
+                            { "$subtract": ["$CurrDate", new Date(0)] },
+                            { "$mod": [
+                                { "$subtract": ["$CurrDate", new Date(0)] },
+                                    getNewTimeInterval(period)
+                            ]}
+                    ]},
+                    new Date(0)
+                ]
+            }
+        },
+        'TotalErrCnt': { '$sum': { '$size': '$ErrorInfos'} }
+    };
+
+    var pipeLine = [
+        { $match: { CurrDate: { $gt: fromDate, $lte: toDate } } },
+        { $group: group },
+        { $sort: { _id: 1 } },
+    ];
+
+    MachineErrorDataModel.aggregate(pipeLine, callback);
+    function callback(err, datas) {
+        return FnEnd(err, datas);
+    }  
+}
+
+//var getOEERawDataForEachStackerCrane = function (fromDate, toDate, period, totalCellCnt, FnEnd) {
+//    if (!MachineCycleDataModel) {
+//        return FnEnd('Database access failure');
+//    }
+
+//    var group = {
+//        "_id": {
+//            'Date': {
+//                "$add": [{
+//                        "$subtract": [
+//                            { "$subtract": ["$MachineCycleData.TotalStartTime", new Date(0)] },
+//                            { "$mod": [
+//                                { "$subtract": ["$MachineCycleData.TotalStartTime", new Date(0)] },
+//                                    getNewTimeInterval(period)
+//                            ]}
+//                    ]},
+//                    new Date(0)
+//                ]
+//            },
+//            'MachineID' : '$ID'
+//        },
+//        'CellCnt': { '$avg':'$CellCount'},
+//        'SumCycleCnt': { '$sum': 1 },
+//        'AvgStockCnt': { '$avg': '$MachineCycleData.InventoryCount' }
+//    };
+
+//    var pipeLine = [
+//        { $lookup: {
+//            from: 'MachineCycleData',
+//            localField: 'ID',
+//            foreignField: 'MachineID',
+//            as: 'MachineCycleData'
+//        }},
+//        { $unwind: '$MachineCycleData' },
+//        { $match: { 'MachineCycleData.TotalStartTime': { $gt: fromDate, $lte: toDate } } },
+//        { $group: group },
+//        { $project: {
+//            'SumCycleCnt': 1, 
+//            'IStockRate': { '$divide': ['$AvgStockCnt', '$CellCnt'] },
+//        }},
+//        { $group: { '_id': '$_id.Date', 
+//            'TotalCycleCount':   { '$sum': '$SumCycleCnt'},
+//            'AvgCycleCount':     { '$avg': '$SumCycleCnt'},
+//            'MaxCycleCount':     { '$max': '$SumCycleCnt'},
+//            'AvgIStockRate':     { '$avg': '$IStockRate'}},
+//        },
+//        { $sort: { '_id': 1 } },
+//        { $project: {
+//            'TotalCycleCount':1, 'BalancingRate': { '$divide': ['$AvgCycleCount', '$MaxCycleCount']}, 'AvgIStockRate':1
+//        }}
+//    ];
+//    var start = new Date();
+//    MachineInfoModel.aggregate(pipeLine, callback);
+//    function callback(err, datas) {
+//        if (err)
+//            console.log(err.message);
+//        var end = new Date();
+//        console.log((end-start)/1000);
+//        return FnEnd(err, datas);
+//    }
+//}
+
+var getOEERawDataForEachStackerCrane = function (fromDate, toDate, period, FnEnd) {
+    if (!MachineCycleDataModel) {
+        return FnEnd('Database access failure');
+    }
+    var group = {
+        "_id": {
+            'Date': {
+                "$add": [
+                    {
+                        "$subtract": [
+                            { "$subtract": ["$TotalStartTime", new Date(0)] },
+                            { "$mod": [
+                                    { "$subtract": ["$TotalStartTime", new Date(0)] },
+                                    getNewTimeInterval(period)
+                            ]}
+                    ]},
+                    new Date(0)
+                ]
+            },
+            'MachineID' : '$MachineID'
+        },
+        'SumCycleCnt': { '$sum': 1 },
+        'AvgStockCnt': {'$avg': '$InventoryCount' }
+    };
+
+    var pipeLine = [
+        { $match: { TotalStartTime: { $gt: fromDate, $lte: toDate } } },
+        { $group: group },
+        { $lookup: {
+            from: 'MachineInfo',
+            localField: '_id.MachineID',
+            foreignField: 'ID',
+            as: 'MachineInfo'
+        }},
+        { $unwind: '$MachineInfo' },
+        { $match: { 'MachineInfo.Type': 'SC' } },
+        { $project: {
+            'SumCycleCnt': 1, 
+            'IStockRate': { '$divide': ['$AvgStockCnt', '$MachineInfo.CellCount'] },
+        }},
+        { $group: { '_id': '$_id.Date', 
+            'TotalCycleCount':   { '$sum': '$SumCycleCnt'},
+            'AvgCycleCount':     { '$avg': '$SumCycleCnt'},
+            'MaxCycleCount':     { '$max': '$SumCycleCnt'},
+            'AvgIStockRate':     { '$avg': '$IStockRate'}},
+        },
+        { $sort: { _id: 1 } },
+        { $project: {
+            'TotalCycleCount': 1, 'BalancingRate': { '$divide': ['$AvgCycleCount', '$MaxCycleCount']}, 'AvgIStockRate':1
+        }}
+    ];
+
+    var start = new Date();
+    MachineCycleDataModel.aggregate(pipeLine, callback);
+    function callback(err, datas) {
+        if (err)
+            console.log(err.message);
+        var end = new Date();
+        console.log((end - start) / 1000);
+        return FnEnd(err, datas);
+    }
 }
 
 var getTimeInterval = function (docDate, period) {
@@ -182,7 +354,6 @@ var getTimeInterval = function (docDate, period) {
     }
     else if(period < 365) {
         interval = Math.floor((docDate.getHours()+1) / 8);   // 8시간 간격 전류값 Grouping
-        print(docDate.getHours());
         interval = interval * 8;
         return (new Date(docDate.getFullYear(), docDate.getMonth(), docDate.getDate(), interval, 0, 0));
     }
@@ -195,5 +366,24 @@ var getTimeInterval = function (docDate, period) {
         interval = Math.floor(docDate.getMinutes() / 15);
         interval = interval * 15;
         return (new Date(docDate.getFullYear(), docDate.getMonth(), docDate.getDate(), docDate.getHours(), interval));
+    }
+}
+
+var getNewTimeInterval = function (period) {
+    var interval = 0;
+    if( period < 7) {
+        return 1000 * 60 * 15;  // 15분
+    }
+    else if( period < 30) {
+        return 1000 * 60 * 120; //2시간
+    }
+    else if(period < 365) {
+        return 1000 * 60 * 480; //8시간
+    }
+    else if(period < 999) {
+        return 1000 * 60 * 1440; //3일
+    }
+    else {
+        return 1000 * 60 * 15;  // 15분
     }
 }

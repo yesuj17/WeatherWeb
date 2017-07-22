@@ -2,7 +2,6 @@
 <html>
   <head>
     <title>Demo</title>
-	<link rel="stylesheet" href="/stylesheets/style.css" media="print">
     <link rel="stylesheet" href="/bootstrap_v3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" href="/eonasdan-bootstrap-datetimepicker_v4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" href="/fullcalendar-3.4.0/fullcalendar.css">
@@ -16,7 +15,6 @@
 	<script src="/fullcalendar-3.4.0/locale-all.js"> </script>
     <script src="/chart.js_v2.6.0/Chart.min.js"></script>
     <script src="/eonasdan-bootstrap-datetimepicker_v4.17.47/bootstrap-datetimepicker.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jQuery.print/1.5.1/jQuery.print.min.js"></script>
     <meta charset="utf-8">
     <style type="text/css">
       html{
@@ -29,8 +27,9 @@
     </style><script>
       angular
           .module('app', [])
-          .controller('DashBoardController', ['$scope', '$http', DashBoardController]);
-      function DashBoardController ($scope, $http){    
+          .controller('DashBoardController', ['$scope', '$http', '$compile', DashBoardController]);
+
+      function DashBoardController ($scope, $http, $compile){    
 	      dashVM = this;
 	  		  
 		  <% include ./dash_header.js %>

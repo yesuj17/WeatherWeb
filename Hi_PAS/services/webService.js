@@ -61,6 +61,7 @@ module.exports = function () {
     /* Start Web Socket */
     var socketIo = require('socket.io'); 
     const io = new socketIo(server);
+    global.socketIo = io;
 
     /* Routes Setup */
     require('../routes/route')(app, io);

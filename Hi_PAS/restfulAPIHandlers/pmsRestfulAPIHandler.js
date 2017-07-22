@@ -8,6 +8,19 @@ var multer = require('multer')
 var xlstojson = require("xls-to-json-lc");
 var xlsxtojson = require("xlsx-to-json-lc");
 
+module.exports.validateUserData = function (req, res){
+    var userData = JSON.parse(JSON.stringify(req.body));
+
+    dbManager.findUserData(userData, function (result, err, user) {
+        if (result) {
+            res.send(user);
+        }
+        else {
+            res.status(505).json({ error: err });
+        }
+    });
+}
+
 module.exports.loginUserData = function (req, res) {
 
 }
@@ -321,10 +334,6 @@ CoverteforSave = function (rawjson) {
     return result;
 }
 
-module.exports.pmsrend = function (req, res) {
-    res.render('./pms/pms_main.ejs');
-}
-
 function convertDateToString(cDate) {
     var convertDate = null;
 
@@ -337,39 +346,6 @@ function convertDateToString(cDate) {
 
     return convertDate;
 }
-
-module.exports.getEventGroupList = function (req, res) {
-
-    var param = req.query.month;
-
-    dbManager.getEventGroupList( param, function (result, eventGroupList) {
-        if (result == true) {
-            res.json(eventGroupList);
-        }
-        else {
-            res.status(505).json({ error: "Internal Error"});
-        }
-    });
-}
-
-module.exports.getEventList = function (req, res) {
-
-    var param = {
-        targetDate: req.query.TargetDate,
-        groupType : req.query.GroupType
-    };
-    
-
-    dbManager.getEventList(param, function (result, eventList) {
-        if (result == true) {
-            res.json(eventList);
-        }
-        else {
-            res.status(505).json({ error: "Internal Error" });
-        }
-    });
-}
-
 
 module.exports.DisplayGridMotherdata = function (req, res) {
     //mother data를 가져온다.
@@ -385,3 +361,94 @@ module.exports.DisplayGridMotherdata = function (req, res) {
     }
     dbManager.getMothersData(callback);
 }
+
+/* Calendar API Start **********************************************/
+module.exports.getMemoInfo = function (req, res) {
+
+    var param = {
+        targetDate: req.query.TargetDate
+    };
+
+    dbManager.getMemoInfo(param, function (result, memoInfo) {
+        if (result == true) {
+            res.json(memoInfo);
+        }
+        else {
+            res.status(505).json({ error: "Internal Error" });
+        }
+    });
+}
+
+module.exports.getMemoInfoList = function (req, res) {
+
+    var param = req.query.month;
+
+    dbManager.getMemoInfoList(param, function (result, memoInfoList) {
+        if (result == true) {
+            res.json(memoInfoList);
+        }
+        else {
+            res.status(505).json({ error: "Internal Error" });
+        }
+    });
+}
+
+module.exports.getEventGroupList = function (req, res) {
+
+    var param = req.query.month;
+
+    dbManager.getEventGroupList(param, function (result, eventGroupList) {
+        if (result == true) {
+            res.json(eventGroupList);
+        }
+        else {
+            res.status(505).json({ error: "Internal Error" });
+        }
+    });
+}
+
+module.exports.getEventList = function (req, res) {
+
+    var param = {
+        targetDate: req.query.TargetDate,
+        groupType: req.query.GroupType
+    };
+
+    dbManager.getEventList(param, function (result, eventList) {
+        if (result == true) {
+            res.json(eventList);
+        }
+        else {
+            res.status(505).json({ error: "Internal Error" });
+        }
+    });
+}
+
+module.exports.updateEventGroupSchedule = function (req, res) {
+
+    var param = JSON.parse(JSON.stringify(req.body));    
+
+    dbManager.updateEventGroupSchedule(param, function (result) {
+        if (result == true) {
+            res.end();
+        }
+        else {
+            res.status(505).json({ error: "Internal Error" });
+        }
+    });
+}
+
+module.exports.updateEventsSchedule = function (req, res) {
+
+    var param = JSON.parse(JSON.stringify(req.body));
+
+    dbManager.updateEventsSchedule(param, function (result) {
+        if (result == true) {
+            res.end();
+        }
+        else {
+            res.status(505).json({ error: "Internal Error" });
+        }
+    });
+}
+/* Calendar API End ************************************************/

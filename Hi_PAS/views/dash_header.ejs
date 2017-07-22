@@ -14,10 +14,10 @@
                 <li>
                   <ul class="nav">
                     <li class="dropdown"><a href="#" data-toggle="dropdown" class="dropdown-toggle"><i style="color: #FFFFFF" class="fa fa-user fa-2x"></i>
-                        <label id="userName" style="color: #FFFFFF"> Admin</label><b style="color: #FFFFFF" class="caret"></b></a>
+                        <label id="ID_HEADER_LogInUserName" style="color: #FFFFFF"> Admin</label><b style="color: #FFFFFF" class="caret"></b></a>
                       <ul class="dropdown-menu">
                         <li><a href="#"><i class="fa fa-fw fa-user"></i> Profile</a></li>
-                        <li><a href="#" data-toggle="modal" data-target="#userManagementModal" ng-click="onUserManagementLoad()"><i class="fa fa-fw fa-gear"></i> Settings</a></li>
+                        <li><a href="#" data-toggle="modal" data-target="#ID_HEADER_UserManagementModal" ng-click="dashVM.headerOnUserManagementLoad()"><i class="fa fa-fw fa-gear"></i> Settings</a></li>
                         <li class="divider"></li>
                         <li><a href="#"><i class="fa fa-fw fa-power-off"></i> Logout</a></li>
                       </ul>
@@ -26,8 +26,8 @@
                 </li>
                 <li>
                   <ul class="nav">
-                    <li class="dropdown"><a href="#" data-toggle="modal" data-target="#noticeManagementModal" ng-click="onNoticeManagementLoad()" class="dropdown-toggle"><i style="color: #FFFFFF" class="fa fa-bell-o fa-2x"></i>
-                        <label style="color: #FFFFFF">Board</label><span id="noticeNewCount" style="background:red; position:relative; top: -20px; left: -75px;" ng-bind="noticeNewCount" class="badge badge-notify"></span></a></li>
+                    <li class="dropdown"><a href="#" data-toggle="modal" data-target="#ID_HEADER_NoticeManagementModal" ng-click="dashVM.headerOnNoticeManagementLoad()" class="dropdown-toggle"><i style="color: #FFFFFF" class="fa fa-bell-o fa-2x"></i>
+                        <label style="color: #FFFFFF">Board</label><span style="background:red; position:relative; top: -20px; left: -75px;" ng-bind="dashVM.headerNoticeNewCount" class="badge badge-notify"></span></a></li>
                   </ul>
                 </li>
               </ul>

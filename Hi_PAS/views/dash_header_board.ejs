@@ -1,5 +1,5 @@
             <div style="width: 100%;height: 100%;" class="container">
-              <div id="noticeManagementModal" role="dialog" class="modal fade">
+              <div id="ID_HEADER_NoticeManagementModal" role="dialog" class="modal fade">
                 <div class="modal-dialog modal-lg">
                   <div style="width: 1150px; height: auto; margin-left:-150px" class="modal-content"> 
                     <div class="modal-header">
@@ -10,21 +10,21 @@
                       <div class="container">
                         <div class="row">
                           <div style="margin-left:-15px;" class="col-md-2">
-                            <div id="accordion" class="panel-group">
+                            <div id="ID_HEADER_Accordion" class="panel-group">
                               <div class="panel panel-default">
                                 <div class="panel-heading">
-                                  <h4 class="panel-title"></h4><a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"><span style="margin-right: 10px;" class="glyphicon glyphicon-folder-close"></span>Notice</a>
+                                  <h4 class="panel-title"></h4><a data-toggle="collapse" data-parent="#ID_HEADER_Accordion" href="#ID_HEADER_CollapseOne"><span style="margin-right: 10px;" class="glyphicon glyphicon-folder-close"></span>Notice</a>
                                 </div>
                               </div>
-                              <div id="collapseOne" class="panel-collapse collapse in">
+                              <div id="ID_HEADER_CollapseOne" class="panel-collapse collapse in">
                                 <ul class="list-group">
-                                  <li class="list-group-item"><span style="margin-right: 10px; margin-left: 10px" class="glyphicon glyphicon-list-alt text-success"> </span><a href="#" ng-click="onNoticeList()">List</a><span class="badge">{{noticeNewCount}}</span></li>
-                                  <li class="list-group-item"><span style="margin-right: 10px; margin-left: 10px" class="glyphicon glyphicon-plus-sign text-primary"></span><a href="#" ng-click="onNoticeAdd()">Add</a></li>
+                                  <li class="list-group-item"><span style="margin-right: 10px; margin-left: 10px" class="glyphicon glyphicon-list-alt text-success"> </span><a href="#" ng-click="dashVM.headerOnNoticeList()">List</a><span class="badge">{{dashVM.headerNoticeNewCount}}</span></li>
+                                  <li class="list-group-item"><span style="margin-right: 10px; margin-left: 10px" class="glyphicon glyphicon-plus-sign text-primary"></span><a href="#" ng-click="dashVM.headerOnNoticeAdd()">Add</a></li>
                                 </ul>
                               </div>
                             </div>
                           </div>
-                          <div id="noticeAdd" style="margin-left:-20px; display: none;" class="col-md-10">
+                          <div id="ID_HEADER_NoticeAdd" style="margin-left:-20px; display: none;" class="col-md-10">
                             <div class="panel panel-default">
                               <div class="panel-heading">
                                 <div class="row">
@@ -33,9 +33,9 @@
                                   </div>
                                   <div class="col col-md-6">
                                     <div class="form-inline pull-right">
-                                      <button id="noticeEditButton" ng-click="onNoticeEditSubmit()" class="btn btn-default">Edit</button>
-                                      <button id="noticeSaveButton" ng-click="onNoticeSave()" class="btn btn-default">Save</button>
-                                      <button ng-click="onNoticeReset()" class="btn btn-default">Reset</button>
+                                      <button id="ID_HEADER_NoticeEditButton" ng-click="dashVM.headerOnNoticeEditSubmit()" class="btn btn-default">Edit</button>
+                                      <button id="ID_HEADER_NoticeSaveButton" ng-click="dashVM.headerOnNoticeSave()" class="btn btn-default">Save</button>
+                                      <button ng-click="dashVM.headerOnNoticeReset()" class="btn btn-default">Reset</button>
                                     </div>
                                   </div>
                                 </div>
@@ -47,13 +47,13 @@
                                     <tr>
                                       <th class="col-md-2 text-center">Title</th>
                                       <td>
-                                        <input style="outline: none;" type="text" ng-model="noticeInfo.title" required class="form-control">
+                                        <input style="outline: none;" type="text" ng-model="dashVM.headerNoticeInfo.title" required class="form-control">
                                       </td>
                                     </tr>
                                     <tr>
                                       <th class="col-md-2 text-center">End Date</th>
                                       <td>
-                                        <div id="datetimepicker" class="input-group date"><span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                                        <div id="ID_HEADER_Datetimepicker" class="input-group date"><span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
                                           <input type="text" style="background-color: white;" readonly class="form-control">
                                         </div>
                                       </td>
@@ -62,7 +62,7 @@
                                       <th class="col-md-2 text-center">Option</th>
                                       <td>
                                         <div class="form-inline">
-                                          <select id="noticeOption" name="size" class="form-control">
+                                          <select id="ID_HEADER_NoticeOption" name="size" class="form-control">
                                             <option value="Normal">Normal</option>
                                             <option value="Notice">Notice </option>
                                           </select>
@@ -72,16 +72,16 @@
                                     <tr>
                                       <th class="col-md-2 text-center">Writer</th>
                                       <td>
-                                        <input style="background-color: white;" type="text" ng-model="noticeInfo.name" readonly class="form-control">
+                                        <input style="background-color: white;" type="text" ng-model="dashVM.headerNoticeInfo.name" readonly class="form-control">
                                       </td>
                                     </tr>
                                   </table>
-                                  <textarea style="width: 100%; height:200px; resize: none; margin-top: 2px;" ng-model="noticeInfo.content" required class="form-contorl"></textarea>
+                                  <textarea style="width: 100%; height:200px; resize: none; margin-top: 2px;" ng-model="dashVM.headerNoticeInfo.content" required class="form-contorl"></textarea>
                                 </div>
                               </div>
                             </div>
                           </div>
-                          <div id="noticeList" style="margin-left:-20px;" class="col-md-10">
+                          <div id="ID_HEADER_NoticeList" style="margin-left:-20px;" class="col-md-10">
                             <div class="panel panel-default">
                               <div class="panel-heading">
                                 <div class="row">
@@ -90,12 +90,12 @@
                                   </div>
                                   <div class="col col-md-6">
                                     <div class="form-inline pull-right">
-                                      <select id="noticeFilter" name="size" class="form-control">
+                                      <select id="ID_HEADER_NoticeFilter" name="size" class="form-control">
                                         <option value="Title">Title</option>
                                         <option value="Writer">Writer</option>
                                       </select>
-                                      <input type="text" ng-model="searchTextNotice" class="form-control">
-                                      <button ng-click="onSearchFilterNotice()" class="btn btn-default">Search</button>
+                                      <input type="text" ng-model="dashVM.headerNoticeSearchText" class="form-control">
+                                      <button ng-click="dashVM.headerOnSearchFilterNotice()" class="btn btn-default">Search</button>
                                     </div>
                                   </div>
                                 </div>
@@ -111,28 +111,28 @@
                                       <th class="text-left col-md-2">Reporting Date</th>
                                     </tr>
                                     <tbody></tbody>
-                                    <tr ng-repeat="notice in notices" ng-init="$last &amp;&amp; onNoticeRepeatEnd()">
+                                    <tr ng-repeat="notice in dashVM.headerNotices">
                                       <td colspan="1" ng-if="notice.NoticeOption == 'Notice'" class="text-center"><span class="label label-danger">Notice</span></td>
                                       <td colspan="3" ng-if="notice.NoticeOption == 'Notice'">
                                         <table style="table-layout:fixed; width:100%; margin:0;" class="table text-left">
                                           <tr>
-                                            <td ng-click="onNoticeTitleOpen($index)" class="col-md-8">
+                                            <td ng-click="dashVM.headerOnNoticeTitleOpen($index)" class="col-md-8">
                                               <p style="font-weight: bold" ng-if="notice.NoticeRead == false">{{notice.NoticeTitle}}<span style="margin-left: 5px;" ng-if="notice.NoticeNew == true" class="label label-warning">new</span></p>
                                               <p style="font-weight: lighter; color:gray;" ng-if="notice.NoticeRead == true">{{notice.NoticeTitle}}<span style="margin-left: 5px;" ng-if="notice.NoticeNew == true" class="label label-warning">new</span></p>
                                             </td>
                                             <td class="col-md-2">{{notice.NoticeWriter}}</td>
                                             <td class="col-md-2">{{notice.NoticeDate}}</td>
                                           </tr>
-                                          <tr style="display:none; border-top:1pt solid gray" id="{{'noticeContent' + $index}}">
+                                          <tr style="display:none; border-top:1pt solid gray" id="{{'ID_HEADER_NoticeContent' + $index}}">
                                             <th colspan="4">
-                                              <textarea id="{{'noticeContentTextArea' + $index}}" style="width: 100%; height:100px; resize: none; border: none; font-weight: normal;" readonly class="form-contorl">{{notice.NoticeContent}}</textarea><a style="margin-right:5px;" href="#" ng-click="onEditNotice($index)" id="{{'noticeEdit' + $index}}" class="pull-left">
+                                              <textarea id="{{'ID_HEADER_NoticeContentTextArea' + $index}}" style="width: 100%; height:100px; resize: none; border: none; font-weight: normal;" readonly class="form-contorl">{{notice.NoticeContent}}</textarea><a style="margin-right:5px;" href="#" ng-click="dashVM.headerOnNoticeEdit($index)" id="{{'noticeEdit' + $index}}" class="pull-left">
                                                 <button type="button" class="btn btn-primary btn-xs">edit</button></a>
-                                              <div id="{{myCarousel + $index}}" data-ride="carousel" data-interval="false" class="carousel slide pull-left">
+                                              <div id="{{ID_HEADER_MyCarousel + $index}}" data-ride="carousel" data-interval="false" class="carousel slide pull-left">
                                                 <div class="carousel-inner">
-                                                  <div class="item active"><a href="#{{myCarousel + $index}}" data-slide="next">
+                                                  <div class="item active"><a href="#{{ID_HEADER_MyCarousel + $index}}" data-slide="next">
                                                       <button type="button" class="btn btn-danger btn-xs">delete</button></a></div>
                                                   <div class="item">
-                                                    <button type="button" ng-click="onDeleteNotice($index)" class="btn btn-primary btn-xs">Yes</button><a href="#{{myCarousel + $index}}" data-slide="prev" class="btn btn-success btn-xs">No</a>
+                                                    <button type="button" ng-click="dashVM.headerOnDeleteNotice($index)" class="btn btn-primary btn-xs">Yes</button><a href="#{{ID_HEADER_MyCarousel + $index}}" data-slide="prev" class="btn btn-success btn-xs">No</a>
                                                   </div>
                                                 </div>
                                               </div>
@@ -147,23 +147,23 @@
                                       <td colspan="3" ng-if="notice.NoticeOption == 'Normal'">
                                         <table style="table-layout:fixed; width:100%; margin:0;" class="table text-left">
                                           <tr>
-                                            <td ng-click="onNoticeTitleOpen($index)" class="col-md-8">
+                                            <td ng-click="dashVM.headerOnNoticeTitleOpen($index)" class="col-md-8">
                                               <p style="font-weight: bold" ng-if="notice.NoticeRead == false">{{notice.NoticeTitle}}<span style="margin-left: 5px;" ng-if="notice.NoticeNew == true" class="label label-warning">new</span></p>
                                               <p style="font-weight: lighter; color:gray;" ng-if="notice.NoticeRead == true">{{notice.NoticeTitle}}<span style="margin-left: 5px;" ng-if="notice.NoticeNew == true" class="label label-warning">new</span></p>
                                             </td>
                                             <td class="col-md-2">{{notice.NoticeWriter}}</td>
                                             <td class="col-md-2">{{notice.NoticeDate}}</td>
                                           </tr>
-                                          <tr style="display:none; border-top:1pt solid gray" id="{{'noticeContent' + $index}}">
+                                          <tr style="display:none; border-top:1pt solid gray" id="{{'ID_HEADER_NoticeContent' + $index}}">
                                             <th colspan="4">
-                                              <textarea id="{{'noticeContentTextArea' + $index}}" style="width: 100%; height:100px; resize: none; border: none; font-weight: normal;" readonly class="form-contorl">{{notice.NoticeContent}}</textarea><a style="margin-right:5px;" href="#" ng-click="onEditNotice($index)" id="{{'noticeEdit' + $index}}" class="pull-left">
+                                              <textarea id="{{'ID_HEADER_NoticeContentTextArea' + $index}}" style="width: 100%; height:100px; resize: none; border: none; font-weight: normal;" readonly class="form-contorl">{{notice.NoticeContent}}</textarea><a style="margin-right:5px;" href="#" ng-click="dashVM.headerOnNoticeEdit($index)" id="{{'noticeEdit' + $index}}" class="pull-left">
                                                 <button type="button" class="btn btn-primary btn-xs">edit</button></a>
-                                              <div id="{{myCarousel + $index}}" data-ride="carousel" data-interval="false" class="carousel slide pull-left">
+                                              <div id="{{ID_HEADER_MyCarousel + $index}}" data-ride="carousel" data-interval="false" class="carousel slide pull-left">
                                                 <div class="carousel-inner">
-                                                  <div class="item active"><a href="#{{myCarousel + $index}}" data-slide="next">
+                                                  <div class="item active"><a href="#{{ID_HEADER_MyCarousel + $index}}" data-slide="next">
                                                       <button type="button" class="btn btn-danger btn-xs">delete</button></a></div>
                                                   <div class="item">
-                                                    <button type="button" ng-click="onDeleteNotice($index)" class="btn btn-primary btn-xs">Yes</button><a href="#{{myCarousel + $index}}" data-slide="prev" class="btn btn-success btn-xs">No</a>
+                                                    <button type="button" ng-click="dashVM.headerOnDeleteNotice($index)" class="btn btn-primary btn-xs">Yes</button><a href="#{{ID_HEADER_MyCarousel + $index}}" data-slide="prev" class="btn btn-success btn-xs">No</a>
                                                   </div>
                                                 </div>
                                               </div>
@@ -174,7 +174,7 @@
                                     </tr>
                                   </table>
                                   <div style="margin-top: 10px;" class="form-inline text-center">
-                                    <button ng-click="onNoticeMore()" class="btn btn-default">More</button>
+                                    <button ng-click="dashVM.headerOnNoticeMore()" class="btn btn-default">More</button>
                                   </div>
                                 </div>
                               </div>

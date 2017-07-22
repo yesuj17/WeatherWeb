@@ -86,12 +86,12 @@ module.exports.insertNoticeData = function (param, next) {
     }
 
     var notice = new NoticeInfoSchema();
-    notice.Title = param.noticeTitle;
-    notice.Content = param.noticeContent;
-    notice.Writer = param.noticeWriter;
-    notice.Option = param.noticeOption
+    notice.Title = param.NoticeTitle;
+    notice.Content = param.NoticeContent;
+    notice.Writer = param.NoticeWriter;
+    notice.Option = param.NoticeOption
     notice.StartDate = Date.now();
-    notice.EndDate = param.noticeEndDate;
+    notice.EndDate = param.NoticeEndDate;
 
     notice.save(function (err) {
         if (err) {
@@ -446,6 +446,89 @@ module.exports.CreateMotherData = function (InputmotherData, next) {
     });
 }
 
+/* Calendar API Start **********************************************/
+module.exports.getMemoInfoList = function (param, next) {
+
+    if (!param) {
+        next(false, 'param null');
+        return;
+    }
+
+    // XXX  test code. will be removed.
+    var memoInfoList = [];
+    for (var i = 1; i < 31; i++) {
+        var memoDate = new Date().toFormat('YYYY-MM') + '-' + ((i < 10) ? ('0' + i) : i);
+
+        if (Math.floor(Math.random() * 1000) % 5 == 0) {
+            memoInfoList.push({
+                Date: memoDate,
+                Exist: 'true'
+            });
+        }
+        else {
+            memoInfoList.push({
+                Date: memoDate,
+                Exist: 'false'
+            });
+        }
+    }  
+
+    next(true, memoInfoList);
+}
+
+module.exports.getMemoInfo = function (param, next) {
+
+    if (!param) {
+        next(false, 'param null');
+        return;
+    }
+
+    /* XXX  test code. will be removed. */
+    var infos = [];
+    infos.push({
+        User : '정영도',
+        Code : 'PM0005',
+        TimeStamp: param.targetDate + '-04:04:05',
+        Memo: '오일 누수 발생'        
+    });
+    infos.push({
+        User: '김윤재',
+        Code: 'PM0005',
+        TimeStamp: param.targetDate + '-07:07:07',
+        Memo: '오일 누수 해결'
+    });
+    infos.push({
+        User: '추성호',
+        Code: 'PM0323',
+        TimeStamp: param.targetDate + '-17:02:05',
+        Memo: '부품 변경함'
+    });
+    infos.push({
+        User: '정영도',
+        Code: 'PM0105',
+        TimeStamp: param.targetDate + '-12:04:05',
+        Memo: '에러 발생'
+    });
+    infos.push({
+        User: '정영도',
+        Code: 'PM0105',
+        TimeStamp: param.targetDate + '-13:04:05',
+        Memo: '작업자 조치 필요'
+    });
+    infos.push({
+        User: '정영도',
+        Code: 'PM0105',
+        TimeStamp: param.targetDate + '-15:04:05',
+        Memo: '점검 확인 하였으나 미 해결'
+    });
+
+    var memoInfo = {
+        Date: param.targetDate,
+        Infos: infos
+    }
+
+    next(true, memoInfo);
+}
 
 module.exports.getEventGroupList = function (param, next) {
 
@@ -507,6 +590,36 @@ module.exports.getEventList = function (param, next) {
 
     next(true, eventList);
 }
+
+module.exports.updateEventGroupSchedule = function (param, next) {
+
+    if (!param) {
+        next(false, 'param null');
+        return;
+    }
+
+    /* XXX not Implemented yet */
+
+    console.log(param);
+
+    next(true);
+}
+
+module.exports.updateEventsSchedule = function (param, next) {
+
+    if (!param) {
+        next(false, 'param null');
+        return;
+    }
+
+    /* XXX not Implemented yet */
+
+    console.log(param);
+
+    next(true);
+}
+/* Calendar API End ************************************************/
+
 
 module.exports.InitPMSDB = function (next) {
     var defaultUserData         =   { UserName: 'Admin', UserLevel: 'Admin' };

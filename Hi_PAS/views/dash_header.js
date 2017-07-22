@@ -1,41 +1,95 @@
 ﻿
-// login User
-var userName = $('#userName').text();
+/* PM Javascript */
 
-// User Management Modal hide Event
-$('#userManagementModal').on('hidden.bs.modal', function () {
-    $('#userAddButton').show();
+/* Variables */
+dashVM.headerLogInUserName = $('#ID_HEADER_LogInUserName').text();
 
-    $('.container.adduser').fadeOut();
-    $('#userCancelButton').hide();
-    $('#userEditButton').hide();
-    $('#inputname').removeAttr('disabled');
+// default
+dashVM.headerCurrentTab = null;
+dashVM.headerUserPageSize = 5;
+dashVM.headerUserMoreCount = 0;
+dashVM.headerNoticePageSize = 5;
+dashVM.headerNoticeIndex = 0;
+dashVM.headerNoticeMoreCount = 0;
 
-    // search filter init
-    $('#userFilter').val('UserName');
+// display
+dashVM.headerUsers = [];
+dashVM.headerUserInfo = {};
+dashVM.headerRegisterForm = {};
+dashVM.headerNotices = [];
+dashVM.headerNoticeInfo = {};
 
-    onInitUserValid();
-});
+dashVM.headerUserSearchText;
+dashVM.headerNoticeSearchText;
+dashVM.headerNoticeNewCount;
 
-// Notice Management Modal hide Event
-$('#noticeManagementModal').on('hidden.bs.modal', function () {
-    // notice option init
-    $('#noticeOption').val('Normal');
-    $('#noticeFilter').val('Title');
-    onInitUserValid();
-});
+/* Export Function declare */
+// load
+dashVM.headerOnUserManagementLoad = headerOnUserManagementLoad;
+dashVM.headerOnNoticeManagementLoad = headerOnNoticeManagementLoad;
+// search
+dashVM.headerOnSearchFilterUser = headerOnSearchFilterUser;
+dashVM.headerOnSearchFilterNotice = headerOnSearchFilterNotice;
+// ui
+dashVM.headerOnOpenRegister = headerOnOpenRegister;
+dashVM.headerOnCloseRegister = headerOnCloseRegister;
+dashVM.headerOnEditUser = headerOnEditUser;
+dashVM.headerOnNoticeTitleOpen = headerOnNoticeTitleOpen;
+// api
+dashVM.headerOnDeleteUser = headerOnDeleteUser;
+dashVM.headerOnDeleteNotice = headerOnDeleteNotice;
+dashVM.headerOnRegisterFormSubmit = headerOnRegisterFormSubmit;
+dashVM.headerOnEditRegister = headerOnEditRegister;
+dashVM.headerOnNoticeList = headerOnNoticeList;
+dashVM.headerOnNoticeAdd = headerOnNoticeAdd;
+dashVM.headerOnNoticeReset = headerOnNoticeReset;
+dashVM.headerOnNoticeEdit = headerOnNoticeEdit;
+dashVM.headerOnNoticeSave = headerOnNoticeSave;
+dashVM.headerOnNoticeEditSubmit = headerOnNoticeEditSubmit;
+// more
+dashVM.headerOnUserMore = headerOnUserMore;
+dashVM.headerOnNoticeMore = headerOnNoticeMore;
+// etc
+dashVM.headerOnValidation = headerOnValidation;
+dashVM.headerOnUsersBarCode = headerOnUsersBarCode;
+dashVM.headerOnClickTab = headerOnClickTab;
 
-$scope.onUserManagementLoad = function () {
-    onInitUserData();
+/* OnLoad() call from index */
+function header_OnLoad() {
+    getNoticeDataNewCount();
 }
 
-$scope.onNoticeManagementLoad = function () {
+// Management Modal hide Event
+$('#ID_HEADER_UserManagementModal').on('hidden.bs.modal', function () {
+    $('#ID_HEADER_UserAddButton').show();
+
+    $('.container.adduser').fadeOut();
+    $('#ID_HEADER_UserCancelButton').hide();
+    $('#ID_HEADER_UserEditButton').hide();
+    $('#ID_HEADER_Inputname').removeAttr('disabled');
+
+    $('#ID_HEADER_UserFilter').val('UserName');
+
+    onInitUserValid();
+    dashVM.headerUserSearchText = undefined;
+});
+$('#ID_HEADER_NoticeManagementModal').on('hidden.bs.modal', function () {
+    $('#ID_HEADER_NoticeOption').val('Normal');
+    $('#ID_HEADER_NoticeFilter').val('Title');
+
+    dashVM.headerNoticeSearchText = undefined;
+});
+
+function headerOnUserManagementLoad() {
+    onInitUserData();
+}
+function headerOnNoticeManagementLoad() {
     onInitNoticeData();
 
-    $scope.noticeInfo.name = userName;
+    dashVM.headerNoticeInfo.name = dashVM.headerLogInUserName;
 
     // notice calendar
-    $("#datetimepicker").datetimepicker({
+    $("#ID_HEADER_Datetimepicker").datetimepicker({
         format: 'YYYY/MM/DD',
         ignoreReadonly: true,
         showClose: true,
@@ -44,118 +98,77 @@ $scope.onNoticeManagementLoad = function () {
     });
 }
 
-$scope.onOpenRegister = function () {
-    $('#userAddButton').hide();
+function headerOnSearchFilterUser() { onInitUserData(); }
+function headerOnSearchFilterNotice() { onInitNoticeData(); }
+
+function headerOnOpenRegister() {
+    $('#ID_HEADER_UserAddButton').hide();
 
     $('.container.adduser').fadeIn();
-    $('#userCancelButton').show();
-    $('#userRegisterButton').show();
+    $('#ID_HEADER_UserCancelButton').show();
+    $('#ID_HEADER_UserRegisterButton').show();
 
     onInitUserInfo();
 }
 
-$scope.onCloseRegister = function () {
-
-    $('#userAddButton').show();
+function headerOnCloseRegister() {
+    $('#ID_HEADER_UserAddButton').show();
 
     $('.container.adduser').fadeOut();
-    $('#userCancelButton').hide();
-    $('#userRegisterButton').hide();
-    $('#userEditButton').hide();
-    $('#inputname').removeAttr('disabled');
+    $('#ID_HEADER_UserCancelButton').hide();
+    $('#ID_HEADER_UserRegisterButton').hide();
+    $('#ID_HEADER_UserEditButton').hide();
+    $('#ID_HEADER_Inputname').removeAttr('disabled');
 
     onInitUserValid();
 }
 
-$scope.onSearchFilterUser = function () { onInitUserData(); }
-$scope.onSearchFilterNotice = function () { onInitNoticeData(); }
-
-$scope.onEditUser = function (index) {
-
-    var editUser = $scope.users[index];
+function headerOnEditUser(index) {
+    var editUser = dashVM.headerUsers[index];
     if (!editUser) {
         return false;
     }
 
-    $scope.userInfo.name = editUser.UserName;
-    $scope.userInfo.email = editUser.UserEmail;
-    $scope.userInfo.phone = editUser.UserPhone;
+    dashVM.headerUserInfo.name = editUser.UserName;
+    dashVM.headerUserInfo.email = editUser.UserEmail;
+    dashVM.headerUserInfo.phone = editUser.UserPhone;
 
-    $('#inputname').attr('disabled', 'disabled');
+    $('#ID_HEADER_Inputname').attr('disabled', 'disabled');
 
     $('.container.adduser').fadeIn();
-    $('#userAddButton').hide();
-    $('#userCancelButton').show();
+    $('#ID_HEADER_UserAddButton').hide();
+    $('#ID_HEADER_UserCancelButton').show();
 
-    $('#userRegisterButton').hide();
-    $('#userEditButton').show();
+    $('#ID_HEADER_UserRegisterButton').hide();
+    $('#ID_HEADER_UserEditButton').show();
 }
 
-$scope.onEditRegister = function () {
-    $('#inputname').removeAttr('disabled');
+function headerOnNoticeTitleOpen(index) {
+    var cContent = '#ID_HEADER_NoticeContent' + index;
 
-    $scope.onCloseRegister();
+    if ($(cContent).css('display') == 'none') {
+        $(cContent).fadeIn();
 
-    $('#userRegisterButton').show();
-    $('#userEditButton').hide();
-
-    var name = $scope.userInfo.name;
-    var email = $scope.userInfo.email;
-    var phone = $scope.userInfo.phone;
-
-    updateUserData(name, email, phone);
-}
-
-$scope.onEditNotice = function (index) {
-
-    var editNotice = $scope.notices[index];
-    if (!editNotice) {
-        return false;
+        if (dashVM.headerNotices[index].NoticeRead == false) {
+            addNoticeUserReadData(index, dashVM.headerLogInUserName);
+        }
     }
-
-    $scope.noticeInfo.id = editNotice.NoticeId;
-    $scope.noticeInfo.title = editNotice.NoticeTitle;
-    $scope.noticeInfo.name = editNotice.NoticeWriter;
-    $("#datetimepicker").data("DateTimePicker").date(editNotice.NoticeEndDate);
-    $('#noticeOption').val(editNotice.NoticeOption);
-    $scope.noticeInfo.content = editNotice.NoticeContent;
-
-    $('#noticeAdd').show();
-    $('#noticeList').hide();
-
-    $('#noticeEditButton').show();
-    $('#noticeSaveButton').hide();
+    else {
+        $(cContent).fadeOut();
+    }
 }
 
-$scope.onNoticeEditSubmit = function () {
-    var rdate = $("#datetimepicker").data("DateTimePicker").date();
-    var endDate = new Date(rdate);
-
-    var inputNotice = {};
-    inputNotice.id = $scope.noticeInfo.id;
-    inputNotice.title = $scope.noticeInfo.title;
-    inputNotice.writer = $scope.noticeInfo.name;
-    inputNotice.endDate = endDate;
-    inputNotice.option = $('#noticeOption').val();
-    inputNotice.content = $scope.noticeInfo.content;
-
-    if (inputNotice.title == undefined) { alert('Input Title'); return; }
-    if (inputNotice.content == undefined) { alert('Input Content'); return; }
-
-    updateNoticeData(inputNotice);
-}
-
-$scope.onDeleteUser = function (index) {
+function headerOnDeleteUser(index) {
     // delete user
-    var deleteUser = $scope.users[index];
+    var deleteUser = dashVM.headerUsers[index];
     if (!deleteUser) {
         return false;
     }
 
     // edit value check
-    var editValue = $('#inputname').prop('disabled');
+    var editValue = $('#ID_HEADER_Inputname').prop('disabled');
     if (editValue) {
-        if ($scope.userInfo.name == deleteUser.UserName) {
+        if (dashVM.headerUserInfo.name == deleteUser.UserName) {
             alert('This user is currently being edited');
             return false;
         }
@@ -164,9 +177,9 @@ $scope.onDeleteUser = function (index) {
     deleteUserData(deleteUser);
 }
 
-$scope.onDeleteNotice = function (index) {
+function headerOnDeleteNotice(index) {
     // delete notice
-    var deleteNotice = $scope.notices[index];
+    var deleteNotice = dashVM.headerNotices[index];
     if (!deleteNotice) {
         return false;
     }
@@ -174,42 +187,10 @@ $scope.onDeleteNotice = function (index) {
     deleteNoticeData(deleteNotice);
 }
 
-$scope.usersBarCode = function () {
-    if ($scope.currentTab == 'BarCode') {
-        onMakeBarCode();
-        return $scope.users;
-    }
-}
-
-$scope.onClickTab = function (tabName) {
-
-    if (tabName == 'BarCode') {
-        $scope.currentTab = tabName;
-
-        onMakeBarCode();
-    }
-    if (tabName == 'List') {
-        $scope.currentTab = tabName;
-    }
-}
-
-$scope.onValidation = function (field) {
-
-    var name = $scope.userInfo.name;
-    var email = $scope.userInfo.email;
-    var phone = $scope.userInfo.phone;
-
-    if (field == 'name') { $scope.registerForm.username.$setValidity("namevalid", onValidateName(name)); return; }
-    if (field == 'email') { $scope.registerForm.useremail.$setValidity("emailvalid", onValidateEmail(email)); return; }
-    if (field == 'phone') { $scope.registerForm.userphone.$setValidity("phonevalid", onValidatePhone(phone)); return; }
-}
-
-// register
-$scope.onRegisterFormSubmit = function (form) {
-
-    var name = $scope.userInfo.name;
-    var email = $scope.userInfo.email;
-    var phone = $scope.userInfo.phone;
+function headerOnRegisterFormSubmit() {
+    var name = dashVM.headerUserInfo.name;
+    var email = dashVM.headerUserInfo.email;
+    var phone = dashVM.headerUserInfo.phone;
 
     if (onValidateName(name) == false) { alert('Check Form'); return; }
     if (onValidateEmail(email) == false) { alert('Check Form'); return; }
@@ -220,73 +201,97 @@ $scope.onRegisterFormSubmit = function (form) {
     addUserData(name, email, phone);
 }
 
-function onMakeBarCode() {
-    for (var index = 0; index < $scope.users.length; index++) {
+function headerOnEditRegister() {
+    $('#ID_HEADER_Inputname').removeAttr('disabled');
 
-        var name = $scope.users[index].UserName;
-        var id = '#myBarcode' + name;
+    //$scope.onCloseRegister();
+    headerOnCloseRegister();
 
-        $(id).JsBarcode(name, { width: 1, height: 40, displayValue: false });
+    $('#ID_HEADER_UserRegisterButton').show();
+    $('#ID_HEADER_UserEditButton').hide();
+
+    var name = dashVM.headerUserInfo.name;
+    var email = dashVM.headerUserInfo.email;
+    var phone = dashVM.headerUserInfo.phone;
+
+    updateUserData(name, email, phone);
+}
+
+function headerOnNoticeEdit(index) {
+    var editNotice = dashVM.headerNotices[index];
+    if (!editNotice) {
+        return false;
     }
+
+    dashVM.headerNoticeInfo.id = editNotice.NoticeId;
+    dashVM.headerNoticeInfo.title = editNotice.NoticeTitle;
+    dashVM.headerNoticeInfo.name = editNotice.NoticeWriter;
+    $("#ID_HEADER_Datetimepicker").data("DateTimePicker").date(editNotice.NoticeEndDate);
+    $('#ID_HEADER_NoticeOption').val(editNotice.NoticeOption);
+    dashVM.headerNoticeInfo.content = editNotice.NoticeContent;
+
+    $('#ID_HEADER_NoticeAdd').show();
+    $('#ID_HEADER_NoticeList').hide();
+
+    $('#ID_HEADER_NoticeEditButton').show();
+    $('#ID_HEADER_NoticeSaveButton').hide();
 }
 
-$scope.onNoticeMore = function () {
-
-    $scope.noticeMoreCount++;
-    getNoticeData($scope.noticePageSize, $scope.noticeMoreCount);
-}
-
-$scope.onUserMore = function () {
-    $scope.userMoreCount++;
-    getUserData($scope.userPageSize, $scope.userMoreCount);
-}
-
-$scope.onNoticeTitleOpen = function (index) {
-    var cContent = '#noticeContent' + index;
-
-    if ($(cContent).css('display') == 'none') {
-        $(cContent).fadeIn();
-
-        if ($scope.notices[index].NoticeRead == false) {
-            addNoticeUserReadData(index, userName);
-        }
-    }
-    else {
-        $(cContent).fadeOut();
-    }
-}
-
-$scope.onNoticeAdd = function () {
-    $('#noticeAdd').show();
-    $('#noticeList').hide();
-
-    $('#noticeEditButton').hide();
-    $('#noticeSaveButton').show();
-
-    $scope.onNoticeReset();
-}
-
-$scope.onNoticeList = function () {
-    $('#noticeAdd').hide();
-    $('#noticeList').show();
-
-    $('#noticeEditButton').hide();
-    $('#noticeSaveButton').show();
-
-    $scope.onNoticeReset();
-}
-
-$scope.onNoticeSave = function () {
-
-    var rdate = $("#datetimepicker").data("DateTimePicker").date();
+function headerOnNoticeEditSubmit() {
+    var rdate = $("#ID_HEADER_Datetimepicker").data("DateTimePicker").date();
     var endDate = new Date(rdate);
 
     var inputNotice = {};
-    inputNotice.title = $scope.noticeInfo.title;
-    inputNotice.writer = $scope.noticeInfo.name;
+    inputNotice.id = dashVM.headerNoticeInfo.id;
+    inputNotice.title = dashVM.headerNoticeInfo.title;
+    inputNotice.writer = dashVM.headerNoticeInfo.name;
     inputNotice.endDate = endDate;
-    inputNotice.option = $('#noticeOption').val();
-    inputNotice.content = $scope.noticeInfo.content;
+    inputNotice.option = $('#ID_HEADER_NoticeOption').val();
+    inputNotice.content = dashVM.headerNoticeInfo.content;
+
+    if (inputNotice.title == undefined) { alert('Input Title'); return; }
+    if (inputNotice.content == undefined) { alert('Input Content'); return; }
+
+    updateNoticeData(inputNotice);
+}
+
+function headerOnNoticeReset() {
+    dashVM.headerNoticeInfo.title = undefined;
+    $("#ID_HEADER_Datetimepicker").data("DateTimePicker").date(new Date());
+    $('#ID_HEADER_NoticeOption').val('Normal');
+    dashVM.headerNoticeInfo.content = undefined;
+}
+
+function headerOnNoticeAdd() {
+    $('#ID_HEADER_NoticeAdd').show();
+    $('#ID_HEADER_NoticeList').hide();
+
+    $('#ID_HEADER_NoticeEditButton').hide();
+    $('#ID_HEADER_NoticeSaveButton').show();
+
+    headerOnNoticeReset();
+}
+
+function headerOnNoticeList() {
+    $('#ID_HEADER_NoticeAdd').hide();
+    $('#ID_HEADER_NoticeList').show();
+
+    $('#ID_HEADER_NoticeEditButton').hide();
+    $('#ID_HEADER_NoticeSaveButton').show();
+
+    headerOnNoticeReset();
+}
+
+function headerOnNoticeSave() {
+    var rdate = $("#ID_HEADER_Datetimepicker").data("DateTimePicker").date();
+    var endDate = new Date(rdate);
+
+    var inputNotice = {};
+    inputNotice.title = dashVM.headerNoticeInfo.title;
+    inputNotice.writer = dashVM.headerNoticeInfo.name;
+    inputNotice.endDate = endDate;
+    inputNotice.option = $('#ID_HEADER_NoticeOption').val();
+    inputNotice.content = dashVM.headerNoticeInfo.content;
 
     if (inputNotice.title == undefined) { alert('Input Title'); return; }
     if (inputNotice.content == undefined) { alert('Input Content'); return; }
@@ -294,52 +299,77 @@ $scope.onNoticeSave = function () {
     addNoticeData(inputNotice);
 }
 
-$scope.onNoticeReset = function () {
-    $scope.noticeInfo.title = undefined;
-    $("#datetimepicker").data("DateTimePicker").date(new Date());
-    $('#noticeOption').val('Normal');
-    $scope.noticeInfo.content = undefined;
+function headerOnNoticeMore() {
+    dashVM.headerNoticeMoreCount++;
+    getNoticeData(dashVM.headerNoticePageSize, dashVM.headerNoticeMoreCount);
 }
 
-$scope.onNoticeRepeatEnd = function () {
-    /// XXX
+function headerOnUserMore() {
+    dashVM.headerUserMoreCount++;
+    getUserData(dashVM.headerUserPageSize, dashVM.headerUserMoreCount);
+}
+
+function headerOnUsersBarCode() {
+    if (dashVM.headerCurrentTab == 'BarCode') {
+        onMakeBarCode();
+        return dashVM.headerUsers;
+    }
+}
+
+function headerOnClickTab(tabName) {
+    if (tabName == 'BarCode') {
+        dashVM.headerCurrentTab = tabName;
+
+        onMakeBarCode();
+    }
+    if (tabName == 'List') {
+        dashVM.headerCurrentTab = tabName;
+    }
+}
+
+function headerOnValidation(field) {
+    var name = dashVM.headerUserInfo.name;
+    var email = dashVM.headerUserInfo.email;
+    var phone = dashVM.headerUserInfo.phone;
+
+    if (field == 'name') { dashVM.headerRegisterForm.username.$setValidity("namevalid", onValidateName(name)); return; }
+    if (field == 'email') { dashVM.headerRegisterForm.useremail.$setValidity("emailvalid", onValidateEmail(email)); return; }
+    if (field == 'phone') { dashVM.headerRegisterForm.userphone.$setValidity("phonevalid", onValidatePhone(phone)); return; }
 }
 
 /////////////////////////////////////////////////////////////////Initialize/////////////////////////////////////////////////////////////////
 function onInitNoticeData() {
-    $scope.notices = [];
-    $scope.noticeMoreCount = 0;
-    $scope.noticeIndex = 0;
+    dashVM.headerNotices = [];
+    dashVM.headerNoticeMoreCount = 0;
+    dashVM.headerNoticeIndex = 0;
 
-    getNoticeData($scope.noticePageSize, $scope.noticeMoreCount);
+    getNoticeData(dashVM.headerNoticePageSize, dashVM.headerNoticeMoreCount);
     getNoticeDataNewCount();
 }
 
-function onInitUserData(){
-    $scope.users = [];
-    $scope.userMoreCount = 0;
+function onInitUserData() {
+    dashVM.headerUsers = [];
+    dashVM.headerUserMoreCount = 0;
 
-    getUserData($scope.userPageSize, $scope.userMoreCount);
+    getUserData(dashVM.headerUserPageSize, dashVM.headerUserMoreCount);
 }
 
 function onInitUserInfo() {
-
-    $scope.userInfo.name = undefined;
-    $scope.userInfo.email = undefined;
-    $scope.userInfo.phone = undefined;
+    dashVM.headerUserInfo.name = undefined;
+    dashVM.headerUserInfo.email = undefined;
+    dashVM.headerUserInfo.phone = undefined;
 }
 
 function onInitUserValid() {
-
-    $scope.registerForm.username.$setValidity('duplicate', true);
-    $scope.registerForm.username.$setValidity('namevalid', true);
-    $scope.registerForm.useremail.$setValidity('emailvalid', true);
-    $scope.registerForm.userphone.$setValidity('phonevalid', true);
+    dashVM.headerRegisterForm.username.$setValidity('duplicate', true);
+    dashVM.headerRegisterForm.username.$setValidity('namevalid', true);
+    dashVM.headerRegisterForm.useremail.$setValidity('emailvalid', true);
+    dashVM.headerRegisterForm.userphone.$setValidity('phonevalid', true);
 }
 
 /////////////////////////////////////////////////////////////////Validate/////////////////////////////////////////////////////////////////
 function onValidateDuplicate(result) {
-    $scope.registerForm.username.$setValidity("duplicate", result);
+    dashVM.headerRegisterForm.username.$setValidity("duplicate", result);
 }
 
 function onValidateName(name) {
@@ -374,8 +404,8 @@ function getUserData(pageSize, moreCount) {
 
     var pageSizeValue = pageSize;
     var pageIndexValue = moreCount;
-    var filterValue = $('#userFilter').val();
-    var searchValue = $scope.searchText == undefined ? '' : $scope.searchText;
+    var filterValue = $('#ID_HEADER_UserFilter').val();
+    var searchValue = dashVM.headerUserSearchText == undefined ? '' : dashVM.headerUserSearchText;
 
     $http.get('/pms/getUsersData', {
         params: {
@@ -389,8 +419,8 @@ function getUserData(pageSize, moreCount) {
 
         for (var index in response.data.users) {
             var user = response.data.users[index];
-            
-            $scope.users.push(user);
+
+            dashVM.headerUsers.push(user);
         }
     }, function (err) {
         console.log(err);
@@ -401,9 +431,9 @@ function getNoticeData(pageSize, moreCount) {
 
     var pageSizeValue = pageSize;
     var pageIndexValue = moreCount;
-    var filterValue = $('#noticeFilter').val();
-    var searchValue = $scope.searchTextNotice == undefined ? '' : $scope.searchTextNotice;
-    var userValue = userName;
+    var filterValue = $('#ID_HEADER_NoticeFilter').val();
+    var searchValue = dashVM.headerNoticeSearchText == undefined ? '' : dashVM.headerNoticeSearchText;
+    var userValue = dashVM.headerLogInUserName;
 
     $http.get('/pms/getNoticesData', {
         params: {
@@ -418,13 +448,13 @@ function getNoticeData(pageSize, moreCount) {
 
         for (var index in response.data.notices) {
             var notice = response.data.notices[index];
-            notice.NoticeIndex = $scope.noticeIndex;
+            notice.NoticeIndex = dashVM.headerNoticeIndex;
 
             if (notice.NoticeOption == 'Normal') {
-                $scope.noticeIndex++;
+                dashVM.headerNoticeIndex++;
             }
 
-            $scope.notices.push(notice);
+            dashVM.headerNotices.push(notice);
         }
 
     }, function (err) {
@@ -433,7 +463,7 @@ function getNoticeData(pageSize, moreCount) {
 }
 
 function getNoticeDataNewCount() {
-    var userValue = userName;
+    var userValue = dashVM.headerLogInUserName;
 
     $http.get('/pms/getNoticesDataNewCount', {
         params: {
@@ -442,7 +472,7 @@ function getNoticeDataNewCount() {
         }
     }).then(function (response) {
 
-        $scope.noticeNewCount = response.data.Count;
+        dashVM.headerNoticeNewCount = response.data.Count;
 
     }, function (err) {
         console.log(err);
@@ -476,8 +506,8 @@ function updateNoticeData(notice) {
         .success(function (data, status, headers, config) {
             onInitNoticeData();
 
-            $scope.onNoticeReset();
-            $scope.onNoticeList();
+            headerOnNoticeReset();
+            headerOnNoticeList();
         })
         .error(function (data, status, header, config) {
             console.log(data.error);
@@ -492,6 +522,7 @@ function addUserData(name, email, phone) {
         userPhone: phone
     })
         .success(function (data, status, headers, config) {
+            dashVM.headerUserSearchText = undefined;
             onInitUserInfo();
             onInitUserValid();
 
@@ -507,17 +538,18 @@ function addUserData(name, email, phone) {
 
 function addNoticeData(notice) {
     $http.post('/pms/addNoticeData', {
-        noticeTitle: notice.title,
-        noticeEndDate: notice.endDate,
-        noticeOption: notice.option,
-        noticeWriter: notice.writer,
-        noticeContent: notice.content
+        NoticeTitle: notice.title,
+        NoticeEndDate: notice.endDate,
+        NoticeOption: notice.option,
+        NoticeWriter: notice.writer,
+        NoticeContent: notice.content
     })
         .success(function (data, status, headers, config) {
+            dashVM.headerNoticeSearchText = undefined;
             onInitNoticeData();
 
-            $scope.onNoticeReset();
-            $scope.onNoticeList();
+            headerOnNoticeReset();
+            headerOnNoticeList();
         })
         .error(function (data, status, header, config) {
             console.log('fail');
@@ -527,11 +559,11 @@ function addNoticeData(notice) {
 function addNoticeUserReadData(index, readUser) {
 
     $http.post('/pms/addNoticeUserReadData', {
-        noticeId: $scope.notices[index].NoticeId,
+        noticeId: dashVM.headerNotices[index].NoticeId,
         noticeReadUser: readUser
     })
         .success(function (data, status, headers, config) {
-            $scope.notices[index].NoticeRead = true;
+            dashVM.headerNotices[index].NoticeRead = true;
             getNoticeDataNewCount();
         })
         .error(function (data, status, header, config) {
@@ -569,33 +601,13 @@ function deleteNoticeData(notice) {
         });
 }
 
-// load
-function header_OnLoad() {
-    // display
-    $scope.users = [];
-    // new User input Data
-    $scope.userInfo = {};
-    // current tab
-    $scope.currentTab = null;
-    // user count in page
-    $scope.userPageSize = 5;
-    // user more
-    $scope.userMoreCount = 0;
-    // user search text
-    $scope.searchText = undefined;
+/////////////////////////////////////////////////////////////////BarCode/////////////////////////////////////////////////////////////////
+function onMakeBarCode() {
+    for (var index = 0; index < dashVM.headerUsers.length; index++) {
 
-    // display
-    $scope.notices = [];
-    // notice input Data
-    $scope.noticeInfo = {};
-    // notice count in page
-    $scope.noticePageSize = 5;
-    // notice index
-    $scope.noticeIndex = 0;
-    // notice more
-    $scope.noticeMoreCount = 0;
-    // notice search text
-    $scope.searchTextNotice = undefined;
+        var name = dashVM.headerUsers[index].UserName;
+        var id = '#ID_HEADER_MyBarcode' + name;
 
-    getNoticeDataNewCount();
+        $(id).JsBarcode(name, { width: 1, height: 40, displayValue: false });
+    }
 }

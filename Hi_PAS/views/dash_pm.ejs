@@ -53,13 +53,90 @@
           </div>
         </div>
 
+        <div class="modal-footer" id="ID_dashPMSScheduleMoveControl">
+          <div style="float: right; display: table; margin-right: 10px;">
+            <div style="display: table-cell; vertical-align: middle;">
+              <button type="button" class="btn btn-primary btn-nm" style="float: right" ng-click="dashVM.pmsChangeSelectedEventSchedule()">
+                <%=__('S_PMS_EventDetailScheduleMoveButton') %>
+              </button>
+            </div>
+          </div>
+          <div style="float: right; display: table; margin-right: 10px;">
+            <div style="display: table-cell; vertical-align: middle;">
+              <div class="input-group date" id="ID_PMS_dashCalendarChangeScheduleDatePicker">
+                <input type="text" id='ID_PMS_dashCalendarChangeScheduleTargetDate' class="form-control" style="background-color: white" readonly="" />
+                <span class="input-group-addon">
+                  <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+              </div>
+            </div>
+          </div>
+          
+        </div>        
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Memo Information Modal -->
+<div class="modal fade" id="ID_PMS_dashCalendarMemoInfoModal" role="dialog">
+  <div style="display: table; height: 100%; width: 100%; pointer-events:none">
+    <div class="modal-dialog modal-lg" style="display: table-cell; vertical-align: middle; pointer-events:none">
+      <div class="modal-content" style="width: inherit; height: inherit; margin: 0 auto; pointer-events: all">
+
+        <div class="modal-header">
+          <div style="float: right">
+            <i class="fa fa-times-circle fa-2x" aria-hidden="true" data-dismiss="modal"></i>
+          </div>
+          <h4 class="modal-title">
+            <span class="text-info" ng-model="dashVM.pmsMemoList.Date"></span>
+          </h4>
+        </div>
+
+        <div class="modal-body" style="display:table; margin: 0px; width: 100%;">
+          <div style="margin: 0px;">
+            <table class="table">
+              <thead>
+                <tr>                  
+                  <th style="text-align: center">
+                    <%=__('S_PMS_MemoTableColTimeStamp') %>
+                  </th>
+                  <th style="text-align: center">
+                    <%=__('S_PMS_MemoTableColTimeUser') %>
+                    </th>
+                  <th style="text-align: center">
+                    <%=__('S_PMS_MemoTableColTimeTaskCode') %>
+                  </th>
+                  <th style="text-align: center">
+                    <%=__('S_PMS_MemoTableColTimeTaskMemo') %>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-repeat="info in dashVM.pmsMemoList.Infos">
+                  <td style="text-align: center">
+                    <span class="text-info">{{info.TimeStamp}}</span>
+                  </td>
+                  <td style="text-align: center">
+                    <span class="text-info">{{info.User}}</span>
+                  </td>                  
+                  <td style="text-align: center">
+                    <span class="text-info">{{info.Code}}</span>
+                  </td>
+                  <td style="text-align: center">
+                    <span class="text-info">{{info.Memo}}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         <div class="modal-footer">          
-          <button type="button" class="btn btn-secondary btn-lg" id="ID_dashPMSScheduleMoveButton" style="float: right; display: none" ng-click="dashVM.pmsChangeSelectedEventSchedule()">
-            <%=__('S_PMS_EventDetailScheduleMoveButton') %>
-          </button>
         </div>
 
       </div>
     </div>
   </div>
-</div>      
+</div>

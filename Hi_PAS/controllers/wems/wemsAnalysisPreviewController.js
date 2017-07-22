@@ -13,8 +13,8 @@ var powerEfficiencyLineChart;
 var currentAnalysisDataSet;
 var analysisSummaryRows = 0;
 var analysisSummaryDataList = [];
-var costPerkW;
 var currentFactor;
+var currentAnalysisUnit;
 
 var maxCol = 3;
 function wemsAnalysisPreviewController($scope, $http, $document) {
@@ -41,8 +41,8 @@ function wemsAnalysisPreviewController($scope, $http, $document) {
     function initializeAnalysisPreviewData(initializeData) {
         var analysisDataForPreview = JSON.parse(initializeData);
         if (analysisDataForPreview) {
-            costPerkW = analysisDataForPreview.costPerkW;
             currentFactor = analysisDataForPreview.currentFactor;
+            currentAnalysisUnit = analysisDataForPreview.currentAnalysisUnit;
             wemsAnalysisPreviewVM.analysisPeriod = analysisDataForPreview.analysisPeriod;
             wemsAnalysisPreviewVM.selectedDeviceInfo = analysisDataForPreview.selectedDeviceInfo;
             analysisSummaryRows = analysisDataForPreview.analysisSummaryRows;
@@ -74,7 +74,7 @@ function wemsAnalysisPreviewController($scope, $http, $document) {
 
         var titleName = '사용 전력량';
         var yAxesLabel = '( kW )';
-        if (currentFactor != 1) {
+        if (currentAnalysisUnit != "kW") {
             titleName = '사용 전력 비용';
             yAxesLabel = '( 1000 KRW )';
         }
@@ -342,7 +342,7 @@ function wemsAnalysisPreviewController($scope, $http, $document) {
         }
 
         wemsAnalysisPreviewVM.powerSummaryTitle = "사용 전력량(kW)";
-        if (currentFactor != 1) {
+        if (currentAnalysisUnit != "kW") {
             wemsAnalysisPreviewVM.powerSummaryTitle = "사용 전력 비용(1000 KRW)";
         }
 
@@ -492,7 +492,7 @@ function wemsAnalysisPreviewController($scope, $http, $document) {
                 }
 
                 var calAnalysisData = analysisDataPerDevice[0].Power * currentFactor;
-                if (currentFactor != 1) {
+                if (currentAnalysisUnit != "kW") {
                     calAnalysisData = Number(calAnalysisData.toFixed(2));
                 }
 
