@@ -1,0 +1,16 @@
+E:\100_POJECT\190_한화기계\194_Hi_PAS\01_Source Code\hipas\MachineAgent\MachineAgent\bin\Debug\MachineAgent.exe.config
+E:\100_POJECT\190_한화기계\194_Hi_PAS\01_Source Code\hipas\MachineAgent\MachineAgent\bin\Debug\MachineAgent.exe
+E:\100_POJECT\190_한화기계\194_Hi_PAS\01_Source Code\hipas\MachineAgent\MachineAgent\bin\Debug\MachineAgent.pdb
+E:\100_POJECT\190_한화기계\194_Hi_PAS\01_Source Code\hipas\MachineAgent\MachineAgent\bin\Debug\LogHelper.dll
+E:\100_POJECT\190_한화기계\194_Hi_PAS\01_Source Code\hipas\MachineAgent\MachineAgent\bin\Debug\MetroFramework.Design.dll
+E:\100_POJECT\190_한화기계\194_Hi_PAS\01_Source Code\hipas\MachineAgent\MachineAgent\bin\Debug\MetroFramework.dll
+E:\100_POJECT\190_한화기계\194_Hi_PAS\01_Source Code\hipas\MachineAgent\MachineAgent\bin\Debug\MetroFramework.Fonts.dll
+E:\100_POJECT\190_한화기계\194_Hi_PAS\01_Source Code\hipas\MachineAgent\MachineAgent\bin\Debug\log4net.dll
+E:\100_POJECT\190_한화기계\194_Hi_PAS\01_Source Code\hipas\MachineAgent\MachineAgent\bin\Debug\LogHelper.pdb
+E:\100_POJECT\190_한화기계\194_Hi_PAS\01_Source Code\hipas\MachineAgent\MachineAgent\bin\Debug\log4net.xml
+E:\100_POJECT\190_한화기계\194_Hi_PAS\01_Source Code\hipas\MachineAgent\MachineAgent\obj\Debug\MachineAgent.csprojResolveAssemblyReference.cache
+E:\100_POJECT\190_한화기계\194_Hi_PAS\01_Source Code\hipas\MachineAgent\MachineAgent\obj\Debug\MachineAgent.MainForm.resources
+E:\100_POJECT\190_한화기계\194_Hi_PAS\01_Source Code\hipas\MachineAgent\MachineAgent\obj\Debug\MachineAgent.Properties.Resources.resources
+E:\100_POJECT\190_한화기계\194_Hi_PAS\01_Source Code\hipas\MachineAgent\MachineAgent\obj\Debug\MachineAgent.csproj.GenerateResource.Cache
+E:\100_POJECT\190_한화기계\194_Hi_PAS\01_Source Code\hipas\MachineAgent\MachineAgent\obj\Debug\MachineAgent.exe
+E:\100_POJECT\190_한화기계\194_Hi_PAS\01_Source Code\hipas\MachineAgent\MachineAgent\obj\Debug\MachineAgent.pdb

@@ -14,19 +14,23 @@ module.exports.getAnalysisData = function (req, res) {
 
     var startDate = new Date();
     startDate.setHours(0, 0, 0, 0);
+
     var endDate = new Date();
     endDate.setHours(23, 59, 59, 999);
 
     var period = {
         dateUnit: "day",
-        startDate: startDate,
-        endDate: endDate
+        startDate: convertUTCToKST(startDate),
+        endDate: convertUTCToKST(endDate)
     }
+
+    period.startDate = startDate;
+    console.log(period.startDate);
 
     if (req.query.startDate && req.query.endDate) {
         period.dateUnit = req.query.dateUnit;
-        period.startDate = new Date(+req.query.startDate);
-        period.endDate = new Date(+req.query.endDate);
+        period.startDate = new Date(+convertUTCToKST(req.query.startDate));
+        period.endDate = new Date(+convertUTCToKST(req.query.endDate));
     }
 
     console.log("===========================");
@@ -307,5 +311,13 @@ function calPowerDataPerCycle(preMachineCycleData, machineCycleData) {
 // Cal Cycle Time Data 
 function calCycleTimeData(machineCycleData) {
     return (machineCycleData.TotalEndTime - machineCycleData.TotalStartTime) / 1000;
+}
+
+// Conver UTC To KST
+function convertUTCToKST(date) {
+    var localTimeZone = date.getTime() + (date.getTimezoneOffset() * 60000) + (9 * 3600000);
+    date.setTime(localTimeZone);
+
+    return new Date(date);
 }
 

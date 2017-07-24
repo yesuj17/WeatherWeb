@@ -5,8 +5,14 @@ var MachineCycleDataSchema = new Schema({
     JobID: Number,
     JobType: Number,
     MachineID: Number,
-    TotalStartTime: { type : Date },
-    TotalEndTime: { type : Date },
+    TotalStartTime: {
+        type: Date,
+        index: true
+    },
+    TotalEndTime: {
+        type: Date,
+        index: true
+    },
     DrivingInfo: [
         {
             MoveStartTime: { type : Date },

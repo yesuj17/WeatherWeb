@@ -1,0 +1,7 @@
+E:\100_POJECT\190_한화기계\194_Hi_PAS\01_Source Code\hipas\MachineAgent\LogHelper\bin\Debug\LogHelper.dll
+E:\100_POJECT\190_한화기계\194_Hi_PAS\01_Source Code\hipas\MachineAgent\LogHelper\bin\Debug\LogHelper.pdb
+E:\100_POJECT\190_한화기계\194_Hi_PAS\01_Source Code\hipas\MachineAgent\LogHelper\bin\Debug\log4net.dll
+E:\100_POJECT\190_한화기계\194_Hi_PAS\01_Source Code\hipas\MachineAgent\LogHelper\bin\Debug\log4net.xml
+E:\100_POJECT\190_한화기계\194_Hi_PAS\01_Source Code\hipas\MachineAgent\LogHelper\obj\Debug\LogHelper.csprojResolveAssemblyReference.cache
+E:\100_POJECT\190_한화기계\194_Hi_PAS\01_Source Code\hipas\MachineAgent\LogHelper\obj\Debug\LogHelper.dll
+E:\100_POJECT\190_한화기계\194_Hi_PAS\01_Source Code\hipas\MachineAgent\LogHelper\obj\Debug\LogHelper.pdb
