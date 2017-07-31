@@ -2,18 +2,35 @@
 var powerEfficiencyPerDeviceChart;
 var powerEfficiencyPerDateChart;
 var standardPower;
-var refreshIntervalId;
+var threshold1;
+var threshold2;
+var powerEfficiencyStatusList = [];
 var tempRGBColor = ["rgba(255, 0, 0, 0.7)", "rgba(0, 255, 0, 0.7)", "rgba(0, 0, 255, 0.7)", "rgba(255, 255, 0, 0.7)",
-    "rgba(255, 0, 255, 0.7)", "rgba(255, 255, 0, 0.7)", "rgba(0, 255, 255, 0.7)", "rgba(255, 64, 0, 0.7)",
-    "rgba(255, 0, 64, 0.7)", "rgba(64, 255, 0, 0.7)", "rgba(64, 0, 255, 0.7)", "rgba(0, 255, 64, 0.7)",
-    "rgba(0, 64, 255, 0.7)", "rgba(255, 255, 64, 0.7)", "rgba(255, 64, 255, 0.7)", "rgba(64, 255, 255, 0.7)",
-    "rgba(255, 128, 0, 0.7)", "rgba(255, 0, 128, 0.7)", "rgba(128, 255, 0, 0.7)", "rgba(128, 0, 255, 0.7)"];
+    "rgba(255, 0, 255, 0.7)", "rgba(0, 255, 255, 0.7)", "rgba(255, 64, 0, 0.7)", "rgba(255, 0, 64, 0.7)",
+    "rgba(64, 255, 0, 0.7)", "rgba(64, 0, 255, 0.7)", "rgba(0, 255, 64, 0.7)", "rgba(0, 64, 255, 0.7)",
+    "rgba(255, 255, 64, 0.7)", "rgba(255, 64, 255, 0.7)", "rgba(64, 255, 255, 0.7)", "rgba(255, 128, 0, 0.7)",
+    "rgba(255, 0, 128, 0.7)", "rgba(128, 255, 0, 0.7)", "rgba(128, 0, 255, 0.7)", "rgba(0, 128, 255, 0.7)"];
+var thresholdCheckTime = 5;
+
+$scope.$on('updateManagementDataEvent', updateManagementData);
+window.addEventListener('resize', resizeWEMSCanvas, false);
+dashVM.powerEfficiencyGaugeOptions = {
+    size: 250,
+    value: 0,
+    thresholds: {}
+};
+
+dashVM.alarmSummaryCount = 0;
+dashVM.onClickAlarmSummaryButton = onClickAlarmSummaryButton;
 
 // Initialzie Monitoring Data
 function initializeMonitoringData() {
-    refreshIntervalId
-        = setInterval(refreshMonitoringData, 5000);
-    /// clearInterval(refreshIntervalId);
+    intervalRefreshMonitoringData();
+}
+
+function intervalRefreshMonitoringData() {
+    refreshMonitoringData();
+    setTimeout(intervalRefreshMonitoringData, 5000);
 }
 
 // Refresh WEMS Monitoring Data
@@ -26,7 +43,6 @@ function refreshMonitoringData() {
     getAnalysisData()
         .then(function (res, status, headers, config) {
             calPowerEfficiencyData(res.data.AnalysisData);
-
             refreshPowerEfficiencyPerDevice(res.data);
             refreshPowerEfficiencyPerDate(res.data);
         })
@@ -42,8 +58,6 @@ function refreshMonitoringData() {
 
 // Refresh Power Efficiency Bar Chart
 function refreshPowerEfficiencyPerDevice(analysisDataSet) {
-
-
     var labels = getDeviceLabel(analysisDataSet);
     var datasets = getPowerEfficiencyDataSetForDevice(analysisDataSet);
     var powerEfficiencyData = {
@@ -102,11 +116,14 @@ function refreshPowerEfficiencyPerDevice(analysisDataSet) {
             options: options
         };
 
+        resizeWEMSCanvas();
         powerEfficiencyPerDeviceChart = new Chart(ctx, config);
     }
 
     powerEfficiencyPerDeviceChart.data = powerEfficiencyData;
     powerEfficiencyPerDeviceChart.update();
+
+    checkPowerEfficiencyStatus(powerEfficiencyData);
 }
 
 // Refresh Power Efficiency Date Chart
@@ -169,11 +186,22 @@ function refreshPowerEfficiencyPerDate(analysisDataSet) {
             options: options
         };
 
+        resizeWEMSCanvas();
         powerEfficiencyPerDateChart = new Chart(ctx, config);
     }
 
     powerEfficiencyPerDateChart.data = powerEfficiencyData;
     powerEfficiencyPerDateChart.update();
+}
+
+// Calculate Total Power Efficiency Average
+function calTotalPowerEfficiencyAvg(powerEfficiencyDatas) {
+    var totalPowerEfficiencyAverage = 0;
+    for (var dataIndex = 0; dataIndex < powerEfficiencyDatas.length; dataIndex++) {
+        totalPowerEfficiencyAverage += powerEfficiencyDatas[dataIndex];
+    }
+
+    return Number((totalPowerEfficiencyAverage / powerEfficiencyDatas.length).toFixed(2));
 }
 
 // Get Analysis Data
@@ -269,7 +297,7 @@ function getPowerEfficiencyDataSetForDate(analysisDataSet) {
                 += analysisData.AnalysisDataPerDate[dataPerDateIndex].PowerEfficiency;
         }
 
-        powerEfficiencyAverage = Number(powerEfficiencyAverage / analysisDataSet.DeviceIDList.length).toFixed(2); 
+        powerEfficiencyAverage = Number(powerEfficiencyAverage / analysisDataSet.DeviceIDList.length).toFixed(2);
         powerEfficiencyData.push(powerEfficiencyAverage);
     }
 
@@ -362,7 +390,7 @@ function getPowerEfficiencyDataSetForDevice(analysisDataSet) {
 function initializeManagementData() {
     getManagementData()
         .then(function (res, status, headers, config) {
-            standardPower = res.data.StandardPower;
+            updateManagementData(null, res.data);
             initializeMonitoringData();
         })
         .catch(function (e) {
@@ -426,7 +454,7 @@ function generateRandomRGBA() {
 // Get Random Integer
 function getRandomInteger(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
-} 
+}
 
 // Get Number With Commas
 function getNumberWithCommas(item) {
@@ -441,11 +469,167 @@ function getDateLabel(analysisDataSet) {
 
     var dateLabels = [];
     for (index = 0; index < analysisDataSet.AnalysisData.length; index++) {
-        var analysisDate = new Date(analysisDataSet.AnalysisData[index].AnalysisDate);
-        dateLabels.push(analysisDate.getHours().toString());
+        dateLabels.push(moment(analysisDataSet
+            .AnalysisData[index].AnalysisDate).format('HH'));
     }
 
     return dateLabels;
+}
+
+// Resize Canvas
+function resizeWEMSCanvas() {
+    var powerEfficiencyPerDateChart = document.getElementById('ID_WEMS_powerEfficiencyPerDate');
+    var powerEfficiencyPerDeviceChart = document.getElementById('ID_WEMS_powerEfficiencyPerDevice');
+    var powerEfficiencyChart = document.getElementById('ID_WEMS_powerEfficiency');
+    var powerEfficiencyDiv = document.getElementById('ID_WEMS_cLeft_content');
+
+    powerEfficiencyPerDateChart.width = powerEfficiencyPerDateChart.offsetWidth;
+    powerEfficiencyPerDateChart.height = powerEfficiencyPerDateChart.offsetWidth * 0.28;
+
+    powerEfficiencyPerDeviceChart.width = powerEfficiencyPerDeviceChart.offsetWidth;
+    powerEfficiencyPerDeviceChart.height = powerEfficiencyPerDeviceChart.offsetWidth * 0.5;
+
+    
+    var gaugeChartSize = powerEfficiencyDiv.clientHeight;
+    if (powerEfficiencyDiv.clientWidth < powerEfficiencyDiv.clientHeight) {
+        gaugeChartSize = powerEfficiencyDiv.clientWidth;
+    }
+
+    if (dashVM.powerEfficiencyGaugeOptions.size != gaugeChartSize) {
+        if ($scope.$$phase == '$apply' || $scope.$$phase == '$digest') {
+            dashVM.powerEfficiencyGaugeOptions.size = gaugeChartSize;
+        } else {
+            $scope.$apply(function () {
+                dashVM.powerEfficiencyGaugeOptions.size = gaugeChartSize;
+            });
+        }
+    }
+}
+
+// Update Management Data
+function updateManagementData(event, managementData) {
+    if (!managementData) {
+        return;
+    }
+
+    standardPower = managementData.StandardPower;
+    threshold1 = managementData.Threshold1.toString();
+    threshold2 = managementData.Threshold2.toString();
+    var thresholds = {};
+
+    thresholds['0'] = { color: 'rgba(255,0,0,0.8)' };
+    thresholds[threshold1] = { color: '#ffcc66' };
+    thresholds[threshold2] = { color: 'green' };
+
+    dashVM.powerEfficiencyGaugeOptions.thresholds = thresholds;
+}
+
+// Clear Alarm Summary Count
+function onClickAlarmSummaryButton() {
+    dashVM.alarmSummaryCount = 0;
+}
+
+// Check Power Efficiency Status
+function checkPowerEfficiencyStatus(powerEfficiencyData) {
+    if (!powerEfficiencyData) {
+        return;
+    }
+
+    var totalPowerEfficiencyAvg = calTotalPowerEfficiencyAvg(powerEfficiencyData.datasets[0].data);
+    dashVM.powerEfficiencyGaugeOptions.value = totalPowerEfficiencyAvg;
+    powerEfficiencyData.labels.push("Total");
+    powerEfficiencyData.datasets[0].data.push(totalPowerEfficiencyAvg);
+
+    if (!powerEfficiencyData.labels) {
+        return;
+    }
+
+    var currentDate = new Date();
+    for (var deviceIndex = 0; deviceIndex < powerEfficiencyData.labels.length; deviceIndex++) {
+        if (powerEfficiencyStatusList.length < deviceIndex + 1) {
+            var powerEfficiencyStatus = {
+                device: powerEfficiencyData.labels[deviceIndex],
+                warningDate: null,
+                errorDate: null,
+                alarmCode: -1
+            }
+
+            powerEfficiencyStatusList.push(powerEfficiencyStatus);
+        }
+
+        if (powerEfficiencyData.datasets[0].data[deviceIndex] < threshold2) {
+            if (!powerEfficiencyStatusList[deviceIndex].warningDate) {
+                powerEfficiencyStatusList[deviceIndex].warningDate = new Date(currentDate.getTime());
+                powerEfficiencyStatusList[deviceIndex].alarmCode = -1;
+            } else {
+                if (Math.floor((currentDate.getTime() - powerEfficiencyStatusList[deviceIndex].warningDate.getTime())
+                    / 60000) > thresholdCheckTime) {
+                    powerEfficiencyStatusList[deviceIndex].warningDate = new Date(currentDate.getTime());
+                    powerEfficiencyStatusList[deviceIndex].alarmCode = 1;
+                } else {
+                    powerEfficiencyStatusList[deviceIndex].alarmCode = -1;
+                }
+            }
+
+            if (powerEfficiencyData.datasets[0].data[deviceIndex] < threshold1) {
+                if (!powerEfficiencyStatusList[deviceIndex].errorDate) {
+                    powerEfficiencyStatusList[deviceIndex].errorDate = new Date(currentDate.getTime());
+                    powerEfficiencyStatusList[deviceIndex].alarmCode = -1;
+                } else {
+                    if (Math.floor((currentDate.getTime() - powerEfficiencyStatusList[deviceIndex].errorDate.getTime())
+                        / 60000) > thresholdCheckTime) {
+                        powerEfficiencyStatusList[deviceIndex].errorDate = new Date(currentDate.getTime());
+                        powerEfficiencyStatusList[deviceIndex].alarmCode = 2;
+                    } else {
+                        powerEfficiencyStatusList[deviceIndex].alarmCode = -1;
+                    }
+                }
+            } else {
+                powerEfficiencyStatusList[deviceIndex].errorDate = null;
+            }
+        } else {
+            powerEfficiencyStatusList[deviceIndex].warningDate = null;
+        }
+    }
+
+    for (var statusIndex = 0; statusIndex < powerEfficiencyStatusList.length; statusIndex++){
+        var powerEfficiencyStatusRow = null;
+        var isAlarmOccured = false;
+        if (powerEfficiencyStatusList[statusIndex].warningDate) {
+            if (powerEfficiencyStatusList[statusIndex].alarmCode == 1) {
+                powerEfficiencyStatusRow = {
+                    device: powerEfficiencyStatusList[statusIndex].device,
+                    date: powerEfficiencyStatusList[statusIndex].warningDate,
+                    alarmCode: powerEfficiencyStatusList[statusIndex].alarmCode
+                }
+
+                isAlarmOccured = true;
+            }
+
+            if (powerEfficiencyStatusList[statusIndex].errorDate) {
+                if (powerEfficiencyStatusList[statusIndex].alarmCode == 2) {
+                    powerEfficiencyStatusRow = {
+                        device: powerEfficiencyStatusList[statusIndex].device,
+                        date: powerEfficiencyStatusList[statusIndex].errorDate,
+                        alarmCode: powerEfficiencyStatusList[statusIndex].alarmCode
+                    }
+
+                    isAlarmOccured = true;
+                }
+            }
+
+
+            if (isAlarmOccured == true) {
+                // Send powerEfficiencyStatusRow
+                dashVM.alarmSummaryCount++;
+                $rootScope.$broadcast('addAlarmMessageEvent', powerEfficiencyStatusRow);
+            }
+        }
+
+        if (powerEfficiencyStatusList[statusIndex].alarmCode == 0) {
+            /* XXX */
+        }
+    }
 }
 
 /* OnLoad() call from index */

@@ -178,7 +178,7 @@ module.exports.updateNoticeData = function (param, next) {
     var key = '_id';
     var query = NoticeInfoSchema
         .findOne()
-        .where(key).equals(param.noticeId);
+        .where(key).equals(param.NoticeId);
 
     query.exec(function (err, notice) {
         if (err) {
@@ -191,12 +191,12 @@ module.exports.updateNoticeData = function (param, next) {
             return;
         }
 
-        notice.Title = param.noticeTitle;
-        notice.Content = param.noticeContent;
-        notice.Writer = param.noticeWriter;
-        notice.Option = param.noticeOption
+        notice.Title = param.NoticeTitle;
+        notice.Content = param.NoticeContent;
+        notice.Writer = param.NoticeWriter;
+        notice.Option = param.NoticeOption
         notice.StartDate = Date.now();
-        notice.EndDate = param.noticeEndDate;
+        notice.EndDate = param.NoticeEndDate;
 
         notice.save(function (err) {
             if (err) {
@@ -368,7 +368,7 @@ module.exports.deleteNoticeData = function (param, next) {
     var key = '_id';
     var query = NoticeInfoSchema
         .findOne()
-        .where(key).equals(param.noticeId);
+        .where(key).equals(param.NoticeId);
 
     query.exec(function (err, notice) {
         if (err) {
@@ -395,25 +395,73 @@ module.exports.CreateMotherData = function (InputmotherData, next) {
     //debug console.log("CreateMotherData 실행");
     //input data 유효성 check
     if (!InputmotherData) {
-       //debug console.log(" [CreateMotherData]modeherData가 널임.");
-      //  next(4, 'motherData null');
+        //debug console.log(" [CreateMotherData]modeherData가 널임.");
+        //  next(4, 'motherData null');
         return;
     }
     // 들어오는 input data중 동일한 data를 가져오는 쿼리( code값으로 식별)
+    console.log('저장하려고', InputmotherData.Code);
     motherDataSchema.findOne({ Code: InputmotherData.Code }, function (err, doc) {
         if (err) {
-          //debug  console.log(" [CreateMotherData]스키마에서 찾다가 에러남.");
-         //   next(3, err);
+            //debug  console.log(" [CreateMotherData]스키마에서 찾다가 에러남.");
+            console.log('스키마에서 검색 하다가 에러');
+            next(false, err);
+
             return;
         }
         //data이미 가 있으면 중복처리
         if (doc) {
-          //debug  console.log(" [CreateMotherData]스키마에 이미 존재");
-         //   next(2, 'duplicate');
+            //debug  console.log(" [CreateMotherData]스키마에 이미 존재");
+            console.log('스키마에서 검색 하다가 중복');
+            next(false, '중복');
             return;
         }
+        console.log('저장', InputmotherData.Code);
+        var a = new motherDataSchema();
+        a.Code = InputmotherData.Code;
+        a.Title = InputmotherData.Title;
+        a.Content = InputmotherData.Content;
+        a.LargeCategory = InputmotherData.LargeCategory;
+        a.MediumCategory = InputmotherData.MediumCategory;
+        a.SmallCategory = InputmotherData.SmallCategory;
+        a.CreateDate = new Date();//InputmotherData.CreateDate;
+        a.TimeGroup = InputmotherData.TimeGroup;
+        a.TimeBaseUnit = InputmotherData.TimeBaseUnit;
+        a.TimeBaseValue = InputmotherData.TimeBaseValue;
+        a.nonTimeVaseMainUnit = InputmotherData.nonTimeVaseMainUnit;
+        a.nonTimeBaseMainValue = InputmotherData.nonTimeBaseMainValue;
+        a.nonTimeBaseWarringUnit = InputmotherData.nonTimeBaseWarringUnit;
+        a.nonTimeBaseWarringValue = InputmotherData.nonTimeBaseWarringValue;
+        if (InputmotherData.Relation != undefined)
+            a.Relation = InputmotherData.Relation.split(',');
+        a.Type = InputmotherData.Type;
+        a.Level = InputmotherData.Level;
+
+        a.save(function (err) {
+            if (err) {
+                next(false, err);
+                //debug  console.log(" [CreateMotherData]model 저장실패");
+                //  next(5, 'fail save');
+                return;
+            } else {
+                //debug  console.log(" [CreateMotherData]model 저장 성공");
+                next(true, '');
+            }
+        });
     });
     //db에 input 하려는 데이터가 없을 때 새로 생성. 
+}
+module.exports.ImportMotherData = function (InputmotherData, next) {
+    //debug console.log("CreateMotherData 실행");
+    //input data 유효성 check
+    if (!InputmotherData) {
+        //debug console.log(" [CreateMotherData]modeherData가 널임.");
+        //  next(4, 'motherData null');
+        return;
+    }
+    // 들어오는 input data중 동일한 data를 가져오는 쿼리( code값으로 식별)
+    console.log('저장하려고', InputmotherData.Code);
+    console.log('저장', InputmotherData.Code);
     var a = new motherDataSchema();
     a.Code = InputmotherData.Code;
     a.Title = InputmotherData.Title;
@@ -429,21 +477,24 @@ module.exports.CreateMotherData = function (InputmotherData, next) {
     a.nonTimeBaseMainValue = InputmotherData.nonTimeBaseMainValue;
     a.nonTimeBaseWarringUnit = InputmotherData.nonTimeBaseWarringUnit;
     a.nonTimeBaseWarringValue = InputmotherData.nonTimeBaseWarringValue;
-    a.Relation = InputmotherData.Relation.split(',');
+    if (InputmotherData.Relation != undefined)
+        a.Relation = InputmotherData.Relation.split(',');
     a.Type = InputmotherData.Type;
     a.Level = InputmotherData.Level;
 
     a.save(function (err) {
         if (err) {
-            console.error(err);
-          //debug  console.log(" [CreateMotherData]model 저장실패");
-          //  next(5, 'fail save');
+            next(false, err);
+            //debug  console.log(" [CreateMotherData]model 저장실패");
+            //  next(5, 'fail save');
             return;
         } else {
-          //debug  console.log(" [CreateMotherData]model 저장 성공");
-          //  next(1, 'success save');
+            //debug  console.log(" [CreateMotherData]model 저장 성공");
+            next(true, '');
         }
     });
+    //db에 input 하려는 데이터가 없을 때 새로 생성. 
+
 }
 
 /* Calendar API Start **********************************************/
@@ -709,16 +760,7 @@ function onDefaultUserLevelData(param, next) {
             }
         });
 }
-module.exports.getMothersData = function (next) {
-    //debug console.log("getMothersData 실행");
-    motherDataSchema.find().select().exec(function (err, doc) {
-        if (err) {
-            console.err(err);
-            next(1, err, doc/* doc : null */)//err발생.
-        }
-        next(0, err/* err: null */, doc); //정상처리
-    });
-}
+
 module.exports.dropMothersData = function () {
    //debug console.log("MothersData Drop!");
     dropCollection(motherDataSchema);
@@ -730,6 +772,142 @@ module.exports.dropMothersData = function () {
         console.log(error);
     });*/
 }
+module.exports.getMothersAllData = function (next) {
+    //debug console.log("getMothersAllData 실행");
+    motherDataSchema.find().select().exec(function (err, doc) {
+        if (err) {
+            console.err(err);
+            next(false, err, doc/* doc : null */)//err발생.
+        }
+        next(true, err/* err: null */, doc); //정상처리
+    });
+}
+module.exports.getMothersoneData = function (next, Code) {
+    console.log("dbmanager에 들어옴req.param.Code:", Code);
+    if (!Code) {
+        next(false, 'Code null');
+        return;
+    }
+
+    var query = motherDataSchema
+        .findOne()
+        .where('Code').equals(Code);
+
+    query.exec(function (err, mother) {
+        if (err) {
+            next(false, err);
+            return;
+        }
+
+        if (!mother) {
+            next(false, 'Code null');
+            return;
+        }
+
+        next(true, '', mother);
+    });
+    //  motherDataSchema.findOne().select({'Code':Code},function(err,doc){
+    //      if (err) {
+    //          console.err(err);
+    //          next(1, err, doc/* doc : null */)//err발생.
+    //      }
+    //      next(0, err/* err: null */, doc); //정상처리
+    //  });
+}
+module.exports.getcodeList = function (next) {
+    //debug console.log("getMothersAllData 실행");
+    motherDataSchema.find().select('Code').exec(function (err, doc) {
+        if (err) {
+            console.err(err);
+            next(false, err, doc)
+        }
+        next(true, err, doc);
+    });
+}
+module.exports.deletemotherdata = function (next, Code) {
+
+    console.log("dbmanager에 들어옴req.param.Code:", Code);
+    if (!Code) {
+        next(false, 'Code null');
+        return;
+    }
+
+    var query = motherDataSchema
+        .findOne()
+        .where('Code').equals(Code);
+
+    query.exec(function (err, mother) {
+        if (err) {
+            next(false, err);
+            return;
+        }
+
+        if (!mother) {
+            next(false, 'Code null');
+            return;
+        }
+
+        mother.remove(function (err) {
+            if (err) {
+                next(false, err);
+                return;
+            }
+            next(true);
+        });
+    });
+
+}
+module.exports.saveMothersoneData = function (next, req) {
+    console.log("dbmanager에 들어옴req.param.Code:", req.body.Code);
+    if (!req) {
+        next(false, 'data null');
+        return;
+    }
+    var key = 'Code';
+    var query = motherDataSchema
+        .findOne()
+        .where(key).equals(req.body.Code);
+
+    query.exec(function (err, mother) {
+        if (err) {
+            next(false, err);
+            return;
+        }
+        if (!mother) {
+            next(false, 'mother null');
+            return;
+        }
+
+        mother.Title = req.body.Title;
+        mother.Content = req.body.Content;
+        mother.LargeCategory = req.body.LargeCategory.category;// 대분류
+        mother.MediumCategory = req.body.MediumCategory.category;//중분류
+        mother.SmallCategory = req.body.SmallCategory.category;//소분류
+        //   //   mother.CreateDate = req.body.CreateDate;
+        mother.TimeGroup = req.body.TimeGroup;// 시간, 거리 
+        mother.TimeBaseUnit = req.body.TimeBaseUnit;
+        if (req.body.TimeBaseValue != 'distance')
+            mother.TimeBaseValue = req.body.TimeBaseValue;
+
+        mother.nonTimeVaseMainUnit = req.body.nonTimeVaseMainUnit.distanceunit;
+        mother.nonTimeBaseMainValue = req.body.nonTimeBaseMainValue;
+        mother.nonTimeBaseWarringUnit = req.body.nonTimeBaseWarringUnit.distanceunit;
+        mother.nonTimeBaseWarringValue = req.body.nonTimeBaseWarringValue;
+        //     // mother.Relation = req.body.Relation;
+        mother.Type = req.body.Type;
+        mother.Level = req.body.Level.grade;
+
+
+        mother.save(function (err) {
+            if (err) {
+                next(false, err);
+                return;
+            }
+            next(true);
+        });
+    });
+}
+
 function dropCollection(motherDataSchema) {
     var collection = mongoose.connection.collections[motherDataSchema.collection.collectionName];
     collection.drop(function (err) {

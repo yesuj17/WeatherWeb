@@ -1,18 +1,36 @@
 <div style="height: 100%; width:100%; margin:0; padding:0" class="container">
-  <div id="ID_WEMS_top_content" style="height: 6%; width:100%; border:2px #f99 solid"></div>
-  <div id="ID_WEMS_center_content" style="height: 47%; width:100%; border:2px #f99 solid">
-    <div id="ID_WEMS_cLeft_content" style="height: 100%; width:50%; float:left; border:2px #f99 solid">
-      <canvas>Guage Chart</canvas>
+  <div id="ID_WEMS_top_content" style="height: 8%; width:100%; text-align:right; padding:2px">
+    <a class="btn btn-primary fa fa-bell-o fa-2x" data-toggle="modal" data-target="#ID_WEMS_alarmSummaryModal" 
+       data-backdrop="static" data-keyboard="false" ng-click="dashVM.onClickAlarmSummaryButton()" style="width: 55px; margin-right:14px">
+      <span style="background:red; position:relative; top: -15px; left: -45px;" ng-bind="dashVM.alarmSummaryCount" class="badge badge-notify"></span>
+    </a>
+    <!-- wems_detail_layout.ejs start-->
+    <% include ./wems/wems_alarm_summary.ejs %>
+    <!-- wems_detail_layout.ejs end-->
+  </div>
+  <div id="ID_WEMS_center_content" style="height: 46%; width:100%; margin:0; padding:0">
+    <div id="ID_WEMS_cLeft_content" style="height: 100%; width:50%; margin:0; padding:0; float:left; text-align:center;border:1px #dcdcdc solid">
+      <div style="height: 10%; width: 100%; text-align:center; padding:0">
+        <label style="font-size:14px; margin:8px" >오늘의 전체 전력량 효율</label>
+      </div>
+      <div style="height: 90%; width: 100%; text-align:center; padding:0">
+        <ng-gauge id="ID_WEMS_powerEfficiency" size="{{dashVM.powerEfficiencyGaugeOptions.size}}" 
+                  type="arch" thick="25" min="0" max="200" value="dashVM.powerEfficiencyGaugeOptions.value" duration="500"
+                  cap="round" label="전력량 효율" append="%" foreground-color="#ffcc66" background-color="#EEE" 
+                  thresholds="dashVM.powerEfficiencyGaugeOptions.thresholds">
+        </ng-gauge>
+      </div>
     </div>
-    <div id="ID_WEMS_cRight_content" style="height: 100%; width:50%; float:right; border:2px #f99 solid">
+    <div id="ID_WEMS_cRight_content" style="height: 100%; width:50%; margin:0; padding:0; float:right; border:1px #dcdcdc solid">
       <canvas id="ID_WEMS_powerEfficiencyPerDevice" style="text-align:right"></canvas>
     </div>
   </div>
-  <div id="ID_WEMS_bottom_content" class="container" style="height: 47%; width:100%; border:2px #f99 solid">
-    <div id="ID_WEMS_bLeft_content" style="height: 100%; width:90%; float:left; border:2px #f99 solid">
-      <canvas id="ID_WEMS_powerEfficiencyPerDate" style="height: 100%; width: 100%; border:2px #f99 solid"></canvas>
+  <div id="ID_WEMS_bottom_content" style="height: 46%; width:100%; margin:0; padding:0; border:1px #dcdcdc solid">
+    <div id="ID_WEMS_bLeft_content" style="height: 100%; width:90%; margin:0; padding:0; float:left">
+      <canvas id="ID_WEMS_powerEfficiencyPerDate" style="height: 100%; width: 100%"></canvas>
     </div>
-    <div id="ID_WEMS_bRight_content" style="height: auto; width:10%; float:right; text-align:center; border:2px #f99 solid">
+    <div id="ID_WEMS_bRight_content" style="height: 100%; width:10%; float:right; text-align:center; border:1px #dcdcdc solid">
+      <div style="height: 80%"/>
       <button type="button" data-toggle="modal" data-target="#ID_WEMS_detailModal" data-backdrop="static" data-keyboard="false" class="btn btn-primary btn-md">
         <%=__('S_WEMS_detail')%>
       </button>

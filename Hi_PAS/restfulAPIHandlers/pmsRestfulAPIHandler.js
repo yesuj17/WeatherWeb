@@ -1,5 +1,4 @@
 ﻿/* PMS Restful API Handler */
-
 var dbManager = require('../utility/dbManager/pmsDBManager');
 var pmsUserInfo = require('../models/pms/userInfoData.json');
 
@@ -166,16 +165,14 @@ module.exports.getNoticesData = function (req, res) {
                 var currentDate = convertDateToString(new Date());
                 var noticeDate = convertDateToString(notices[index].StartDate);
 
-                var noticeTime = (notices[index].StartDate).toTimeString().substring(0, 5);
-
                 var pmsNoticeInfo = {};
                 pmsNoticeInfo.NoticeId = notices[index].id;
                 pmsNoticeInfo.NoticeTitle = notices[index].Title;
                 pmsNoticeInfo.NoticeWriter = notices[index].Writer;
-                pmsNoticeInfo.NoticeDate = noticeDate + ' ' + noticeTime;
+                pmsNoticeInfo.NoticeDate = notices[index].StartDate;
                 pmsNoticeInfo.NoticeOption = notices[index].Option;
                 pmsNoticeInfo.NoticeContent = notices[index].Content;
-                pmsNoticeInfo.NoticeEndDate = convertDateToString(notices[index].EndDate);
+                pmsNoticeInfo.NoticeEndDate = notices[index].EndDate;
                 pmsNoticeInfo.NoticeIndex = Number(noticesData.pageSizeValue * noticesData.pageIndexValue) + Number(index);
 
                 pmsNoticeInfo.NoticeRead = false;
@@ -227,17 +224,6 @@ module.exports.deleteNoticeData = function (req, res) {
         }
     });
 }
-
-module.exports.AddMotherData = function (req, res) {
-    //모수가 json으로 입력됨,post 방식.
-    console.log("AddMotherData 실행");
-    var motherdata = JSON.parse(JSON.stringify(req.body));
-    saveMotherDataJsonToDB(motherdata);
-}
-saveMotherDataJsonToDB = function (input) {
-    dbManager.CreateMotherData(input)
-}
-
 var storage = multer.diskStorage({ //업로드 된 파일의 저장 장소 정의.
     destination: function (req, file, cb) {
         cb(null, './uploads')
@@ -293,7 +279,7 @@ module.exports.ImportExcel = function (req, res) {
                 //추출한 제이슨. db에 저장한다. 
                 //res.json({ error_code: 0, err_desc: null, data: result });
                 dbManager.dropMothersData();
-                saveMotherDataArrayToDB(result);
+                saveMotherDataArrayToDB(result,res);
                 //res.redirect('..');
                 res.end();
             });
@@ -302,12 +288,20 @@ module.exports.ImportExcel = function (req, res) {
         }
     })
 }
-saveMotherDataArrayToDB = function (result) {
+saveMotherDataArrayToDB = function (result,res) {
     for (var i = 0; ((i < result.length) && result[i].코드 != ""); i++) {
         //컴버터가 필요하다. excel 양식 -> schema 양식에 맞게.
         var convertdJson = CoverteforSave(result[i]);
         //변환이 끝난 json 은 저장 
-        saveMotherDataJsonToDB(convertdJson);
+        var callback = function (result, err) {
+            if (result) {
+                res.end();
+            }
+            else/*(result == 0) */ {
+                res.status(500).json({ error: err });
+            }
+        }
+        dbManager.ImportMotherData(convertdJson, callback);
         //  if (true != result) 비동기라 undefind 가 넘어와서 종료됨. 리턴값 무시 
         //      return result;  
     }
@@ -352,14 +346,15 @@ module.exports.DisplayGridMotherdata = function (req, res) {
     //debug console.log("Display 함수 호출");
     //getMothersData를 가져올 때 결과 처리 함수.
     var callback = function (result, err, doc) {
-        if (true == result) {
-            res.status(505).json({ error: err });
-        }
-        else/*(result == 0) */ {
+        if (result) {
             res.send(doc);
         }
+        else/*(result == 0) */ {
+            
+            res.status(500).json({ error: err });
+        }
     }
-    dbManager.getMothersData(callback);
+    dbManager.getMothersAllData(callback);
 }
 
 /* Calendar API Start **********************************************/
@@ -452,3 +447,67 @@ module.exports.updateEventsSchedule = function (req, res) {
     });
 }
 /* Calendar API End ************************************************/
+
+module.exports.getmotheronedata = function (req, res) {
+    console.log("api 핸들러에 들어옴", req.query.Code);
+
+    var callback = function (result, err, doc) {
+        if (result) {
+            res.send(doc);
+        }
+        else/*(result == 0) */ {
+            res.status(500).json({ error: err });
+        }
+    }
+    dbManager.getMothersoneData(callback, req.query.Code);
+}
+module.exports.savemother = function (req, res) {
+    console.log("api 핸들러 savemother");
+    var callback = function (result, err, doc) {
+        if (result) {
+            res.send(doc);
+        }
+        else/*(result == 0) */ {
+            console.log("여기야?");
+            res.status(500).json({ error: err });
+        }
+    }
+
+    dbManager.saveMothersoneData(callback, req);
+}
+module.exports.createmother = function (req, res) {
+    console.log("api 핸들러 createmother");
+    var callback = function (result, err) {
+        if (result) {
+            res.end();
+        }
+        else/*(result == 0) */ {
+            res.status(500).json({ error: err });
+        }
+    }
+    var motherdata = JSON.parse(JSON.stringify(req.body));
+    dbManager.CreateMotherData(motherdata, callback);
+
+}
+module.exports.getcode = function (req, res) {
+    var callback = function (result, err, doc) {
+        if (result) {
+            res.send(doc);
+        }
+        else/*(result == 0) */ {
+            res.status(500).json({ error: err });
+        }
+    }
+    dbManager.getcodeList(callback);
+}
+module.exports.deletemother = function (req, res) {
+    var callback = function (result, err, doc) {
+        if (result) {
+            res.send(doc);
+        }
+        else/*(result == 0) */ {
+            res.status(500).json({ error: err });
+        }
+    }
+    dbManager.deletemotherdata(callback, req.query.Code);
+} 

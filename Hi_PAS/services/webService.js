@@ -11,11 +11,9 @@ module.exports = function () {
     var bodyParser = require('body-parser');
     var i18n = require('i18n');
 
-    /* View Engine Setup */
-    app.set('views', path.join(__dirname, '../views'));
-    //app.set('view engine', 'jade');
+    /* View Engine Setup */        
     app.set('view engine', 'ejs');
-    app.engine('html', require('ejs').renderFile);
+    app.set('views', path.join(__dirname, '../views'));                
 
     /* Etc Setup */
     app.use(logger('dev'));
@@ -28,8 +26,7 @@ module.exports = function () {
         saveUninitialized: true
     }));
     app.use(require('stylus').middleware(path.join(__dirname, '../public')));
-    app.use(express.static(path.join(__dirname, '../public')));
-    app.use(express.static(path.join(__dirname, '../controllers')));
+    app.use(express.static(path.join(__dirname, '../public')));    
 
     app.locals.pretty = true;
 

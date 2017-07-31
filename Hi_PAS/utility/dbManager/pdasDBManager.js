@@ -56,11 +56,14 @@ module.exports.getCurrentTrendData = function (fromDate, toDate, period, FnEnd) 
         };
         values.forEach(function (value) {
             reducedVal.DrivingMotorCurrent += value.DrivingMotorCurrent;
-            reducedVal.DrivingMotorCurrentCnt += value.DrivingMotorCurrentCnt;
+            if(value.DrivingMotorCurrent > 0)
+                reducedVal.DrivingMotorCurrentCnt += value.DrivingMotorCurrentCnt;
             reducedVal.HoistingMotorCurrent += value.HoistingMotorCurrent;
-            reducedVal.HoistingMotorCurrentCnt += value.HoistingMotorCurrentCnt;
+            if(value.HoistingMotorCurrent)
+                reducedVal.HoistingMotorCurrentCnt += value.HoistingMotorCurrentCnt;
             reducedVal.ForkMotorCurrent += value.ForkMotorCurrent;
-            reducedVal.ForkMotorCurrentCnt += value.ForkMotorCurrentCnt;
+            if(value.ForkMotorCurrent)
+                reducedVal.ForkMotorCurrentCnt += value.ForkMotorCurrentCnt;
         });
         return reducedVal;
     }

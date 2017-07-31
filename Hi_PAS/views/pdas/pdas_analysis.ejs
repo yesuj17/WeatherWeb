@@ -43,7 +43,7 @@
 								</div>
 								<input id="ID_PDAS_dateToChangeFlg" type="hidden" value="false">
 								<div class="col-md-3">
-									<button class="btn btn-primary sm" ng-click="pdasAnalysisVM.changeAnalysisDate()" type="button"> Search </button>
+									<button class="btn btn-primary sm" id='ID_PDAS_analysisSearch' ng-click="pdasAnalysisVM.changeAnalysisDate()" type="button"> Search </button>
 								</div>
 							</div>
 							<div class="col-md-3">
@@ -57,7 +57,7 @@
 						</div>
 					</div>
 					<div class="row" style="height:4%">
-						<button class="btn btn-primary" type="button">Trend분석(전류데이터)</button>
+						<span class="label label-primary" style='font-size:14px'>Trend분석(전류데이터)</span>
 					</div>
 					<div class="row" style="height:28%; background-color:#486268">
 						<div class="col-sm-3" style="height:10%; float:right">
@@ -76,7 +76,7 @@
 					<div class="row" style="height:35%;">
 						<div class="col-md-6" style="height:100%; border-Right:15px solid #646464;">
 								<div class="row" style="height:10%;">
-										<button class="btn btn-primary" type="button"> 설비종합효율(%) </button>
+									<span class="label label-primary" style='font-size:14px'> 설비종합효율(%) </span>
 								</div>
 								<div class="row" style="height:90%;background-color:#486268;">
 										<div class="col-md-7" style="height:100%;">
@@ -116,7 +116,7 @@
 						<div class="col-md-6" style="height:100%;">
 								<div class="row" style="height:10%;">
 									<div class='col-md-3' style='padding:0'>
-										<button class="btn btn-primary" type="button"> Cycle Time(sec)</button>
+										<span class="label label-primary" style='font-size:14px'> Cycle Time(sec)</span>
 									</div>
 									<div class='col-md-9' style='text-align:right; padding-top:15px'>
 										<span>
@@ -136,7 +136,7 @@
 								</div>
 								<div class="row" style="height:10%;">
 									<div class='col-md-3' style='padding:0'>
-										<button class="btn btn-primary" type="button"> 재고율(%)</button>
+										<span class="label label-primary" style='font-size:14px'> 재고율(%)</span>
 									</div>
 									<div class='col-md-9' style='text-align:right; padding-top:15px'>
 										<span>
@@ -158,7 +158,7 @@
 					</div>
 					<div class="row" style="height:1.5%"></div>
 					<div class="row" style="height:3.5%">
-						<button class="btn btn-primary" type="button">Trend분석(종합효율)</button>
+						<span class="label label-primary" style='font-size:14px'>Trend분석(종합효율)</span>
 					</div>
 					<div class="row" style="height:21%; background-color:#486268">
 						<div style="height:100%">
@@ -167,11 +167,34 @@
 					</div>
 					</div>
 				</div>
+					<div id="ID_PDAS_analysisSpinner" style="height:200px; position: absolute;top: 50%;left: 50%">
+    				</div>
 			</div>
 			<div class="modal-footer" style="height:5%">
 
 			</div>
-			<script src="/pdas/pdasAnalysisController.js"></script>
+      <!-- pdasAnalysisController.js start-->
+      <script>
+      <% include ./pdasAnalysisController.js %>	
+      </script>
+      <!-- pdasAnalysisController.js start-->
+        
+			<script src='/spin/spin.js'></script>
 		</div>
 	</div>
 </div>
+<script>
+	$.fn.spin = function(opts) {
+		this.each(function() {
+			var $this = $(this),
+				spinner = $this.data('spinner');
+			if (spinner) spinner.stop();
+			if (opts !== false) {
+				opts = $.extend({color: $this.css('color')}, opts);
+				spinner = new Spinner(opts).spin(this);
+				$this.data('spinner', spinner);
+			}
+		});
+		return this;
+	};
+</script>

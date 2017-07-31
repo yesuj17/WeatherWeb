@@ -223,10 +223,12 @@ function headerOnNoticeEdit(index) {
         return false;
     }
 
+    var EndDate = moment(editNotice.NoticeEndDate).format('YYYY-MM-DD');
+
     dashVM.headerNoticeInfo.id = editNotice.NoticeId;
     dashVM.headerNoticeInfo.title = editNotice.NoticeTitle;
     dashVM.headerNoticeInfo.name = editNotice.NoticeWriter;
-    $("#ID_HEADER_Datetimepicker").data("DateTimePicker").date(editNotice.NoticeEndDate);
+    $("#ID_HEADER_Datetimepicker").data("DateTimePicker").date(EndDate);
     $('#ID_HEADER_NoticeOption').val(editNotice.NoticeOption);
     dashVM.headerNoticeInfo.content = editNotice.NoticeContent;
 
@@ -453,7 +455,7 @@ function getNoticeData(pageSize, moreCount) {
             if (notice.NoticeOption == 'Normal') {
                 dashVM.headerNoticeIndex++;
             }
-
+            notice.NoticeDate = moment(notice.NoticeDate).format('YYYY-MM-DD HH:mm');
             dashVM.headerNotices.push(notice);
         }
 
@@ -496,12 +498,12 @@ function updateUserData(name, email, phone) {
 
 function updateNoticeData(notice) {
     $http.post('/pms/updateNoticeData', {
-        noticeId: notice.id,
-        noticeTitle: notice.title,
-        noticeEndDate: notice.endDate,
-        noticeOption: notice.option,
-        noticeWriter: notice.writer,
-        noticeContent: notice.content
+        NoticeId: notice.id,
+        NoticeTitle: notice.title,
+        NoticeEndDate: notice.endDate,
+        NoticeOption: notice.option,
+        NoticeWriter: notice.writer,
+        NoticeContent: notice.content
     })
         .success(function (data, status, headers, config) {
             onInitNoticeData();
@@ -511,6 +513,13 @@ function updateNoticeData(notice) {
         })
         .error(function (data, status, header, config) {
             console.log(data.error);
+            if (data.error == 'notice null') {
+                alert('This notice dose not exist');
+                onInitNoticeData();
+
+                headerOnNoticeReset();
+                headerOnNoticeList();
+            }
         });
 }
 
@@ -590,14 +599,17 @@ function deleteUserData(user) {
 function deleteNoticeData(notice) {
     $http.delete('/pms/deleteNoticeData', {
         params: {
-            noticeId: notice.NoticeId,
+            NoticeId: notice.NoticeId,
         }
     })
         .success(function (data, status, headers, config) {
             onInitNoticeData();
         })
         .error(function (data, status, header, config) {
-            console.log(data.error);
+            if(data.error == 'notice null'){
+                alert('This notice dose not exist');
+                onInitNoticeData();
+            }
         });
 }
 

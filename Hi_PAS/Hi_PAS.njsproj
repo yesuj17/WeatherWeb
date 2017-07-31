@@ -34,12 +34,17 @@
     <Compile Include="config\systemConfig.js">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="controllers\pdas\pdasAnalysisController.js" />
-    <Compile Include="controllers\pms\pmsController.js" />
-    <Compile Include="controllers\wems\wemsAnalysisController.js" />
-    <Compile Include="controllers\wems\wemsAnalysisPreviewController.js" />
-    <Compile Include="controllers\wems\wemsDetailLayoutController.js" />
-    <Compile Include="controllers\wems\wemsManagementController.js" />
+    <Compile Include="views\pdas\pdasAnalysisController.js" />
+    <Compile Include="views\pms\pmsConfMachineMaintItemController.js" />
+    <Compile Include="views\pms\pmsConfMaintItemController.js" />
+    <Compile Include="views\pms\pmsHistoryMaintLogController.js" />
+    <Compile Include="views\pms\pmsHistorySystemLogController.js" />
+    <Compile Include="views\pms\pmsScheduleMaintController.js" />
+    <Compile Include="views\wems\wemsAlarmSummaryController.js" />
+    <Compile Include="views\wems\wemsAnalysisController.js" />
+    <Compile Include="views\wems\wemsAnalysisPreviewController.js" />
+    <Compile Include="views\wems\wemsDetailLayoutController.js" />
+    <Compile Include="views\wems\wemsManagementController.js" />
     <Compile Include="models\dbSchema\MachineCycleDataSchema.js" />
     <Compile Include="models\dbSchema\MachineErrorDataSchema.js" />
     <Compile Include="models\dbSchema\MachineInfoSchema.js" />
@@ -48,8 +53,11 @@
     <Compile Include="models\dbSchema\NoticeInfoSchema.js" />
     <Compile Include="models\dbSchema\PMSmotherSchema.js" />
     <Compile Include="models\dbSchema\UserInfoSchema.js" />
+    <Compile Include="models\dbSchema\AlarmDataSchema.js" />
+    <Compile Include="models\dbSchema\AlarmLevelSchema.js" />
     <Compile Include="public\angular-chart.js_v1.1.1\angular-chart.js" />
     <Compile Include="public\angular-chart.js_v1.1.1\angular-chart.min.js" />
+    <Compile Include="public\angular-gauge_v2.1.0\angularjs-gauge.js" />
     <Compile Include="public\bootstrap_v3.3.7\js\bootstrap.js" />
     <Compile Include="public\bootstrap_v3.3.7\js\bootstrap.min.js" />
     <Compile Include="public\bootstrap_v3.3.7\js\npm.js" />
@@ -71,6 +79,7 @@
     </Compile>
     <Compile Include="services\pmsService.js" />
     <Compile Include="services\webService.js" />
+    <Compile Include="utility\commonUtil.js" />
     <Compile Include="utility\dbManager\commonDBManager.js" />
     <Compile Include="utility\dbManager\dataGenDBManager.js" />
     <Compile Include="utility\dbManager\machineDBManager.js" />
@@ -167,13 +176,14 @@
     <Content Include="views\error.ejs" />
     <Content Include="views\index.ejs" />
     <Content Include="views\pdas\pdas_analysis.ejs" />
-    <Content Include="views\pms\BodyFrame\body_index.ejs" />
-    <Content Include="views\pms\BodyFrame\grid.ejs" />
-    <Content Include="views\pms\BodyFrame\top.ejs" />
-    <Content Include="views\pms\BodyFrame\tree.ejs" />
-    <Content Include="views\pms\pms_head.ejs" />
-    <Content Include="views\pms\pms_main.ejs" />
-    <Content Include="views\pms\pms_side.ejs" />
+    <Content Include="views\pms\component\motherEditModal.ejs" />
+    <Content Include="views\pms\pms_conf_machine_maint_item.ejs" />
+    <Content Include="views\pms\pms_conf_maint_item.ejs" />
+    <Content Include="views\pms\pms_history_maint_log.ejs" />
+    <Content Include="views\pms\pms_history_system_log.ejs" />
+    <Content Include="views\pms\pms_main_layout.ejs" />
+    <Content Include="views\pms\pms_schedule_maint.ejs" />
+    <Content Include="views\wems\wems_alarm_summary.ejs" />
     <Content Include="views\wems\wems_detail_analysis.ejs" />
     <Content Include="views\wems\wems_detail_layout.ejs" />
     <Content Include="views\wems\wems_detail_management.ejs" />
@@ -184,7 +194,6 @@
     <Folder Include="controllers\" />
     <Folder Include="controllers\wems\" />
     <Folder Include="controllers\pms\" />
-    <Folder Include="controllers\pdas\" />
     <Folder Include="models\" />
     <Folder Include="models\DataGenerator\" />
     <Folder Include="models\dbSchema\" />
@@ -195,6 +204,7 @@
     <Folder Include="config\" />
     <Folder Include="locales\" />
     <Folder Include="public\angular-chart.js_v1.1.1\" />
+    <Folder Include="public\angular-gauge_v2.1.0\" />
     <Folder Include="public\bootstrap_v3.3.7\" />
     <Folder Include="public\bootstrap_v3.3.7\css\" />
     <Folder Include="public\bootstrap_v3.3.7\fonts\" />
@@ -253,7 +263,7 @@
     <Folder Include="utility\dbManager\" />
     <Folder Include="views\" />
     <Folder Include="views\pms\" />
-    <Folder Include="views\pms\BodyFrame\" />
+    <Folder Include="views\pms\component\" />
     <Folder Include="views\wems\" />
     <Folder Include="views\pdas\" />
   </ItemGroup>

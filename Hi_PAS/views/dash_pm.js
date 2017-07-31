@@ -5,12 +5,10 @@
 /* Variables */
 dashVM.pmsEventList = [];
 dashVM.pmsMemoList = null;
-dashVM.pmsChangeSelectedEventInfo = null;
 
 /* Export Function declare */
-dashVM.pmsChangeSelectedEventSchedule = pmsChangeSelectedEventSchedule;
-dashVM.pmsOnSelectedEvent = pmsOnSelectedEvent;
 dashVM.pmsShowMemo = pmsShowMemo;
+dashVM.pmsShowPMSMainModal = pmsShowPMSMainModal;
 
 /* OnLoad() call from index */
 function pms_OnLoad() {
@@ -42,72 +40,16 @@ function pms_OnLoad() {
         eventClick: function (event, jsEvent, view) {
             dashPMSOnClickEventGroup(event);	            
         },
-        eventDrop: function (event, delta, revertFunc) {            
-            if (confirm('<%=__('S_PMS_CalendarConfirmChangeEventScheduleMsg') %>') == true) {
-
-                var res = confirm('<%=__('S_PMS_CalendarConfirmChangeEventScheduleAutoSyncMsg') %>');
-
-                // Update Schedule
-                dashPMSChangeEventGroupSchedule(res, event);
-            }
-            else {
-                revertFunc();
-            }
+        eventDrop: function (event, delta, revertFunc) {      
+            revertFunc();                  
         },
         dayClick: function (date, jsEvent, view) {            
         }
     });
 }
 
-function pmsChangeSelectedEventSchedule() {
-
-    var changePostSchedule = false;
-
-    if (confirm('<%=__('S_PMS_CalendarConfirmChangeEventScheduleMsg') %>') == true) {        
-        changePostSchedule = confirm('<%=__('S_PMS_CalendarConfirmChangeEventScheduleAutoSyncMsg') %>');        
-    }
-    else {
-        return;        
-    }
-    
-    var idList = [];
-
-    for (var i = 0; i < dashVM.pmsEventList.length; i++) {
-        var res = $('#ID_PMS_eventUID-' + dashVM.pmsEventList[i].UID).prop('checked');
-        if (res == true) {
-            idList.push(dashVM.pmsEventList[i].UID);
-        }
-    }
-
-    $('#ID_PMS_dashCalendarGroupEventListModal').modal('toggle');
-  
-    $http.post('/pms/updateEventsSchedule', {
-        params: {
-            SourceDate: $('#ID_PMS_dashSelectedDate').val(),
-            TargetDate: $('#ID_PMS_dashCalendarChangeScheduleTargetDate').val(),
-            GroupType: $('#ID_PMS_dashSelectedEventGroupType').val(),
-            OptChangePostSchedule: changePostSchedule,
-            EventUIDs: idList
-        }
-    }).then(function (response) {
-
-    }, function (err) {
-        console.log(err);
-    });   
-
-}
-
-function pmsOnSelectedEvent() {
-
-    for (var i = 0; i < dashVM.pmsEventList.length; i++) {
-        var res = $('#ID_PMS_eventUID-' + dashVM.pmsEventList[i].UID).prop('checked');
-        if (res == true) {
-            $('#ID_dashPMSScheduleMoveControl').css('display', 'block');
-            return;
-        }            
-    }
-
-    $('#ID_dashPMSScheduleMoveControl').css('display', 'none');
+function pmsShowPMSMainModal() {
+    $('#ID_PMS_mainModal').modal({ backdrop: 'static', keyboard: false });             
 }
 
 function pmsShowMemo(targetDate) {
@@ -125,7 +67,6 @@ function pmsShowMemo(targetDate) {
         console.log(err);
     });
 }
-
 
 /* Private functions ****************************************************************/
 function dashPMSConvertToCalenderEvent(info) {
@@ -268,7 +209,6 @@ function dashPMSOnClickEventGroup(event) {
     
     $('#ID_PMS_dashCalendarGroupEventListModal').modal();
 
-    $('#ID_dashPMSScheduleMoveControl').css('display', 'none');
     $('#ID_PMS_dashCalendarGroupEventListTitle').html(event.title + ' (' + event.start.format() + ')');
     $('#ID_PMS_dashSelectedEventGroupType').val(event.groupType);
     $('#ID_PMS_dashSelectedDate').val(event.start.format());
@@ -282,19 +222,4 @@ function dashPMSOnClickEventGroup(event) {
     $('#ID_PMS_dashCalendarChangeScheduleTargetDate').val(event.start.format());
 
     dashPMSGetEventList(event);
-}
-
-function dashPMSChangeEventGroupSchedule(changePostSchedule, event) {
-    $http.post('/pms/updateEventGroupSchedule', {
-        params: {
-            GroupType: event.groupType,
-            SourceDate: event.start._i,
-            TargetDate: event.start.format(),
-            OptChangePostSchedule: changePostSchedule    
-        }
-    }).then(function (response) {
-        
-    }, function (err) {
-        console.log(err);
-    });    
 }

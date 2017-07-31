@@ -8,7 +8,8 @@ var dataGeneratorRestfulAPIHandler = require('../restfulAPIHandlers/dataGenerato
 var wemsGETList = [
     ['/wems/getAnalysisData', wemsRestfulAPIHandler.getAnalysisData],
     ['/wems/getManagementData', wemsRestfulAPIHandler.getManagementData],
-    ['/wems/analysisPreview', wemsRestfulAPIHandler.getAnalysisPreview]
+    ['/wems/analysisPreview', wemsRestfulAPIHandler.getAnalysisPreview],
+    ['/wems/getTotalAlarmMessage', wemsRestfulAPIHandler.getTotalAlarmMessage]
 ];
 
 var wemsPOSTList = [
@@ -41,6 +42,8 @@ var pmsGETList = [
     ['/pms/getNoticesData', pmsRestfulAPIHandler.getNoticesData],
     ['/pms/getNoticesDataNewCount', pmsRestfulAPIHandler.getNoticesDataNewCount],
     ['/pms/displaytable', pmsRestfulAPIHandler.DisplayGridMotherdata],
+    ['/pms/onemother', pmsRestfulAPIHandler.getmotheronedata],
+    ['/pms/getcode', pmsRestfulAPIHandler.getcode],
 
     /* Calendar API ***********************************************/
     ['/pms/getMemoInfoList', pmsRestfulAPIHandler.getMemoInfoList],    
@@ -58,8 +61,9 @@ var pmsPOSTList = [
     ['/pms/updateNoticeData', pmsRestfulAPIHandler.updateNoticeData],
     ['/pms/addNoticeData', pmsRestfulAPIHandler.addNoticeData],
     ['/pms/addNoticeUserReadData', pmsRestfulAPIHandler.addNoticeUserReadData],
-    ['/pms/insertMother', pmsRestfulAPIHandler.AddMotherData],
     ['/pms/createmother', pmsRestfulAPIHandler.ImportExcel],
+    ['/pms/savemother', pmsRestfulAPIHandler.savemother],
+    ['/pms/createmotherone', pmsRestfulAPIHandler.createmother],
 
     /* Calendar API ***********************************************/
     ['/pms/updateEventGroupSchedule', pmsRestfulAPIHandler.updateEventGroupSchedule],
@@ -71,7 +75,8 @@ var pmsPUTList = [
 ];
 var pmsDELETEList = [
     ['/pms/deleteUserData', pmsRestfulAPIHandler.deleteUserData],
-    ['/pms/deleteNoticeData', pmsRestfulAPIHandler.deleteNoticeData]
+    ['/pms/deleteNoticeData', pmsRestfulAPIHandler.deleteNoticeData],
+    ['/pms/deletemother', pmsRestfulAPIHandler.deletemother]
 ];
 
 /* Machine Agent Restful API Handler */

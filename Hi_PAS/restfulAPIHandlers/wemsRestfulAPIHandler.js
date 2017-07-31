@@ -14,23 +14,19 @@ module.exports.getAnalysisData = function (req, res) {
 
     var startDate = new Date();
     startDate.setHours(0, 0, 0, 0);
-
     var endDate = new Date();
     endDate.setHours(23, 59, 59, 999);
 
     var period = {
         dateUnit: "day",
-        startDate: convertUTCToKST(startDate),
-        endDate: convertUTCToKST(endDate)
+        startDate: startDate,
+        endDate: endDate
     }
-
-    period.startDate = startDate;
-    console.log(period.startDate);
 
     if (req.query.startDate && req.query.endDate) {
         period.dateUnit = req.query.dateUnit;
-        period.startDate = new Date(+convertUTCToKST(req.query.startDate));
-        period.endDate = new Date(+convertUTCToKST(req.query.endDate));
+        period.startDate = new Date(+req.query.startDate);
+        period.endDate = new Date(+req.query.endDate);
     }
 
     console.log("===========================");
@@ -111,6 +107,33 @@ module.exports.updateAnalysisPreviewData = function (req, res) {
 
 module.exports.getAnalysisPreview = function (req, res) {
     res.render('./wems/wems_popup_analysis_print', analysisPreviewData);
+}
+
+module.exports.getTotalAlarmMessage = function (req, res) {
+    if (!wemsDBManager) {
+        return;
+    }
+
+    wemsDBManager.getTotalAlarmMessage(function (err, result) {
+        if (err) {
+            res.status(505).json({ error: err });
+            return;
+        }
+
+        var alarmMessages = [];
+        for (var index = 0; index < result.length; index++) {
+            var alarmMessage = {
+                Code: result[index].Code,
+                LevelCode: result[index].LevelCode,
+                Level: result[index].Level,
+                Message: result[index].Message
+            }
+
+            alarmMessages.push(alarmMessage);
+        }
+
+        res.send(alarmMessages);
+    });
 }
 
 // POST Restful API Handler
@@ -311,13 +334,5 @@ function calPowerDataPerCycle(preMachineCycleData, machineCycleData) {
 // Cal Cycle Time Data 
 function calCycleTimeData(machineCycleData) {
     return (machineCycleData.TotalEndTime - machineCycleData.TotalStartTime) / 1000;
-}
-
-// Conver UTC To KST
-function convertUTCToKST(date) {
-    var localTimeZone = date.getTime() + (date.getTimezoneOffset() * 60000) + (9 * 3600000);
-    date.setTime(localTimeZone);
-
-    return new Date(date);
 }
 

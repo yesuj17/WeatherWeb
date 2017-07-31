@@ -1,13 +1,17 @@
 <div style="height: 100%; width:100%" class="container">
   <div style="height: 30%; background-color:#FFFFCC">       
     <h6>summary</h6>
-  </div>  
-  <button type="button" data-toggle="modal" data-target="#PMSmodal" class="detail"  data-backdrop="static">PMS</button>
-  <% include ./pms/pms_main.ejs %>    
-  <div style="height: 70%;">
+  </div>
+  <div class="row" style="float: right; width: 100%; background-color:#FCC">    
+    <a href="#" ng-click="dashVM.pmsShowPMSMainModal()" data-backdrop="static">PMS Configuration</a>
+  </div>    
+  <div class="row">
     <div id="ID_PMS_dashCalendar" style="max-width: 900px; margin: 0 auto">       </div>
   </div>
 </div>
+
+<!-- PMS Configuration Main Modal -->
+<% include ./pms/pms_main_layout.ejs %>    
 
 <!-- GroupEventList Modal -->
 <div class="modal fade" id="ID_PMS_dashCalendarGroupEventListModal" role="dialog">
@@ -30,17 +34,13 @@
           <div style="margin: 0px;">
             <table class="table">
               <thead>
-                <tr>
-                  <th style="text-align: center">#</th>
+                <tr>                  
                   <th style="text-align: center"><%=__('S_PMS_EventDetailTableColCode') %></th>
                   <th style="text-align: center"><%=__('S_PMS_EventDetailTableColTitle') %></th>
                 </tr>
               </thead>
               <tbody>
                 <tr ng-repeat="info in dashVM.pmsEventList">
-                  <td style="text-align: center">
-                    <input type="checkbox" ng-attr-id="{{'ID_PMS_eventUID-'+info.UID}}" value="" ng-click="dashVM.pmsOnSelectedEvent()" />
-                  </td>
                   <td style="text-align: center">
                     <span class="text-info">{{info.Code}}</span>                    
                   </td>
@@ -51,28 +51,7 @@
               </tbody>
             </table>
           </div>
-        </div>
-
-        <div class="modal-footer" id="ID_dashPMSScheduleMoveControl">
-          <div style="float: right; display: table; margin-right: 10px;">
-            <div style="display: table-cell; vertical-align: middle;">
-              <button type="button" class="btn btn-primary btn-nm" style="float: right" ng-click="dashVM.pmsChangeSelectedEventSchedule()">
-                <%=__('S_PMS_EventDetailScheduleMoveButton') %>
-              </button>
-            </div>
-          </div>
-          <div style="float: right; display: table; margin-right: 10px;">
-            <div style="display: table-cell; vertical-align: middle;">
-              <div class="input-group date" id="ID_PMS_dashCalendarChangeScheduleDatePicker">
-                <input type="text" id='ID_PMS_dashCalendarChangeScheduleTargetDate' class="form-control" style="background-color: white" readonly="" />
-                <span class="input-group-addon">
-                  <span class="glyphicon glyphicon-calendar"></span>
-                </span>
-              </div>
-            </div>
-          </div>
-          
-        </div>        
+        </div>     
         
       </div>
     </div>
@@ -132,10 +111,7 @@
             </table>
           </div>
         </div>
-
-        <div class="modal-footer">          
-        </div>
-
+                
       </div>
     </div>
   </div>
