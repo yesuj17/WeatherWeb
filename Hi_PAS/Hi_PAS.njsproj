@@ -34,6 +34,19 @@
     <Compile Include="config\systemConfig.js">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="models\dbSchema\PMSCBMCheckUnitTypeSchema.js" />
+    <Compile Include="models\dbSchema\PMSCheckSchema.js" />
+    <Compile Include="models\dbSchema\PMSDeviceTypeSchema.js" />
+    <Compile Include="models\dbSchema\PmsFacilitysSchema.js" />
+    <Compile Include="models\dbSchema\PMSFileDataSchema.js" />
+    <Compile Include="models\dbSchema\PMSMachineItemDataSchema.js" />
+    <Compile Include="models\dbSchema\PMSMachineTypeSchema.js" />
+    <Compile Include="models\dbSchema\PMSMaintItemDataSchema.js" />
+    <Compile Include="models\dbSchema\PMSMaintItemLevelTypeSchema.js" />
+    <Compile Include="models\dbSchema\PMSMemoDataSchema.js" />
+    <Compile Include="models\dbSchema\PMSModuleTypeSchema.js" />
+    <Compile Include="models\dbSchema\PMSTBMCheckUnitTypeSchema.js" />
+    <Compile Include="models\dbSchema\PMSToDoDataSchema.js" />
     <Compile Include="views\pdas\pdasAnalysisController.js" />
     <Compile Include="views\pms\pmsConfMachineMaintItemController.js" />
     <Compile Include="views\pms\pmsConfMaintItemController.js" />
@@ -55,6 +68,8 @@
     <Compile Include="models\dbSchema\UserInfoSchema.js" />
     <Compile Include="models\dbSchema\AlarmDataSchema.js" />
     <Compile Include="models\dbSchema\AlarmLevelSchema.js" />
+    <Compile Include="models\dbSchema\CheckListSchema.js" />
+    <Compile Include="models\dbSchema\TodoListSchema.js" />
     <Compile Include="public\angular-chart.js_v1.1.1\angular-chart.js" />
     <Compile Include="public\angular-chart.js_v1.1.1\angular-chart.min.js" />
     <Compile Include="public\angular-gauge_v2.1.0\angularjs-gauge.js" />
@@ -80,6 +95,7 @@
     <Compile Include="services\pmsService.js" />
     <Compile Include="services\webService.js" />
     <Compile Include="utility\commonUtil.js" />
+    <Compile Include="utility\localeUtil.js" />
     <Compile Include="utility\dbManager\commonDBManager.js" />
     <Compile Include="utility\dbManager\dataGenDBManager.js" />
     <Compile Include="utility\dbManager\machineDBManager.js" />
@@ -104,10 +120,14 @@
     <Content Include="models\pdas\machineCycleData.json" />
     <Content Include="models\pdas\Threshold.json" />
     <Content Include="models\pms\CheckLists.json" />
+    <Content Include="models\pms\MaintHistoryData.json" />
+    <Content Include="models\pms\MaintItemData.json" />
     <Content Include="models\pms\mother.json" />
     <Content Include="models\pms\noticeInfoData.json" />
     <Content Include="models\pms\userInfoData.json" />
     <Content Include="models\wems\machineAnalysisData.json" />
+    <Compile Include="models\dbSchema\PMSMaintHistoryDataSchema.js" />
+    <Compile Include="models\dbSchema\PMSSystemLogDataSchema.js" />
     <Content Include="package.json" />
     <Content Include="public\angular-chart.js_v1.1.1\angular-chart.min.js.map" />
     <Content Include="public\bootstrap_v3.3.7\css\bootstrap-theme.css" />
@@ -176,6 +196,8 @@
     <Content Include="views\error.ejs" />
     <Content Include="views\index.ejs" />
     <Content Include="views\pdas\pdas_analysis.ejs" />
+    <Content Include="views\pms\component\checkList.ejs" />
+    <Content Include="views\pms\component\facilitydetail.ejs" />
     <Content Include="views\pms\component\motherEditModal.ejs" />
     <Content Include="views\pms\pms_conf_machine_maint_item.ejs" />
     <Content Include="views\pms\pms_conf_maint_item.ejs" />
@@ -193,7 +215,6 @@
     <Folder Include="bin\" />
     <Folder Include="controllers\" />
     <Folder Include="controllers\wems\" />
-    <Folder Include="controllers\pms\" />
     <Folder Include="models\" />
     <Folder Include="models\DataGenerator\" />
     <Folder Include="models\dbSchema\" />

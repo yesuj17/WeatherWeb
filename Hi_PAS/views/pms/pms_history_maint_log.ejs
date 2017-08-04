@@ -1,0 +1,148 @@
+<div ng-app="pmsHistoryMaintLogApp" ng-controller="PMSHistoryMaintLogController as pmsHistoryMaintLogVM" class="container">
+  <div class="container-fluid">
+
+    <div class="row" style="margin: auto">
+      
+      <div style="float: right">
+        <button type="button" class="btn btn-primary btn-nm" ng-click="pmsHistoryMaintLogVM.LoadMaintHistory()">
+          <%=__('S_PMS_SearchButton') %>
+        </button>
+      </div>
+      <div style="float: right">
+        &nbsp;&nbsp;&nbsp;&nbsp;
+      </div>
+      <div style="float: right">
+        <input type="text" id='ID_PMS_MaintHistorySearchText' class="form-control" style="background-color: white" readonly="" />
+      </div>      
+      <div style="float: right">
+        &nbsp;&nbsp;&nbsp;&nbsp;
+      </div>
+      <div style="float: right">
+        <select class="form-control" id="ID_PMS_MaintHistorySearchType">
+          <option>
+            <%=__('S_PMS_MaintHistoryTableColCode') %>
+          </option>
+          <option>
+            <%=__('S_PMS_MaintHistoryTableColTitle') %>
+          </option>
+          <option>설비</option>
+        </select>
+      </div>
+
+
+      <div style="float: left">
+        <div class="input-group date" id="ID_PMS_MaintHistorySearchStartDatePicker">
+          <input type="text" id='ID_PMS_MaintHistorySearchStartDate' class="form-control" style="background-color: white" readonly="" />
+          <span class="input-group-addon">
+            <span class="glyphicon glyphicon-calendar"></span>
+          </span>
+        </div>
+      </div>
+      <div style="float: left">
+        &nbsp;&nbsp;&nbsp;&nbsp;~&nbsp;&nbsp;&nbsp;&nbsp;
+      </div>
+      <div style="float: left">
+        <div class="input-group date" id="ID_PMS_MaintHistorySearchEndDatePicker">
+          <input type="text" id='ID_PMS_MaintHistorySearchEndDate' class="form-control" style="background-color: white" readonly="" />
+          <span class="input-group-addon">
+            <span class="glyphicon glyphicon-calendar"></span>
+          </span>
+        </div>
+      </div>
+
+    </div>
+    <div class="row" style="margin: auto">
+      <br></br>
+    </div>
+    <div class="row" style="margin: auto">
+      <table class="table">
+        <thead>
+          <tr>
+            <th style="text-align: center">
+              <%=__('S_PMS_MaintHistoryTableColTimeStamp') %>
+            </th>
+            <th style="text-align: center">
+              <%=__('S_PMS_MaintHistoryTableColMachine') %>
+            </th>
+            <th style="text-align: center">
+              <%=__('S_PMS_MaintHistoryTableColUser') %>
+            </th>            
+            <th style="text-align: center">
+              <%=__('S_PMS_MaintHistoryTableColCode') %>
+            </th>
+            <th style="text-align: center">
+              <%=__('S_PMS_MaintHistoryTableColTitle') %>
+            </th>
+            <th style="text-align: center">
+              <%=__('S_PMS_MaintHistoryTableColStatus') %>
+            </th>
+            <th style="text-align: center">
+              <%=__('S_PMS_MaintHistoryTableColDetail') %>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="info in pmsHistoryMaintLogVM.HistoryList">
+            <td style="text-align: center; width: 15%">
+              <span class="text-info">{{info.TimeStamp | date: 'yyyy-MM-dd HH:MM:ss'}}</span>
+            </td>
+            <td style="text-align: center">
+              <span class="text-info">{{info.MachineName}}</span>
+            </td>
+            <td style="text-align: center; width: 10%">
+              <span class="text-info">{{info.UserID}}</span>
+            </td>
+            <td style="text-align: center">
+              <span class="text-info">{{info.Code}}</span>
+            </td>
+            <td style="text-align: center">
+              <span class="text-info">{{info.Title}}</span>
+            </td>
+            <td style="text-align: center; width: 10%">
+              <span class="text-info">{{info.Status}}</span>
+            </td>
+            <td style="text-align: center">
+              <span class="text-info" ng-attr-id="{{'maintHistory-'+info.UID}}" ng-click="pmsHistoryMaintLogVM.ShowDetailHistory()">상세보기</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+
+    <!-- History Detail Modal -->
+    <div class="modal fade" id="ID_PMS_HistoryDetailModal" role="dialog">
+      <div style="display: table; height: 100%; width: 100%; pointer-events:none">
+        <div class="modal-dialog modal-lg" style="display: table-cell; vertical-align: middle; pointer-events:none">
+          <div class="modal-content" style="width: inherit; height: inherit; margin: 0 auto; pointer-events: all">
+
+            <div class="modal-header">
+              <div style="float: right">
+                <i class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="pmsHistoryMaintLogVM.CloseDetailHistory()"></i>
+              </div>
+              <h4 class="modal-title">
+                상세 이력
+              </h4>
+            </div>
+
+            <div class="modal-body" style="display:table; margin: 0px; width: 100%;">
+              <div style="margin: 0px;">
+                내용
+              </div>
+            </div>            
+
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+
+  <!-- pmsHistoryMaintLogController.js start-->
+  <script>
+    <% include ./pmsHistoryMaintLogController.js %>
+  </script>
+  <!-- pmsHistoryMaintLogController.js start-->
+  
+</div>
+

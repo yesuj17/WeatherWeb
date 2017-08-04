@@ -139,11 +139,6 @@ namespace MachineAgent
                 System.IO.Directory.GetCurrentDirectory() + @"\Machine_" + _machineID + @".ini");
         }
 
-        private string DBDateTime(DateTime dt)
-        {
-            return dt.ToString("yyyy-MM-dd HH:mm:ss.fff") + @"Z";
-        }
-
         private void LoadLastMachineData()
         {
             LastDrivingMoveDistance = Convert.ToInt32(ReadAppINI("LastData", "LastDrivingMoveDistance", "0"));                
@@ -372,7 +367,7 @@ namespace MachineAgent
                                     CycleErrorData.MachineID = _machineID;
                                     CycleErrorData.MachineType = "SC";
                                     CycleErrorData.JobID = CycleJobID;
-                                    CycleErrorData.TimeStamp = DBDateTime(DateTime.Now);
+                                    CycleErrorData.TimeStamp = DateTime.UtcNow.ToString("o");
 
                                     CycleErrorData.ErrCode = rnd.Next(1, 300);
                                     CycleErrorData.ErrMsg = @"Simulation Error Message";
@@ -385,11 +380,11 @@ namespace MachineAgent
                                 {
                                     IsCycleCompleted = false;
 
-                                    CycleTotalStartTime = DBDateTime(DateTime.Now);
-                                    CycleFirstDrivingInfo.MoveStartTime = DBDateTime(DateTime.Now);
+                                    CycleTotalStartTime = DateTime.UtcNow.ToString("o");
+                                    CycleFirstDrivingInfo.MoveStartTime = DateTime.UtcNow.ToString("o");
 
-                                    DateTime hoistStartTime = DateTime.Now.AddSeconds((rnd.Next(2, 3)));
-                                    CycleFirstHoistingInfo.MoveStartTime = DBDateTime(hoistStartTime);
+                                    DateTime hoistStartTime = DateTime.UtcNow.AddSeconds((rnd.Next(2, 3)));
+                                    CycleFirstHoistingInfo.MoveStartTime = hoistStartTime.ToString("o");
 
                                     _currentState = State.FIRST_DRIVING;
                                     state_tick = 0;
@@ -405,8 +400,8 @@ namespace MachineAgent
                                 Random rnd = new Random((int)DateTime.Now.Ticks);
 
                                 // Driving 
-                                DateTime drivingEndTime = DateTime.Now.AddSeconds(-(rnd.Next(1, 3)));
-                                CycleFirstDrivingInfo.MoveEndTime = DBDateTime(drivingEndTime);    
+                                DateTime drivingEndTime = DateTime.UtcNow.AddSeconds(-(rnd.Next(1, 3)));
+                                CycleFirstDrivingInfo.MoveEndTime = drivingEndTime.ToString("o");
                                 
                                 LastDrivingMoveDistance += rnd.Next(100, 2000); // 1 ~ 20m                           
                                 CycleFirstDrivingInfo.MoveDistance = LastDrivingMoveDistance;
@@ -429,7 +424,7 @@ namespace MachineAgent
 
 
                                 // Hoisting
-                                CycleFirstHoistingInfo.MoveEndTime = DBDateTime(DateTime.Now);                                
+                                CycleFirstHoistingInfo.MoveEndTime = DateTime.UtcNow.ToString("o");
                                 LastHoistingMoveDistance += rnd.Next(100, 1000); // 1 ~ 10m                                
                                 CycleFirstHoistingInfo.MoveDistance = LastHoistingMoveDistance;
                                 LastHoistingMotorPowerConsumption += rnd.Next(530, 4000); // 530 W ~ 4KW                                
@@ -440,7 +435,7 @@ namespace MachineAgent
                                 CycleFirstHoistingInfo.BreakMCCount = LastHoistingBreakMCCount;
 
                                 // Next
-                                CycleForkInfo.MoveStartTime = DBDateTime(DateTime.Now);
+                                CycleForkInfo.MoveStartTime = DateTime.UtcNow.ToString("o");
                                 state_tick = 0;
                                 _currentState = State.FORK;
                             }
@@ -454,7 +449,7 @@ namespace MachineAgent
                                 Random rnd = new Random((int)DateTime.Now.Ticks + 1);
 
                                 // Fork
-                                CycleForkInfo.MoveEndTime = DBDateTime(DateTime.Now);
+                                CycleForkInfo.MoveEndTime = DateTime.UtcNow.ToString("o");
                                 LastForkMoveDistance += rnd.Next(50, 200); // 50cm ~ 2m  
                                 CycleForkInfo.MoveDistance = LastForkMoveDistance;
                                 LastForkMotorPowerConsumption += rnd.Next(50, 500); // 230 W ~ 2KW                                              
@@ -465,9 +460,9 @@ namespace MachineAgent
                                 CycleForkInfo.BreakMCCount = LastForkBreakMCCount;
 
                                 // Next                                
-                                DateTime drivingStartTime = DateTime.Now.AddSeconds(rnd.Next(1, 3));
-                                CycleSecondDrivingInfo.MoveStartTime = DBDateTime(drivingStartTime);
-                                CycleSecondHoistingInfo.MoveStartTime = DBDateTime(drivingStartTime);
+                                DateTime drivingStartTime = DateTime.UtcNow.AddSeconds(rnd.Next(1, 3));
+                                CycleSecondDrivingInfo.MoveStartTime = drivingStartTime.ToString("o");
+                                CycleSecondHoistingInfo.MoveStartTime = drivingStartTime.ToString("o");
 
                                 state_tick = 0;
                                 _currentState = State.SECOND_DRIVING;
@@ -481,8 +476,7 @@ namespace MachineAgent
                                 Random rnd = new Random((int)DateTime.Now.Ticks);
 
                                 // Driving 
-                                DateTime drivingEndTime = DateTime.Now;
-                                CycleSecondDrivingInfo.MoveEndTime = DBDateTime(drivingEndTime);
+                                CycleSecondDrivingInfo.MoveEndTime = DateTime.UtcNow.ToString("o");
                                 LastDrivingMoveDistance += rnd.Next(100, 2000); // 1 ~ 20m                                                        
                                 CycleSecondDrivingInfo.MoveDistance = LastDrivingMoveDistance;
                                 LastDrivingMotorPowerConsumption += rnd.Next(130, 2000); // 130 W ~ 1KW             
@@ -494,8 +488,8 @@ namespace MachineAgent
 
 
                                 // Hoisting                                
-                                DateTime hoistEndTime = DateTime.Now.AddSeconds(-(rnd.Next(2, 3)));                                
-                                CycleSecondHoistingInfo.MoveEndTime = DBDateTime(hoistEndTime);
+                                DateTime hoistEndTime = DateTime.UtcNow.AddSeconds(-(rnd.Next(2, 3)));                                
+                                CycleSecondHoistingInfo.MoveEndTime = hoistEndTime.ToString("o");
                                 LastHoistingMoveDistance += rnd.Next(100, 1000); // 1 ~ 10m                                
                                 CycleSecondHoistingInfo.MoveDistance = LastHoistingMoveDistance;
                                 LastHoistingMotorPowerConsumption += rnd.Next(230, 2000); // 230 W ~ 2KW                                
@@ -505,7 +499,7 @@ namespace MachineAgent
                                 LastHoistingBreakMCCount += rnd.Next(1, 3);
                                 CycleSecondHoistingInfo.BreakMCCount = LastHoistingBreakMCCount;
 
-                                CycleTotalEndTime = DBDateTime(DateTime.Now);
+                                CycleTotalEndTime = DateTime.UtcNow.ToString("o");
 
                                 DateTime startT = DateTimeOffset.Parse(CycleTotalStartTime).DateTime;                                    
                                 DateTime endT = DateTimeOffset.Parse(CycleTotalEndTime).DateTime;

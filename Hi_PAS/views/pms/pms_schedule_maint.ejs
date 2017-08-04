@@ -1,0 +1,202 @@
+<div ng-app="pmsScheduleMaintApp" ng-controller="PMScheduleMaintController as pmsScheduleMaintVM" class="container">
+  <div class="container">
+    <div style="height: auto">
+      <div id="ID_PMS_scheduleMaintCalendar" style="width: 100%; margin: 0 auto"></div>
+      <div id="ID_WEMS_analysisFifthContent" style="width:100%">
+        <table class="table" style="border: 1px solid grey; border-collapse: collapse; margin-top: 10px; width:100%">
+          <tr style="height: 25px; background-color: #f1f1f1">
+            <th style="border: 1px solid grey; border-collapse: collapse; padding: 5px; text-align:center">점검 시간</th>
+            <th style="border: 1px solid grey; border-collapse: collapse; padding: 5px; text-align:center">Level</th>
+            <th style="border: 1px solid grey; border-collapse: collapse; padding: 5px; text-align:center">주기</th>
+            <th style="border: 1px solid grey; border-collapse: collapse; padding: 5px; text-align:center">코드</th>
+            <th style="border: 1px solid grey; border-collapse: collapse; padding: 5px; text-align:center">요약</th>
+            <th style="border: 1px solid grey; border-collapse: collapse; padding: 5px; text-align:center">대분류</th>
+            <th style="border: 1px solid grey; border-collapse: collapse; padding: 5px; text-align:center">중분류</th>
+            <th style="border: 1px solid grey; border-collapse: collapse; padding: 5px; text-align:center">소분류</th>
+            <th style="border: 1px solid grey; border-collapse: collapse; padding: 5px; text-align:center">메모</th>
+            <th style="border: 1px solid grey; border-collapse: collapse; padding: 5px; text-align:center">첨부파일</th>
+            <th style="border: 1px solid grey; border-collapse: collapse; padding: 5px; text-align:center">조치</th>
+            <th style="border: 1px solid grey; border-collapse: collapse; padding: 5px; text-align:center">조치시각</th>
+            <th style="border: 1px solid grey; border-collapse: collapse; padding: 5px; text-align:center">상태</th>
+          </tr>
+          <tr style="height: 25px" ng-repeat="todoRow in pmsScheduleMaintVM.todoRowList track by $index">
+            <td align="center" style="border: 1px solid grey; border-collapse: collapse; padding: 8px">{{todoRow.checkDate}}</td>
+            <td align="center" style="border: 1px solid grey; border-collapse: collapse; padding: 8px">{{todoRow.level}}</td>
+            <td align="center" style="border: 1px solid grey; border-collapse: collapse; padding: 8px">{{todoRow.period}}</td>
+            <td align="center" style="border: 1px solid grey; border-collapse: collapse; padding: 8px">
+              <a href="">{{todoRow.code}}</a>
+            </td>
+            <td align="center" style="border: 1px solid grey; border-collapse: collapse; padding: 8px">{{todoRow.summary}}</td>
+            <td align="center" style="border: 1px solid grey; border-collapse: collapse; padding: 8px">{{todoRow.largeCategory}}</td>
+            <td align="center" style="border: 1px solid grey; border-collapse: collapse; padding: 8px">{{todoRow.mediumCategory}}</td>
+            <td align="center" style="border: 1px solid grey; border-collapse: collapse; padding: 8px">{{todoRow.smallCategory}}</td>
+            <td class="smallText" align="center" style="border: 1px solid grey; border-collapse: collapse; padding: 2px">
+              <a class="btn btn-default" style="width:40px; height:32px" onclick="window.print()">
+                <i class="fa fa-file-text-o"></i>
+              </a>
+            </td>
+            <td class="smallText" align="center" style="border: 1px solid grey; border-collapse: collapse; padding: 2px">
+              <a class="btn btn-default" style="width:40px; height:32px" onclick="window.print()">
+                <i class="fa fa-paperclip"></i>
+              </a>
+            </td>
+            <td class="smallText" align="center" style="border: 1px solid grey; border-collapse: collapse; padding: 2px">
+              <a class="btn btn-default" style="width:40px; height:32px" onclick="window.print()">
+                <i class="fa fa-wrench"></i>
+              </a>
+            </td>
+            <td align="center" style="border: 1px solid grey; border-collapse: collapse; padding: 8px">{{todoRow.actionDate}}</td>
+            <td align="center" valign="middle" style="border: 1px solid grey; border-collapse: collapse">
+              <span class="label label-info" style="font-size: small; margin: 5px">{{todoRow.status}}</span>
+            </td>
+          </tr>
+        </table>
+        <button id="ID_PMS_moreResultButton" class="btn btn-default" ng-click="pmsScheduleMaintVM.onShowMoreResult()">결과 더보기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GroupEventList Modal -->
+  <div class="modal fade" id="ID_PMS_CalendarGroupEventListModal" role="dialog">
+    <div style="display: table; height: 100%; width: 100%; pointer-events:none">
+      <div class="modal-dialog modal-lg" style="display: table-cell; vertical-align: middle; pointer-events:none">
+        <div class="modal-content" style="width: inherit; height: inherit; margin: 0 auto; pointer-events: all">
+
+          <div class="modal-header">
+            <div style="float: right">
+              <i class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="pmsScheduleMaintVM.CloseEvent()"></i>
+            </div>
+            <h4 class="modal-title">
+              <span id="ID_PMS_CalendarGroupEventListTitle"></span>
+              <input type="hidden" id="ID_PMS_SelectedEventGroupType" />
+              <input type="hidden" id="ID_PMS_SelectedDate" />
+            </h4>
+          </div>
+
+          <div class="modal-body" style="display:table; margin: 0px; width: 100%;">
+            <div style="margin: 0px;">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="text-align: center">#</th>
+                    <th style="text-align: center">
+                      <%=__('S_PMS_EventDetailTableColCode') %>
+                    </th>
+                    <th style="text-align: center">
+                      <%=__('S_PMS_EventDetailTableColTitle') %>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="info in pmsScheduleMaintVM.EventList">
+                    <td style="text-align: center">
+                      <input type="checkbox" ng-attr-id="{{'ID_PMS_eventUID-'+info.UID}}" value="" ng-click="pmsScheduleMaintVM.OnSelectedEvent()" />
+                    </td>
+                    <td style="text-align: center">
+                      <span class="text-info">{{info.Code}}</span>
+                    </td>
+                    <td style="text-align: center">
+                      <span class="text-info">{{info.Title}}</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer" id="ID_PMS_ScheduleMoveControl">
+            <div style="float: right; display: table; margin-right: 10px;">
+              <div style="display: table-cell; vertical-align: middle;">
+                <button type="button" class="btn btn-primary btn-nm" style="float: right" ng-click="pmsScheduleMaintVM.ChangeSelectedEventSchedule()">
+                  <%=__('S_PMS_EventDetailScheduleMoveButton') %>
+                </button>
+              </div>
+            </div>
+            <div style="float: right; display: table; margin-right: 10px;">
+              <div style="display: table-cell; vertical-align: middle;">
+                <div class="input-group date" id="ID_PMS_CalendarChangeScheduleDatePicker">
+                  <input type="text" id='ID_PMS_CalendarChangeScheduleTargetDate' class="form-control" style="background-color: white" readonly="" />
+                  <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Memo Information Modal -->
+  <div class="modal fade" id="ID_PMS_CalendarMemoInfoModal" role="dialog">
+    <div style="display: table; height: 100%; width: 100%; pointer-events:none">
+      <div class="modal-dialog modal-lg" style="display: table-cell; vertical-align: middle; pointer-events:none">
+        <div class="modal-content" style="width: inherit; height: inherit; margin: 0 auto; pointer-events: all">
+
+          <div class="modal-header">
+            <div style="float: right">
+              <i class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="pmsScheduleMaintVM.CloseMemo()"></i>
+            </div>
+            <h4 class="modal-title">
+              <span class="text-info" ng-model="pmsScheduleMaintVM.MemoList.Date"></span>
+            </h4>
+          </div>
+
+          <div class="modal-body" style="display:table; margin: 0px; width: 100%;">
+            <div style="margin: 0px;">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="text-align: center">
+                      <%=__('S_PMS_MemoTableColTimeStamp') %>
+                    </th>
+                    <th style="text-align: center">
+                      <%=__('S_PMS_MemoTableColTimeUser') %>
+                    </th>
+                    <th style="text-align: center">
+                      <%=__('S_PMS_MemoTableColTimeTaskCode') %>
+                    </th>
+                    <th style="text-align: center">
+                      <%=__('S_PMS_MemoTableColTimeTaskMemo') %>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="info in pmsScheduleMaintVM.MemoList.Infos">
+                    <td style="text-align: center">
+                      <span class="text-info">{{info.TimeStamp}}</span>
+                    </td>
+                    <td style="text-align: center">
+                      <span class="text-info">{{info.User}}</span>
+                    </td>
+                    <td style="text-align: center">
+                      <span class="text-info">{{info.Code}}</span>
+                    </td>
+                    <td style="text-align: center">
+                      <span class="text-info">{{info.Memo}}</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<!-- ng-app="pmsScheduleMaintApp" -->
+
+
+<!-- pmsScheduleMaintController.js start-->
+<script>
+  <% include ./pmsScheduleMaintController.js %>
+</script>
+<!-- pmsScheduleMaintController.js start-->

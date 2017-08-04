@@ -1,0 +1,9 @@
+﻿{
+    "UID": "integer",
+    "UserID":  "string",
+    "TimeStamp": "string",
+    "Code": "string",
+    "Title": "string",
+    "Status": "string",
+    "MachineName": "string"
+}

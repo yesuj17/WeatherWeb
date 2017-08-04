@@ -1,0 +1,285 @@
+
+<div ng-app="pmsConfMaintItemApp" ng-controller="PMSConfMaintItemController as pmsConfMaintItemVM" class="container">
+  <div class="container-fluid">
+
+    <div class="row" style="margin: auto">
+
+      <div style="float: left">
+        <button type="button" class="btn btn-primary btn-nm" ng-click="pmsConfMaintItemVM.ShowMaintItemCreateView(-1)">
+          <%=__('S_PMS_NewButton') %>
+        </button>
+      </div>      
+    </div>
+    <div class="row" style="margin: auto">
+      <br></br>
+    </div>
+    <div class="row" style="margin: auto">
+      <table class="table">
+        <thead>
+          <tr>
+            <th style="text-align: center">
+              No              
+            </th>
+            <th style="text-align: center">
+              점검코드
+            </th>
+            <th style="text-align: center">
+              점검명
+            </th>
+            <th style="text-align: center">
+              점검레벨
+            </th>
+            <th style="text-align: center">
+              조치
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="info in pmsConfMaintItemVM.ItemList">
+            <td style="text-align: center; width: 15%">
+              <span class="text-info">{{$index+1}}</span>
+            </td>
+            <td style="text-align: center">
+              <span class="text-info">{{info.Code}}</span>
+            </td>
+            <td style="text-align: center; width: 10%">
+              <span class="text-info">{{info.Title}}</span>
+            </td>
+            <td style="text-align: center; width: 10%">
+              <span class="text-info">{{info.Level}}</span>
+            </td>
+            <td style="text-align: center">
+              <button type="button" class="btn btn-primary btn-nm" ng-attr-id="{{'maintHistory-'+info.UID}}" ng-click="pmsConfMaintItemVM.ShowItemActionListView()">
+                연관 조치 항목
+              </button>                                          
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+
+    <!-- Maint Item Create Modal -->
+    <div class="modal fade" id="ID_PMS_ConfMaintItemCreateModal" role="dialog">
+      <div style="display: table; height: 100%; width: 100%; pointer-events:none">
+        <div class="modal-dialog modal-lg" style="display: table-cell; vertical-align: middle; pointer-events:none; width : 100%">
+          <div class="modal-content" style="width: 1000px; height: inherit; margin: 0 auto; pointer-events: all">
+
+            <div class="modal-header">
+              <div style="float: right">
+                <i class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="pmsConfMaintItemVM.CloseMaintItemCreateView()"></i>
+              </div>
+              <h4 class="modal-title">
+                점검 항목 추가
+              </h4>
+            </div>
+
+            <div class="modal-body" style="display:table; margin: 0px; width: 100%;">
+              <div style="margin: 0px;">
+                <div class="row">
+                  <div class="radio">
+                    <label>
+                      <input type="radio" id="ID_PMS_ConfMaintItemTypeCheck" checked="checked" ng-click="pmsConfMaintItemVM.OnSelectItemTypeCheck()"/>점검
+                    </label>
+                    <label>
+                      <input type="radio" id="ID_PMS_ConfMaintItemTypeAction" ng-click="pmsConfMaintItemVM.OnSelectItemTypeAction()"/>조치
+                    </label>
+                  </div>
+                </div>
+                <div class="row">
+                  <hr></hr>
+                </div>
+                <div class="row">
+                  <div style="width:40%; float:left">
+
+                    <div class="row">
+                      <div class="col-xs-3" style="top: 5px;">
+                        <label>점검 코드</label>
+                      </div>
+                      <div class="col-xs-6">
+                        <input type="text" class="form-control" id="ID_PMS_ConfMaintItemCode" required="" />
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-xs-3" style="top: 5px;">
+                        <label>점검명</label>
+                      </div>
+                      <div class="col-xs-6">
+                        <input type="text" class="form-control" id="ID_PMS_ConfMaintItemTitle" required="" />
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-xs-3" style="top: 5px;">
+                        <label>장비종류</label>
+                      </div>
+                      <div class="col-xs-6">
+                        <select class="form-control" ng-model="pmsConfMaintItemVM.mSelectedMachineType" ng-options="i as i.Name for i in pmsConfMaintItemVM.MachineTypeList" ng-change="pmsConfMaintItemVM.OnChangeMachineTypeList()"></select>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-xs-3" style="top: 5px;">
+                        <label>장비모듈</label>
+                      </div>
+                      <div class="col-xs-6">
+                        <select class="form-control" ng-model="pmsConfMaintItemVM.mSelectedModuleType" ng-options="i as i.Name for i in pmsConfMaintItemVM.ModuleTypeList" ng-change="pmsConfMaintItemVM.OnChangeModuleTypeList()"></select>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-xs-3" style="top: 5px;">
+                        <label>장비부품</label>
+                      </div>
+                      <div class="col-xs-6">
+                        <select class="form-control" ng-model="pmsConfMaintItemVM.mSelectedDeviceType" ng-options="i as i.Name for i in pmsConfMaintItemVM.DeviceTypeList"></select>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-xs-3" style="top: 5px;">
+                        <label>점검레벨</label>
+                      </div>
+                      <div class="col-xs-6">
+                        <select class="form-control" ng-model="pmsConfMaintItemVM.mSelectedItemLevel" ng-options="i as i.Name for i in pmsConfMaintItemVM.ItemLevelList"></select>
+                      </div>
+                    </div>
+
+                  </div>
+                  <div style="width:60%; float:right">
+                    <div style="margin-left: 20px; margin-right: 20px">
+                      <div class="row">
+                        <label>점검내용</label>
+                      </div>
+                      <div class="row">
+                        <textarea class="form-control" id="ID_PMS_ConfMaintItemContent" rows="10" style="font-size: 10pt; resize: none; overflow-y: hidden; padding : 1.1em; padding-bottom: 0.2em; line-height: 1.5"></textarea>
+                      </div>
+                    </div>                             
+                  </div>
+                </div>
+
+                <div class="row">
+
+                  <div class="row" style="margin-left: 20px; margin-right: 20px">
+                    <h3>
+                      Schedule
+                    </h3>
+                  </div>
+                  
+                  <div class="row" style="margin-left: 20px; margin-right: 20px">
+
+                    <div style="width:50%; float:left;">
+                      <div style="margin-left: 20px; margin-right: 20px">                                                
+                        <div class="row">
+                          <div class="radio">
+                            <label>
+                              <input type="radio" id="ID_PMS_ConfMaintItemTBMOption" checked="checked" ng-click="pmsConfMaintItemVM.OnSelectTBMOption()"/>TBM
+                            </label>
+                          </div>                          
+                        </div>                                                
+                        <div class="row">
+                          <div class="col-xs-3" style="top: 5px;">
+                            <label>주기</label>
+                          </div>
+                          <div class="col-xs-4">
+                            <select class="form-control" ng-model="pmsConfMaintItemVM.mSelectedTBMCheckUnit" ng-options="i as i.Name for i in pmsConfMaintItemVM.TBMCheckUnitList" ng-change="pmsConfMaintItemVM.OnChangeTBMCheckUnit()">"</select>                            
+                          </div>
+                          <div class="col-xs-4">
+                            <select class="form-control" disabled="true" id="ID_PMS_ConfMaintItemTBMCheckValue" ng-model="pmsConfMaintItemVM.mSelectedTBMCheckValue" ng-options="i as i.Name for i in pmsConfMaintItemVM.TBMCheckValueList"></select>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style="width:50%; float:right;">
+                      <div style="margin-left: 20px; margin-right: 20px">
+                        <div class="row">
+                          <div class="radio">
+                            <label>
+                              <input type="radio" id="ID_PMS_ConfMaintItemCBMOption" ng-click="pmsConfMaintItemVM.OnSelectCBMOption()" />CBM
+                            </label>
+                          </div>
+                        </div>
+                        <div class="row">
+
+                          <div class="col-xs-4" style="top: 5px;">
+                            <label>Limit</label>
+                          </div>
+                          <div class="col-xs-4">
+                            <input type="text" class="form-control" id="ID_PMS_ConfMaintItemCBMLimitValue"></input>
+                          </div>
+                          <div class="col-xs-4">
+                            <select class="form-control" ng-model="pmsConfMaintItemVM.mSelectedCBMCheckUnit" ng-options="i as i.Name for i in pmsConfMaintItemVM.CBMCheckUnitList"></select>
+                          </div>
+
+                          <div class="col-xs-4" style="top: 5px;">
+                            <label>Warnning Limit</label>
+                          </div>
+                          <div class="col-xs-4">
+                            <input type="text" class="form-control" id="ID_PMS_ConfMaintItemCBMWarnLimitValue"></input>
+                          </div>
+
+                        </div>
+                      </div>
+                    </div>                    
+                    
+                  </div>                  
+                  
+                </div>                                
+                                                
+              </div>
+            </div>
+
+            <div class="modal-footer" style="display:table; margin: 0px; width: 100%;">
+              <div style="margin: 0px;">
+                <button type="button" class="btn btn-primary btn-nm" ng-click="pmsConfMaintItemVM.SaveMaintItem()">
+                  저장
+                </button>
+                &nbsp;
+                <button type="button" class="btn btn-primary btn-nm" ng-click="pmsConfMaintItemVM.CloseMaintItemCreateView()">
+                  닫기
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Item Action List Modal -->
+    <div class="modal fade" id="ID_PMS_ConfMaintItemActionModal" role="dialog">
+      <div style="display: table; height: 100%; width: 100%; pointer-events:none">
+        <div class="modal-dialog modal-lg" style="display: table-cell; vertical-align: middle; pointer-events:none">
+          <div class="modal-content" style="width: inherit; height: inherit; margin: 0 auto; pointer-events: all">
+
+            <div class="modal-header">
+              <div style="float: right">
+                <i class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="pmsConfMaintItemVM.CloseItemActionListView()"></i>
+              </div>
+              <h4 class="modal-title">
+                연관 조치 항목
+              </h4>
+            </div>
+
+            <div class="modal-body" style="display:table; margin: 0px; width: 100%;">
+              <div style="margin: 0px;">
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- pmsHistoryMaintLogController.js start-->
+  <script>
+    <% include ./pmsConfMaintItemController.js %>        
+  </script>
+  <!-- pmsHistoryMaintLogController.js start-->
+
+</div>  
+

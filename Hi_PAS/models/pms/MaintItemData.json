@@ -1,0 +1,16 @@
+﻿{
+    "UID" : "integer",
+    "Code" : "string",
+    "Title" : "string",
+    "Content" : "string",  
+    "DeviceType" : "integer",
+    "CreateDate" : "string", 
+    "CheckType" : "integer", 
+    "TBMCheckUnit" : "integer", 
+    "TBMCheckValue" : "integer", 
+    "CBMCheckUnit" : "integer",
+    "CBMCheckLimitValue" : "integer",
+    "CBMCheckWarnLimitValue" : "integer",
+    "Type" : "integer",
+    "Level" : "integer"
+}

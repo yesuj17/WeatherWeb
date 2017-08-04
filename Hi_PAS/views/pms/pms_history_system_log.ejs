@@ -1,0 +1,69 @@
+<div ng-app="pmsHistorySystemLogApp" ng-controller="PMSHistorySystemLogController as pmsHistorySystemLogVM" class="container">
+  <div class="container-fluid">
+
+    <div class="row" style="margin: auto">    
+      <div style="float: right">
+        <div class="input-group date" id="ID_PMS_SystemLogSearchEndDatePicker">
+          <input type="text" id="ID_PMS_SystemLogSearchEndDate" class="form-control" style="background-color: white" readonly="" />
+          <span class="input-group-addon">
+            <span class="glyphicon glyphicon-calendar"></span>
+          </span>
+        </div>
+      </div>
+      <div style="float: right">
+        &nbsp;&nbsp;&nbsp;&nbsp;~&nbsp;&nbsp;&nbsp;&nbsp;
+      </div>
+      <div style="float: right">
+        <div class="input-group date" id="ID_PMS_SystemLogSearchStartDatePicker">
+          <input type="text" id="ID_PMS_SystemLogSearchStartDate" class="form-control" style="background-color: white" readonly="" />
+          <span class="input-group-addon">
+            <span class="glyphicon glyphicon-calendar"></span>
+          </span>
+        </div>
+      </div>
+      
+    </div>
+    <div class="row" style="margin: auto">
+      <br></br>
+    </div>
+    <div class="row" style="margin: auto">
+      <table class="table">
+        <thead>
+          <tr>
+            <th style="text-align: center">
+              <%=__('S_PMS_SystemLogTableColTimeStamp') %>
+              </th>
+            <th style="text-align: center">
+              <%=__('S_PMS_SystemLogTableColLogType') %>
+              </th>
+            <th style="text-align: center">
+              <%=__('S_PMS_SystemLogTableColContent') %>
+              </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="info in pmsHistorySystemLogVM.SystemLogList">            
+            <td style="text-align: center; width: 15%">
+              <span class="text-info">{{info.TimeStamp | date: 'yyyy-MM-dd HH:MM:ss'}}</span>
+            </td>
+            <td style="text-align: center; width: 10%">
+              <span class="text-info">{{info.LogType}}</span>
+            </td>
+            <td style="text-align: center">
+              <span class="text-info">{{info.Message}}</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+  </div>
+
+  <!-- pmsHistorySystemLogController.js start-->
+  <script>
+    <% include ./pmsHistorySystemLogController.js %>
+  </script>
+  <!-- pmsHistorySystemLogController.js start-->
+
+</div> <!-- ng-app="pmsHistorySystemLogApp" -->
+

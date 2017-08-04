@@ -1,0 +1,105 @@
+﻿<div id="pmsMotherEdit" role="dialog" class="modal fade">
+
+   <div style="width:900px; background-color: red;" class="modal-dialog">
+        <div style="width:100%; height:1200px;background-color:skyblue" class="modal-contents">
+            <div style="height: 10%; background-color: lightskyblue; color:#FFF" class="modal-header">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm-11">
+                            <h3 style="text-align:left; color:black" class="modal-title">모수 편집</h3>
+                        </div>
+                      <div class="col-sm-1">
+                          <button ng-click="pmsConfMaintItemVM.modalclose()" type="button" aria-label="Close" style="color:red;">
+                              <span aria-hidden="true">&times;</span>
+                          </button>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div nclass="modal-body">
+                <div style="" class="container-fluid">
+                    <div class="row">
+                        <div class="col-lg-12"></div>
+                        <div class="col-lg-1"></div>
+                        <div id="header" style="display: table-row; height: 10%; width:100%;"></div>
+                        <div style="margin: 0px; height: 100%">
+						                <h3>{{pmsConfMaintItemVM.dialog_input_checktype}} : {{pmsConfMaintItemVM.dialog_input_code}}</h3>
+                          <div>
+                            <h3>상세내용</h3>
+                            점검 코드<input ng-model="pmsConfMaintItemVM.dialog_input_code" disabled></input>
+                            점검 이름<input type="text" ng-model="pmsConfMaintItemVM.dialog_input_title" ></input>
+                            점검 내용<input type="textarea" ng-model="pmsConfMaintItemVM.dialog_input_content" ></input>
+                          </div>
+                          <div>
+                            <h3>분류</h3>
+                            대분류<select ng-model="pmsConfMaintItemVM.dialog_input_largeCategory" ng-options="x.category for x in pmsConfMaintItemVM.largeCategory;"></select>
+                            중분류<select ng-model="pmsConfMaintItemVM.dialog_input_MediumCategory" ng-options="x.category for x in pmsConfMaintItemVM.MediumCategory;"></select>
+                            소분류<select ng-model="pmsConfMaintItemVM.dialog_input_SmallCategory" ng-options="x.category for x in pmsConfMaintItemVM.SmallCategory;"></select>
+                          </div>
+                          <div>
+                            <h3> Level</h3>
+                            <select ng-model="pmsConfMaintItemVM.dialog_input_Level" ng-options="y.grade for y in pmsConfMaintItemVM.Levelcategory"></select>
+                          </div>
+                          <div>
+                            <h3>점검이냐 주기냐</h3>
+                            <input id="ID_PMS_Pmscheck" type="radio"  value='점검' ng-model ='pmsConfMaintItemVM.dialog_input_checktype' ng-change="pmsConfMaintItemVM.radiochange(pmsConfMaintItemVM.checktypeCategory.check)">{{pmsConfMaintItemVM.checktypeCategory.check}}</input>
+                            <input id="ID_PMS_Pmsaction" type="radio" value='조치' ng-model ='pmsConfMaintItemVM.dialog_input_checktype' ng-change="pmsConfMaintItemVM.radiochange(pmsConfMaintItemVM.checktypeCategory.action)">{{pmsConfMaintItemVM.checktypeCategory.action}}</input>
+                          </div>
+                          <div>
+                            <h3>시간이냐 거리냐</h3>
+                            <input type="radio" name="pmsSchedule" value='시간' ng-model ='pmsConfMaintItemVM.dialog_input_scheduletype' ng-change="pmsConfMaintItemVM.schuduleradiochange(pmsConfMaintItemVM.schduletypeCategory.time)">{{pmsConfMaintItemVM.schduletypeCategory.time}}</input>
+                            <input type="radio" name="pmsSchedule" value='거리' ng-model ='pmsConfMaintItemVM.dialog_input_scheduletype' ng-change="pmsConfMaintItemVM.schuduleradiochange(pmsConfMaintItemVM.schduletypeCategory.distance)">{{pmsConfMaintItemVM.schduletypeCategory.distance}}</input>
+                          </div>
+                          <div>
+                            <h3>점검 주기</h3>
+                            <input id="ID_PMS_Pmstimebase1" type="radio" name="pmstime" value='시간' ng-model ='pmsConfMaintItemVM.dialog_input_timetype' ng-change="pmsConfMaintItemVM.timeradiochange(pmsConfMaintItemVM.timetypeCategory.hour)">{{pmsConfMaintItemVM.timetypeCategory.hour}}</input>
+                            <input id="ID_PMS_Pmstimebase2" type="radio" name="pmstime" value='일' ng-model ='pmsConfMaintItemVM.dialog_input_timetype' ng-change="pmsConfMaintItemVM.timeradiochange(pmsConfMaintItemVM.timetypeCategory.day)">{{pmsConfMaintItemVM.timetypeCategory.day}}</input>
+                            <input id="ID_PMS_Pmstimebase3" type="radio" name="pmstime" value='주' ng-model ='pmsConfMaintItemVM.dialog_input_timetype' ng-change="pmsConfMaintItemVM.timeradiochange(pmsConfMaintItemVM.timetypeCategory.week)">{{pmsConfMaintItemVM.timetypeCategory.week}}</input>
+                            <input id="ID_PMS_Pmstimebase4" type="radio" name="pmstime" value='달' ng-model ='pmsConfMaintItemVM.dialog_input_timetype' ng-change="pmsConfMaintItemVM.timeradiochange(pmsConfMaintItemVM.timetypeCategory.month)">{{pmsConfMaintItemVM.timetypeCategory.month}}</input>
+                            <input id="ID_PMS_Pmstimebase5" type="radio" name="pmstime" value='custom' ng-model ='pmsConfMaintItemVM.dialog_input_timetype' ng-change="pmsConfMaintItemVM.timeradiochange(pmsConfMaintItemVM.timetypeCategory.custom)">{{pmsConfMaintItemVM.timetypeCategory.custom}}</input>
+                          </div>
+                          <div>
+                            <h3>Time base</h3>
+                            <div>매</div>
+                              <div>
+                                <select id="ID_PMS_Pmstimebase6" ng-model="pmsConfMaintItemVM.dialog_input_weekValuet" ng-options="x.timevalue for x in pmsConfMaintItemVM.weekvalueCategory;"></select>요일 
+                              </div>
+                              <div>
+                                <select id="ID_PMS_Pmstimebase7" ng-model="pmsConfMaintItemVM.dialog_input_dayValue" ng-options="x.timevalue for x in pmsConfMaintItemVM.dayvalueCategory;"></select>일
+                            </div>
+                              <div>
+                                  <select id="ID_PMS_Pmstimebase8" ng-model="pmsConfMaintItemVM.dialog_input_monthValue" ng-options="x.timevalue for x in pmsConfMaintItemVM.monthvalueCategory;"></select>월 
+                                </div>
+                                <span>마다</span>
+                            </div>
+                            <div>
+                              <h3>Distance base</h3>
+                              <h4>main</h4>
+                              <div>매</div>
+                                <div>
+                                  <input id="ID_PMS_Pmsdistancebase1" type="text" ng-model="pmsConfMaintItemVM.dialog_input_distanceValue"></input>
+                                  <select id="ID_PMS_Pmsdistancebase2" ng-model="pmsConfMaintItemVM.dialog_input_distanceUnit" ng-options="x.distanceunit for x in pmsConfMaintItemVM.distanceunitCategory;"></select>
+                                </div>
+                                <span>마다</span>
+                             <h4>warring</h4>
+                              <div>매</div>
+                                <div>
+                                  <input id="ID_PMS_Pmsdistancebase3" type="text" ng-model="pmsConfMaintItemVM.dialog_input_distanceValue_warring"></input>
+                                  <select id="ID_PMS_Pmsdistancebase4" ng-model="pmsConfMaintItemVM.dialog_input_distanceUnit_warring" ng-options="x.distanceunit for x in pmsConfMaintItemVM.distanceunit_warringCategory;"></select>
+                                </div>
+                                <span>마다</span>
+                            </div>
+                        </div>
+                      <br>
+                        <button type="button" ng-click ='pmsConfMaintItemVM.modalclose()'>Close</button>
+                      <button id="ID_PMS_Pmsmotherdataupdate" ng-click='pmsConfMaintItemVM.motherupdate()' type="button">SAVE...</button>
+                        <button id="ID_PMS_pmsmotherdatacreate" ng-click='pmsConfMaintItemVM.mothercreate()' type="button">New...</button>
+                        <button id="ID_PMS_pmsmotherdatadelete" ng-click='pmsConfMaintItemVM.motherdelete(pmsConfMaintItemVM.dialog_input_code)' type="button">Delete...</button>
+                      </br>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

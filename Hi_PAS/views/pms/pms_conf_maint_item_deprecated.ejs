@@ -1,0 +1,120 @@
+<div ng-app="pmsConfMaintItemApp" ng-controller="PMSConfMaintItemController as pmsConfMaintItemVM" class="container">
+  <div class="container-fluid">
+    <div id="header" style="margin: 0px; height: 10%; width:100%; float:top;border:2px #a99 solid">
+      <script>
+        $(document).ready(function () {
+        $('#myfile').change(function (evt) {
+        $("#filesubmit").trigger('click');
+        });
+        $("#filesubmit").click(function (evt) {
+        });
+        });
+      </script>
+      <h6>Hi_PAS\uploads안에 data1.xlsx file을 sample로 써보세요.파일선택 후 upload. (안읽히면 문서 암호화 해제 후 사용)</h6>
+      <div>
+        <button type="button" data-toggle="modal" data-target="#pmsMotherEdit" class="detail" ng-click="pmsConfMaintItemVM.initmotherdata()">	new</button>        
+      </div>
+      <form  id="uploadForm" enctype="multipart/form-data">
+        <div style="border: 1px solid gold; float: left;">
+          <input  id='myfile'type="file" onchange="angular.element(this).scope().file_changed(this)">
+            <div id="DataLoad"></div>
+          </div>
+        <div style="border: 1px solid gold; float: center;">
+          <input style="vertical-align: right" ng-click="" type="submit" value="Upload" name="submit" id="filesubmit">
+        </div>
+      </form>
+    </div>
+    <div id="Tree" style="margin: 0px; height: 90%; width:20%; float:left; border:2px #a99 solid">
+      <div class="panel-group">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <span class="glyphicon glyphicon-grain"></span>
+              <a data-toggle="collapse" href="#collapse1">Facility</a>
+              <span class="glyphicon glyphicon-grain"></span>
+            </h4>
+          </div>
+          <div id="collapse1" class="panel-collapse collapse">
+            <ul class="list-group">
+              <li class="list-group-item">
+                <a data-toggle="collapse" href="#collapse2" data-target="#collapse2">SC1</a>
+              </li>
+              <div id="collapse2" class="panel-collapse collapse">
+                <ul class="list-group">
+                  <li class="list-group-item">
+                    <li class="list-group-item">AC100</li>
+                    <li class="list-group-item">AC101</li>
+                  </li>
+                </ul>
+              </div>
+              <li class="list-group-item">
+                <a data-toggle="collapse" href="#collapse3" data-target="#collapse3">SC2</a>
+              </li>
+              <div id="collapse3" class="panel-collapse collapse">
+                <ul class="list-group">
+                  <li class="list-group-item">
+                    <li class="list-group-item">AC100</li>
+                    <li class="list-group-item">AC101</li>
+                  </li>
+                </ul>
+              </div>
+              <li class="list-group-item">
+                <a data-toggle="collapse" href="#collapse4" data-target="#collapse4">SC3</a>
+              </li>
+              <div id="collapse4" class="panel-collapse collapse">
+                <ul class="list-group">
+                  <li class="list-group-item">
+                    <li class="list-group-item">AC100</li>
+                    <li class="list-group-item">AC101</li>
+                  </li>
+                </ul>
+              </div>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="grid" style="margin: 0px; height: 90%; width:80%; float:right;border:2px #a99 solid">
+      <button ng-click="pmsConfMaintItemVM.onMotherDataLoad()">새로고침</button>
+      <table style="table-layout:fixed; width:100%;" class="table-bordered table-lg text-left">
+        <thead></thead>
+        <tr>
+          <th colspan="1" style="text-align:center" class="text-left col-lg-1">번호</th>
+          <th colspan="1" style="text-align:center" class="text-left col-lg-1">코드</th>
+          <th colspan="2" style="text-align:center" class="text-left col-lg-2">제목</th>
+          <th colspan="1" style="text-align:center" class="text-left col-lg-1">Level</th>
+          <th colspan="1" style="text-align:center" class="text-left col-lg-1">주기</th>
+          <th colspan="1" style="text-align:center" class="text-left col-lg-1">점검/조치</th>
+          <th colspan="2" style="text-align:center" class="text-left col-lg-2">+조치</th>
+        </tr>/pms/onemother
+        <tbody>모수 List ({{mothersRow.length}})</tbody>
+        <tr ng-repeat="one in mothersRow">
+          <th colspan="1" style="text-align:center">{{$index+1}}</th>
+          <th colspan="1" style="text-align:center">
+            <button type="button" ng-click="pmsConfMaintItemVM.onMotheroneDataLoad(one.Code)" data-toggle="modal" data-target="#pmsMotherEdit" class="detail"  data-backdrop="static">{{one.Code}}</button>
+
+          </th>
+          <th colspan="2" style="text-align:center">{{one.Title}}</th>
+          <th colspan="1" style="text-align:center">{{one.Level}}</th>
+          <th colspan="1" style="text-align:center">{{pmsConfMaintItemVM.distinguishTimeGroup(one.Code)}}</th>
+          <th colspan="1" style="text-align:center">{{one.Type}}</th>
+          <th colspan="2" style="text-align:center">
+            <div ng-repeat="one_rel in one.Relation">
+              <span>
+                <a herf="#">{{one_rel}}</a>
+              </span>
+            </div>
+          </th>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <% include ./component/motherEditModal.ejs %>
+  
+  <!-- pmsConfMaintItemController.js start-->
+  <script>
+    <% include ./pmsConfMaintItemController.js %>
+  </script>
+  <!-- pmsConfMaintItemController.js end-->
+</div>

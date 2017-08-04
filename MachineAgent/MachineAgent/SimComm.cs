@@ -19,11 +19,6 @@ namespace MachineAgent
         private Dictionary<int, MachineCycleData> _dicMachineCycleData
             = new Dictionary<int, MachineCycleData>();
 
-        private string DBDateTime(DateTime dt)
-        {
-            return dt.ToString("yyyy-MM-dd HH:mm:ss.fff") + @"Z";
-        }
-
         public void InitMachineComm(int machineCount, int realTimeDataCollectionCount)
         {
             this._machineCount = machineCount;            
@@ -74,13 +69,13 @@ namespace MachineAgent
                 int[] hoistingCurrents = simMachine.GetHoistingCurrent();
                 int[] forkCurrents = simMachine.GetForkCurrent();
 
-                DateTime dt = DateTime.Now;
+                DateTime dt = DateTime.UtcNow;
                 for (int i = 0; i < drivingCurrents.Length; i++)
                 {
                     DateTime newDT = dt.AddSeconds((i + 1) - drivingCurrents.Length);
                     realTimeData.MotorInfos.Add(
                         new MotorInfo(
-                            DBDateTime(newDT),                            
+                            newDT.ToString("o"),                            
                             drivingCurrents[i],
                             hoistingCurrents[i],
                             forkCurrents[i]));

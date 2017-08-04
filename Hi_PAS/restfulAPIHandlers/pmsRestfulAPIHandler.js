@@ -1,11 +1,19 @@
 ﻿/* PMS Restful API Handler */
+var util = require('util');
 var dbManager = require('../utility/dbManager/pmsDBManager');
 var pmsUserInfo = require('../models/pms/userInfoData.json');
+var MaintItemData = require('../models/pms/MaintItemData.json');
 
 var motherjson = require("../models/pms/mother.json");
 var multer = require('multer')
 var xlstojson = require("xls-to-json-lc");
 var xlsxtojson = require("xlsx-to-json-lc");
+var localeUtil = require('../utility/localeUtil');
+var TimeBaseUnit = {
+    Day: 1,
+    Week: 2, 
+    Month: 3
+}
 
 module.exports.validateUserData = function (req, res){
     var userData = JSON.parse(JSON.stringify(req.body));
@@ -305,6 +313,10 @@ saveMotherDataArrayToDB = function (result,res) {
         //  if (true != result) 비동기라 undefind 가 넘어와서 종료됨. 리턴값 무시 
         //      return result;  
     }
+
+    ///////////////////////////////////////////////////
+    // XXX For Add Default Check List DB : Must Remove
+    dbManager.initializeCheckListData();
 }
 CoverteforSave = function (rawjson) {
     var result = motherjson;
@@ -318,10 +330,10 @@ CoverteforSave = function (rawjson) {
     result.TimeGroup = rawjson.주기;
     result.TimeBaseUnit = rawjson.시간단위;
     result.TimeBaseValue = rawjson.value1;
-    result.nonTimeVaseMainUnit = rawjson.거리단위;
+    result.nonTimeBaseMainUnit = rawjson.거리단위;
     result.nonTimeBaseMainValue = rawjson.value2;
-    result.nonTimeBaseWarringUnit = rawjson.경고값설정_거리단위;
-    result.nonTimeBaseWarringValue = rawjson.value3;
+    result.nonTimeBaseWarningUnit = rawjson.경고값설정_거리단위;
+    result.nonTimeBaseWarningValue = rawjson.value3;
     result.Relation = rawjson.연관코드;
     result.Type = rawjson.유형;
     result.Level = rawjson.등급;
@@ -426,6 +438,8 @@ module.exports.updateEventGroupSchedule = function (req, res) {
     dbManager.updateEventGroupSchedule(param, function (result) {
         if (result == true) {
             res.end();
+
+            dbManager.InfoLog(util.format(localeUtil.getLangString("LID_PMS_TASK_SCHEDULE_CHANGED"), "2017-07-12", "Daily"));            
         }
         else {
             res.status(505).json({ error: "Internal Error" });
@@ -447,6 +461,43 @@ module.exports.updateEventsSchedule = function (req, res) {
     });
 }
 /* Calendar API End ************************************************/
+
+/* History API Start ************************************************/
+module.exports.getMaintHistoryList = function (req, res) {
+
+    var param = {
+        startDate: new Date(req.query.StartDate),
+        endDate: new Date(req.query.EndDate).setHours(23, 59, 59, 999)
+    };
+
+    dbManager.getMaintHistoryList(param, function (result, historyList) {
+        if (result == true) {
+            res.json(historyList);
+        }
+        else {
+            res.status(505).json({ error: "Internal Error" });
+        }
+    });
+}
+
+module.exports.getSystemLogList = function (req, res) {
+    
+    var param = {
+        startDate: new Date(req.query.StartDate),
+        endDate: new Date(req.query.EndDate).setHours(23, 59, 59, 999)
+    };    
+
+    dbManager.getSystemLogList(param, function (result, logList) {
+        if (result == true) {
+            res.json(logList);
+        }
+        else {
+            res.status(505).json({ error: "Internal Error" });
+        }
+    });
+}
+/* History API End **************************************************/
+
 
 module.exports.getmotheronedata = function (req, res) {
     console.log("api 핸들러에 들어옴", req.query.Code);
@@ -511,3 +562,410 @@ module.exports.deletemother = function (req, res) {
     }
     dbManager.deletemotherdata(callback, req.query.Code);
 } 
+
+module.exports.createfacility = function (req, res) {
+    var callback = function (result, err, doc) {
+        if (result) {
+            res.send(doc);
+        }
+        else/*(result == 0) */ {
+            res.status(500).json({ error: err });
+        }
+    }
+    dbManager.createfacility(callback, req);
+}
+module.exports.createchecklist = function (req, res) {
+    var callback = function (result, err, doc) {
+        if (result) {
+            res.send(doc);
+        }
+        else/*(result == 0) */ {
+            res.status(500).json({ error: err });
+        }
+    }
+    for (var ch_cr_i = 0; ch_cr_i < req.body.arr.length; ch_cr_i++) {
+        dbManager.createchecklist(callback, req.body.arr[ch_cr_i], req.body.Facilityid);
+    }
+}
+
+module.exports.getallfacility = function (req, res) {
+    var callback = function (result, err, doc) {
+        if (result) {
+            res.send(doc);
+        }
+        else/*(result == 0) */ {
+            res.status(500).json({ error: err });
+        }
+    }
+    dbManager.getallfacility(callback, req);
+}
+module.exports.getFacilityCheckData = function (req, res) {
+    var callback = function (result, err, doc) {
+        if (result) {
+            res.send(doc);
+        }
+        else/*(result == 0) */ {
+            res.status(500).json({ error: err });
+        }
+    }
+    dbManager.getFacilityCheckData(callback, req);
+}
+
+// Get Todo Group List
+module.exports.getTodoList = getTodoList;
+module.exports.getTodoGroupList = getTodoGroupList;
+module.exports.getGroupTodoListPerDate = getGroupTodoListPerDate;
+module.exports.getTotalTodoListPerDate = getTotalTodoListPerDate;
+
+// Get Todo List
+function getTodoList(req, res) {
+    if (!dbManager) {
+        return;
+    }
+
+    var period = {
+        startDate: req.query.startDate,
+        endDate: req.query.endDate
+    }
+
+    dbManager.getTodoList(period, function (result, todoList) {
+        if (result == true) {
+            var resultTodoList = new Object();
+            resultTodoList.StartDate = todoList.StartDate;
+            resultTodoList.TodoList = todoList.TodoList;
+
+            res.send(resultTodoList);
+        }
+        else {
+            res.status(505).json({ error: "Invalid Operation" });
+        }
+    });
+}
+
+module.exports.getMaintItemList = function (req, res) {
+
+    dbManager.getMaintItemList(function (result, list) {
+        if (result == true) {
+            res.json(list);
+        }
+        else {
+            res.status(505).json({ error: "Internal Error" });
+        }
+    });
+}
+
+// Get Todo Group List
+function getTodoGroupList(req, res) {
+    if (!dbManager) {
+        return;
+    }
+
+    dbManager.getCheckList(function (result, checkList) {
+        var todoGroupList = [];
+        if (result) {
+            var period = {
+                startDate: req.query.startDate,
+                endDate: req.query.endDate
+            }
+
+            for (var checkIndex = 0; checkIndex < checkList.length; checkIndex++) {
+                var checkItem = checkList[checkIndex];
+                if (!checkItem) {
+                    continue;
+                }
+
+                var checkDate = checkItem.CreateDate;
+                var isTerminate = true;
+                while (isTerminate) {
+                    if (checkDate >= period.startDate && checkDate <= period.endDate) {
+                        // Check Date Exist
+                        var todoGroupIndex = checkExistTodoGroupDate(todoGroupList);
+                        if (todoGroupIndex != -1) {
+                            // Update Todo Group List
+                            todoGroupList[todoGroupIndex].todoGroup
+                                = getTodoGroupFlag(todoGroupList[todoGroupIndex].todoGroup,
+                                    checkItem.TimeBaseUnit);
+                        } else {
+                            // Add Todo Group List
+                            todoGroupList.push({
+                                CheckDate: checkDate,
+                                todoGroup: getTodoGroupFlag(null, checkItem.TimeBaseUnit)
+                            });
+                        }
+
+                        if (endDate < checkDate) {
+                            isTerminate = false;
+                        }
+                    }
+
+                    addDateOffset(checkItem.TimeBaseUnit,
+                        checkItem.TimeBaseValue, checkDate);
+                }
+            }
+
+            res.send(todoGroupList);
+        }
+        else {
+            res.status(500).json({ error: err });
+        }
+    });
+}
+
+module.exports.getMachineTypeList = function (req, res) {
+
+    dbManager.getMachineTypeList(function (result, list) {
+        if (result == true) {
+            res.json(list);
+        }
+        else {
+            res.status(505).json({ error: "Internal Error" });
+        }
+    });
+}
+
+// Get Todo List Per Group
+function getGroupTodoListPerDate(req, res) {
+    dbManager.getCheckList(function (result, checkList) {
+        if (result) {
+            
+        }
+        else {
+
+        }
+    });
+} 
+
+// Get Todo List Per Date
+function getTotalTodoListPerDate(req, res) {
+    if (!dbManager) {
+        return;
+    }
+
+    var selectedDate = new Date(+req.query.startDate);
+    var currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+
+    /// Get Past and Today Todo List - From DB
+    var resultTodoList = new Object();
+    resultTodoList.StartDate;
+    resultTodoList.TodoList = [];
+
+    if (selectedDate <= currentDate) {
+        var period = {
+            startDate: selectedDate,
+            endDate: selectedDate
+        }
+
+        dbManager.getTodoList(period, function (result, todoList) {
+            if (result == true) {
+                resultTodoList.StartDate = todoList.StartDate;
+                resultTodoList.TodoList = todoList.TodoList;
+
+                res.send(resultTodoList);
+            }
+            else {
+                res.status(505).json({ error: "Invalid Operation" });
+            }
+        });
+
+        return;
+
+    } else {
+        /// Get Future Check List - From Check List
+        dbManager.getCheckList(function (result, checkList) {
+            if (result) {
+                for (var checkIndex = 0; checkIndex < checkList.length; checkIndex++) {
+                    var checkItem = checkList[checkIndex];
+                    if (!checkItem) {
+                        continue;
+                    }
+
+                    var checkDate = new Date(checkItem.CreateDate);
+                    while (true) {
+                        if (checkDate > selectedDate) {
+                            break;
+                        }
+
+                        console.log(checkDate);
+                        console.log(selectedDate);
+                        if (checkDate.getTime() == selectedDate.getTime()) {
+                            // Add Todo List
+                            resultTodoList.TodoList.push({
+                                Code: checkItem.Code,
+                                CheckDate: null,
+                                Level: checkItem.Level,
+                                Title: checkItem.Title,
+                                Content: checkItem.Content,
+                                LargeCategory: checkItem.LargeCategory,
+                                MediumCategory: checkItem.MediumCategory,
+                                SmallCategory: checkItem.SmallCategory,
+                                TimeGroup: checkItem.TimeGroup,
+                                TimeBaseUnit: checkItem.TimeBaseUnit,
+                                TimeBaseValue: checkItem.TimeBaseValue,
+                                MemoListID: 0,
+                                FileListID: 0,
+                                Result: "미조치",
+                                ActionDate: null,
+                                State: 0,
+                            });
+
+                            break;
+                        }
+
+                        addDateOffset(checkItem.TimeBaseUnit,
+                            checkItem.TimeBaseValue, checkDate);
+                    }
+                }
+
+                res.send(resultTodoList);
+            }
+            else {
+                res.status(500).json({ error: err });
+            }
+        });
+
+        return;
+    }
+}
+
+// Get Todo Group Flag
+function getTodoGroupFlag(todoGroupFlag, timeBaseUnit) {
+    if (!todoGroupFlag) {
+        todoGroupFlag = {
+            DayTodo: false,
+            WeekTodo: false,
+            MonthTodo: false
+        }
+    }
+
+    switch (timeBaseUnit) {
+        case TimeBaseUnit.Day:
+            todoGroupFlag.DayTodo = true;
+            break;
+
+        case TimeBaseUnit.Week:
+            todoGroupFlag.WeekTodo = true;
+            break;
+
+        case TimeBaseUnit.Month:
+            todoGroupFlag.MonthTodo = true;
+            break;
+    }
+
+    return todoGroupFlag;
+}
+
+// Check Exist Todo Group Date
+function checkExistTodoGroupDate(todoGroupList) {
+    for (var todoGroupIndex = 0;
+        todoGroupIndex < todoGroupList.length;
+        todoGroupIndex++) {
+        if (todoGroupList[todoGroupIndex].CheckDate
+            == checkDate) {
+            return todoGroupIndex;
+        }
+    }
+
+    return -1;
+}
+
+// Add Date Offset
+function addDateOffset(timeBaseUnit, timeBaseValue, checkDate) {
+    switch (timeBaseUnit) {
+        case TimeBaseUnit.Day:
+            checkDate.setDate(checkDate.getDate() + timeBaseValue);
+            break;
+
+        case TimeBaseUnit.Week:
+            checkDate.setDate(checkDate.getDate() + (timeBaseValue * 7));
+            break;
+
+        case TimeBaseUnit.Month:
+            checkDate.setMonth(checkDate.getMonth() + timeBaseValue);
+            break;
+    }
+}
+
+module.exports.getModuleTypeList = function (req, res) {
+
+    var param = {
+        MachineType: req.query.MachineType
+    };
+
+    dbManager.getModuleTypeList(param, function (result, list) {
+        if (result == true) {
+            res.json(list);
+        }
+        else {
+            res.status(505).json({ error: "Internal Error" });
+        }
+    });
+}
+
+module.exports.getDeviceTypeList = function (req, res) {
+
+    var param = {
+        MachineType: req.query.MachineType,
+        ModuleType: req.query.ModuleType
+    };
+
+    dbManager.getDeviceTypeList(param, function (result, list) {
+        if (result == true) {
+            res.json(list);
+        }
+        else {
+            res.status(505).json({ error: "Internal Error" });
+        }
+    });
+}
+
+module.exports.getMaintItemLevelList = function (req, res) {
+
+    dbManager.getMaintItemLevelList(function (result, list) {
+        if (result == true) {
+            res.json(list);
+        }
+        else {
+            res.status(505).json({ error: "Internal Error" });
+        }
+    });
+}
+
+module.exports.getTBMCheckUnitList = function (req, res) {
+
+    dbManager.getTBMCheckUnitList(function (result, list) {
+        if (result == true) {
+            res.json(list);
+        }
+        else {
+            res.status(505).json({ error: "Internal Error" });
+        }
+    });
+}
+
+module.exports.getCBMCheckUnitList = function (req, res) {
+
+    dbManager.getCBMCheckUnitList(function (result, list) {
+        if (result == true) {
+            res.json(list);
+        }
+        else {
+            res.status(505).json({ error: "Internal Error" });
+        }
+    });
+}
+
+
+module.exports.createMaintItem = function (req, res) {
+
+    var maintItemData = JSON.parse(JSON.stringify(req.body.params));
+
+    dbManager.createMaintItem(maintItemData, function (result) {
+        if (result == true) {
+            res.end();
+        }
+        else {
+            res.status(505).json({ error: "Internal Error" });
+        }
+    });
+}

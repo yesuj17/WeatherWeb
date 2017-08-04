@@ -4,9 +4,9 @@
   "TimeGroup":"String",
   "TimeBaseUnit":"String",
   "TimeBaseValue":"int",
-  "nonTimeVaseMainUnit":"String",
+  "nonTimeBaseMainUnit":"String",
   "nonTimeBaseMainValue":"int",
-  "nonTimeBaseWarringUnit":"String",
-  "nonTimeBaseWarringValue":"int",
+  "nonTimeBaseWarningUnit":"String",
+  "nonTimeBaseWarningValue":"int",
   "Relation":"String"
  }

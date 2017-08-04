@@ -2,9 +2,6 @@
 var wemsDBManager = require('../utility/dbManager/wemsDBManager');
 var machineAnalysisData = require('../models/wems/machineAnalysisData.json');
 
-/* XXX Must Fix Standard Power Data */
-var standardPower = 600000;
-
 // GET Restful API Handler
 var analysisPreviewData;
 module.exports.getAnalysisData = function (req, res) {

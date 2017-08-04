@@ -1,0 +1,98 @@
+﻿<!-- Modal-->
+<div id="ID_PMS_mainModal" role="dialog" class="modal fade" style="resizable=">
+  <div style="width: 1500px; height: auto; display:table" class="modal-dialog">
+    <!-- Modal content-->
+    <div style="height: auto; overflow-x: hidden; overflow-y: auto; min-height: 800px" class="modal-content">
+      <div style="height: 50px; background-color: #337AB7; color:#FFF; border-bottom:2px dashed #337AB7" class="modal-header">
+        <button type="button" data-dismiss="modal" class="close">×</button>
+        <h4 style="text-align: left" class="modal-title">Prevent Management System</h4>
+      </div>
+      <div style="height: 94%" class="modal-body">
+
+        <div id="left_content" style="height: 100%; width: 15%; float:left">
+          <div style="height: 100%" class="sidebar-nav">
+            <div role="navigation" style="border-radius: 0px" class="navbar navbar-default">
+              <div class="navbar-header">
+                <button type="button" data-toggle="collapse" data-target=".sidebar-navbar-collapse" class="navbar-toggle">
+                  <span class="sr-only">Toggle navigation</span>
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+                </button>
+              </div>
+              <div style="padding: 0; max-height: none" class="navbar-collapse collapse sidebar-navbar-collapse">
+                <ul style="float: none" class="nav navbar-nav" id="ID_PMS_MenuNavi">
+                  <li style="float: none; display: block">
+                    <a href="#ID_PMS_MenuScheduleMaint" data-toggle="tab" style="padding-top: 12px; padding-bottom: 12px">점검일지</a>
+                  </li>
+                  <li style="float: none; display: block">
+                    <a href="#" style="padding-top: 12px; padding-bottom: 12px">설정</a>                    
+                  </li>
+                  <li style="float: none; display: block">
+                    <a href="#ID_PMS_MenuConfigSubMaintItem" data-toggle="tab" style="padding-top: 12px; padding-bottom: 12px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;점검항목</a>
+                  </li>
+                  <li style="float: none; display: block">
+                    <a href="#ID_PMS_MenuConfigSubMachineMaintItem" data-toggle="tab" style="padding-top: 12px; padding-bottom: 12px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;설비별 점검</a>
+                  </li>
+                  <li style="float: none; display: block">
+                    <a href="#" style="padding-top: 12px; padding-bottom: 12px">기록</a>
+                  </li>
+                  <li style="float: none; display: block">
+                    <a href="#ID_PMS_MenuHistoryMaintLog" data-toggle="tab" style="padding-top: 12px; padding-bottom: 12px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;점검이력</a>
+                  </li>
+                  <li style="float: none; display: block">
+                    <a href="#ID_PMS_MenuHistorySystemLog" data-toggle="tab" style="padding-top: 12px; padding-bottom: 12px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;로그</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="right_content" style="height: 100%; width: 85%; float:right">
+          <div style="margin-left: 10px; height: 100%; width:100%; float:left; border:2px #f99 solid" class="tab-content">
+            <div id="ID_PMS_MenuScheduleMaint" style="height: 100%; width:100%; float:left" class="tab-pane fade">                
+              <% include ./pms_schedule_maint.ejs %>              
+            </div>
+            <div id="ID_PMS_MenuConfigSubMaintItem" style="height: 100%; width:100%; float:left" class="tab-pane fade">
+              <% include ./pms_conf_maint_item.ejs %>    
+            </div>
+            <div id="ID_PMS_MenuConfigSubMachineMaintItem" style="height: 100%; width:100%; float:left" class="tab-pane fade">
+              <% include ./pms_conf_machine_maint_item.ejs %>              
+            </div>
+            <div id="ID_PMS_MenuHistoryMaintLog" style="height: 100%; width:100%; float:left" class="tab-pane fade">
+              <% include ./pms_history_maint_log.ejs %>              
+            </div>
+            <div id="ID_PMS_MenuHistorySystemLog" style="height: 100%; width:100%; float:left" class="tab-pane fade">
+              <% include ./pms_history_system_log.ejs %>              
+            </div>
+          </div>
+        </div>                
+      </div>
+    </div>
+  </div>
+  
+  <script>
+
+    var modalInitialized = false;
+
+    $('#ID_PMS_mainModal').on('shown.bs.modal', function (data) {
+      if( modalInitialized == true ) {
+        return;
+      }
+
+      $('#ID_PMS_MenuNavi a[href="#ID_PMS_MenuScheduleMaint"]').tab('show');
+
+      modalInitialized = true;
+      
+    });
+
+    $('#ID_PMS_mainModal').on('hidden.bs.modal', function (data) {
+
+      if(data.target.id == "ID_PMS_mainModal") {
+        modalInitialized = false;        
+       }
+    });
+  </script>
+  
+</div>

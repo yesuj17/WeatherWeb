@@ -41,15 +41,36 @@ var pmsGETList = [
     ['/pms/getUsersData', pmsRestfulAPIHandler.getUsersData],
     ['/pms/getNoticesData', pmsRestfulAPIHandler.getNoticesData],
     ['/pms/getNoticesDataNewCount', pmsRestfulAPIHandler.getNoticesDataNewCount],
-    ['/pms/displaytable', pmsRestfulAPIHandler.DisplayGridMotherdata],
+    ['/pms/displaymothertable', pmsRestfulAPIHandler.DisplayGridMotherdata],
     ['/pms/onemother', pmsRestfulAPIHandler.getmotheronedata],
     ['/pms/getcode', pmsRestfulAPIHandler.getcode],
+    ['/pms/getallfacility', pmsRestfulAPIHandler.getallfacility],
+    ['/pms/getFacilityCheckData', pmsRestfulAPIHandler.getFacilityCheckData],
+
+    /* Maint Item API *********************************************/
+    ['/pms/getMaintItemList', pmsRestfulAPIHandler.getMaintItemList],
+    ['/pms/getMachineTypeList', pmsRestfulAPIHandler.getMachineTypeList],
+    ['/pms/getModuleTypeList', pmsRestfulAPIHandler.getModuleTypeList],
+    ['/pms/getDeviceTypeList', pmsRestfulAPIHandler.getDeviceTypeList],
+    ['/pms/getMaintItemLevelList', pmsRestfulAPIHandler.getMaintItemLevelList],
+    ['/pms/getTBMCheckUnitList', pmsRestfulAPIHandler.getTBMCheckUnitList],
+    ['/pms/getCBMCheckUnitList', pmsRestfulAPIHandler.getCBMCheckUnitList],
 
     /* Calendar API ***********************************************/
     ['/pms/getMemoInfoList', pmsRestfulAPIHandler.getMemoInfoList],    
     ['/pms/getMemoInfo', pmsRestfulAPIHandler.getMemoInfo],
     ['/pms/getEventGroupList', pmsRestfulAPIHandler.getEventGroupList],
-    ['/pms/getEventList', pmsRestfulAPIHandler.getEventList],            
+    ['/pms/getEventList', pmsRestfulAPIHandler.getEventList],
+
+    /* History API ************************************************/
+    ['/pms/getMaintHistoryList', pmsRestfulAPIHandler.getMaintHistoryList],
+    ['/pms/getSystemLogList', pmsRestfulAPIHandler.getSystemLogList],
+
+    /* Todo List API ************************************************/
+    ['/pms/getTodoList', pmsRestfulAPIHandler.getTodoList],
+    ['/pms/getTodoGroupList', pmsRestfulAPIHandler.getTodoGroupList],
+    ['/pms/getGroupTodoListPerDate', pmsRestfulAPIHandler.getGroupTodoListPerDate],
+    ['/pms/getTotalTodoListPerDate', pmsRestfulAPIHandler.getTotalTodoListPerDate]
 ];
 
 var pmsPOSTList = [
@@ -64,6 +85,11 @@ var pmsPOSTList = [
     ['/pms/createmother', pmsRestfulAPIHandler.ImportExcel],
     ['/pms/savemother', pmsRestfulAPIHandler.savemother],
     ['/pms/createmotherone', pmsRestfulAPIHandler.createmother],
+    ['/pms/createfacility', pmsRestfulAPIHandler.createfacility],
+    ['/pms/createchecklist', pmsRestfulAPIHandler.createchecklist],
+
+    /* Maint Item API *********************************************/
+    ['/pms/createMaintItem', pmsRestfulAPIHandler.createMaintItem],
 
     /* Calendar API ***********************************************/
     ['/pms/updateEventGroupSchedule', pmsRestfulAPIHandler.updateEventGroupSchedule],
