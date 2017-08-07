@@ -2,12 +2,6 @@
     .module('pmsScheduleMaintApp', [])
     .controller('PMScheduleMaintController', ['$scope', '$http', '$compile', PMScheduleMaintController]);
 
-var TimeBaseUnit = {
-    Day: 1,
-    Week: 2,
-    Month: 3
-}
-
 function PMScheduleMaintController($scope, $http, $compile) {
     var pmsScheduleMaintVM = this; 
 
@@ -318,12 +312,11 @@ function PMScheduleMaintController($scope, $http, $compile) {
     // Initizlie Todo List
     function initializeTodoList() {
         var selectedDate = new Date();
-        var period = {
-            startDate: selectedDate.setHours(0, 0, 0, 0),
-            endDate: selectedDate.setHours(0, 0, 0, 0)
+        var maintDate = {
+            maintDate: selectedDate.setHours(0, 0, 0, 0),
         }
 
-        getTotalTodoListPerDate(period)
+        getTotalTodoListPerDate(maintDate)
             .then(function (res, status, headers, config) {
                 refreshTodoList(res.data);
             })
@@ -340,53 +333,33 @@ function PMScheduleMaintController($scope, $http, $compile) {
     // Refresh Todo List
     function refreshTodoList(todoList) {
         pmsScheduleMaintVM.todoRowList = [];
-        for (var todoIndex = 0; todoIndex < todoList.TodoList.length; todoIndex++) {
+        for (var todoIndex = 0; todoIndex < todoList.TodoDataList.length; todoIndex++) {
             var todoRow = new Object();
-            todoRow.checkDate = todoList.TodoList[todoIndex].CheckDate;
-            todoRow.level = todoList.TodoList[todoIndex].Level;
-            todoRow.period = makePeriodString(todoList.TodoList[todoIndex].TimeBaseUnit,
-                todoList.TodoList[todoIndex].TimeBaseValue);
-            todoRow.code = todoList.TodoList[todoIndex].Code;
-            todoRow.summary = todoList.TodoList[todoIndex].Title;
-            todoRow.largeCategory = todoList.TodoList[todoIndex].LargeCategory;
-            todoRow.mediumCategory = todoList.TodoList[todoIndex].MediumCategory;
-            todoRow.smallCategory = todoList.TodoList[todoIndex].SmallCategory;
-            todoRow.actionDate = todoList.TodoList[todoIndex].ActionDate;
-            todoRow.status = todoList.TodoList[todoIndex].State;
+            todoRow.checkDate = todoList.TodoDataList[todoIndex].CheckDate;
+            todoRow.level = todoList.TodoDataList[todoIndex].Level;
+            todoRow.period = todoList.TodoDataList[todoIndex].Period;
+            todoRow.code = todoList.TodoDataList[todoIndex].Code;
+            todoRow.summary = todoList.TodoDataList[todoIndex].Title;
+            todoRow.largeCategory = todoList.TodoDataList[todoIndex].Machine;
+            todoRow.mediumCategory = todoList.TodoDataList[todoIndex].Module;
+            todoRow.smallCategory = todoList.TodoDataList[todoIndex].Device;
+            todoRow.actionDate = todoList.TodoDataList[todoIndex].ActionDate;
+            todoRow.status = todoList.TodoDataList[todoIndex].Status;
 
             pmsScheduleMaintVM.todoRowList.push(todoRow);
         }
     }
 
-    // Make Period String
-    function makePeriodString(timeBaseUnit, timeBaseValue) {
-        var periodString = "None";
-        switch (timeBaseUnit) {
-            case TimeBaseUnit.Day:
-                periodString =  timeBaseValue + " Day";
-                break;
-
-            case TimeBaseUnit.Week:
-                periodString = timeBaseValue + " Week";
-                break;
-
-            case TimeBaseUnit.Month:
-                periodString = timeBaseValue + " Month";
-                break;
-        }
-
-        return periodString;
-    }
+    
 
     // On Select Calendar Date
     function onSelectCalendarDate(start, end, jsEvent, view) {
-        startDate = new Date(start.startOf('day'));
-        var period = {
-            startDate: startDate.setHours(0, 0, 0, 0),
-            endDate: startDate.setHours(0, 0, 0, 0)
+        var selectedDate = new Date(start.startOf('day'));
+        var maintDate = {
+            maintDate: selectedDate.setHours(0, 0, 0, 0),
         }
 
-        getTotalTodoListPerDate(period)
+        getTotalTodoListPerDate(maintDate)
             .then(function (res, status, headers, config) {
                 refreshTodoList(res.data);
             })
@@ -399,21 +372,11 @@ function PMScheduleMaintController($scope, $http, $compile) {
                 e.data.description = newMessage;
             });
     }
-
-    // Get Analysis Data
-    function getTodoList(period) {
-        var config = {
-            params: period,
-            headers: { 'Authorization': 'Basic YmVlcDpib29w' }
-        }
-
-        return $http.get('/pms/getTodoList/', config);
-    }
-
+    
     // Get Total Todo List Per Date
-    function getTotalTodoListPerDate(period){ 
+    function getTotalTodoListPerDate(maintDate){ 
         var config = {
-            params: period,
+            params: maintDate,
             headers: { 'Authorization': 'Basic YmVlcDpib29w' }
         }
 

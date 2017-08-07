@@ -35,7 +35,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="models\dbSchema\PMSCBMCheckUnitTypeSchema.js" />
-    <Compile Include="models\dbSchema\PMSCheckSchema.js" />
+    <Compile Include="models\dbSchema\PMScheckSchema.js" />
     <Compile Include="models\dbSchema\PMSDeviceTypeSchema.js" />
     <Compile Include="models\dbSchema\PmsFacilitysSchema.js" />
     <Compile Include="models\dbSchema\PMSFileDataSchema.js" />
@@ -124,6 +124,7 @@
     <Content Include="models\pms\MaintItemData.json" />
     <Content Include="models\pms\mother.json" />
     <Content Include="models\pms\noticeInfoData.json" />
+    <Content Include="models\pms\todoDataSet.json" />
     <Content Include="models\pms\userInfoData.json" />
     <Content Include="models\wems\machineAnalysisData.json" />
     <Compile Include="models\dbSchema\PMSMaintHistoryDataSchema.js" />

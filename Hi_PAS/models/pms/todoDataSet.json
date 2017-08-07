@@ -1,0 +1,20 @@
+﻿{
+  "MaintDate":  "datetime",
+  "TodoDataList": [
+    {
+      "TodoID": "number",
+      "CheckDate": "datetime",
+      "Level": "string",
+      "Period":  "string",
+      "Code": "string",
+      "Title": "string",
+      "Machine": "string",
+      "Module": "string",
+      "Device": "string",
+      "ActionDate": "datetime",
+      "Status": "string",
+      "Content": "string"
+    }
+  ]
+}
+

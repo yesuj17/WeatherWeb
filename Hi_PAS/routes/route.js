@@ -56,6 +56,9 @@ var pmsGETList = [
     ['/pms/getTBMCheckUnitList', pmsRestfulAPIHandler.getTBMCheckUnitList],
     ['/pms/getCBMCheckUnitList', pmsRestfulAPIHandler.getCBMCheckUnitList],
 
+    /* Machine Maint Item API *************************************/
+    ['/pms/getMachineMaintItemList', pmsRestfulAPIHandler.getMachineMaintItemList],
+
     /* Calendar API ***********************************************/
     ['/pms/getMemoInfoList', pmsRestfulAPIHandler.getMemoInfoList],    
     ['/pms/getMemoInfo', pmsRestfulAPIHandler.getMemoInfo],
@@ -67,7 +70,7 @@ var pmsGETList = [
     ['/pms/getSystemLogList', pmsRestfulAPIHandler.getSystemLogList],
 
     /* Todo List API ************************************************/
-    ['/pms/getTodoList', pmsRestfulAPIHandler.getTodoList],
+    // ['/pms/getTodoList', pmsRestfulAPIHandler.getTodoList],
     ['/pms/getTodoGroupList', pmsRestfulAPIHandler.getTodoGroupList],
     ['/pms/getGroupTodoListPerDate', pmsRestfulAPIHandler.getGroupTodoListPerDate],
     ['/pms/getTotalTodoListPerDate', pmsRestfulAPIHandler.getTotalTodoListPerDate]
@@ -83,7 +86,7 @@ var pmsPOSTList = [
     ['/pms/addNoticeData', pmsRestfulAPIHandler.addNoticeData],
     ['/pms/addNoticeUserReadData', pmsRestfulAPIHandler.addNoticeUserReadData],
     ['/pms/createmother', pmsRestfulAPIHandler.ImportExcel],
-    ['/pms/savemother', pmsRestfulAPIHandler.savemother],
+    ['/pms/updateitem', pmsRestfulAPIHandler.updateitem],
     ['/pms/createmotherone', pmsRestfulAPIHandler.createmother],
     ['/pms/createfacility', pmsRestfulAPIHandler.createfacility],
     ['/pms/createchecklist', pmsRestfulAPIHandler.createchecklist],
@@ -112,6 +115,11 @@ var machineAgentPOSTList = [
     ['/MA/addMachineCycleData', machineAgentRestfulAPIHandler.addMachineCycleData],
     ['/MA/addMachineErrorData', machineAgentRestfulAPIHandler.addMachineErrorData]
 ];
+
+var machineAgentGetList = [
+    ['/MA/getMachineInfoList', machineAgentRestfulAPIHandler.getMachineInfoList]    
+];
+
 
 /* Data Generator Restful API Handler */
 var dataGeneratorAgentGETList  = [['/dataGenerator', dataGeneratorRestfulAPIHandler.DataGenerator]];
@@ -183,6 +191,10 @@ module.exports = function (app, io) {
     /* Set Machine Agent Restful API Handler */
     if (machineAgentPOSTList) {
         machineAgentPOSTList.forEach(setPOSTHandler.bind(null, app));
+    }
+
+    if (machineAgentGetList) {
+        machineAgentGetList.forEach(setGETHandler.bind(null, app));
     }
 
     /* Set Data Generator Restful API Handler */

@@ -1,11 +1,16 @@
 ﻿var dbManager = require('../utility/dbManager/pmsDBManager');
 
-var currentTBMCheckList = [];
-var currentCBMCheckList = [];
-var timeBaseItem = 1;
-var countBaseItem = 2;
+var currentTBMMachineItemList = [];
+var currentCBMMachineItemList = [];
+var PMSCheckType = {
+    TBM: 0,
+    CBM: 1
+}
+
+var maintDate;
 module.exports = function (next) {
-    /* Initialize PMS Service */    
+    /* Initialize PMS Service */
+    initializePMSService();
 
     /* Run */
     intervalCheckTodoList();
@@ -13,16 +18,21 @@ module.exports = function (next) {
     next(true);
 }
 
+function initializePMSService() {
+    maintDate= new Date();
+    maintDate.setHours(0, 0, 0, 0);
+}
+
 // Interval Check Todo List
 function intervalCheckTodoList() {
     // Get Check List
-    dbManager.getCheckList(function (result, checkList) {
+    dbManager.getMachineItemDataList(function (result, machineItemDataList) {
         if (result) {
             // Check TBM Item
-            checkTBMItem(checkList);
+            checkTBMItem(machineItemDataList);
 
             // Check CBM Item
-            checkCBMItem(checkList);
+            checkCBMItem(machineItemDataList);
         }
 
         setTimeout(intervalCheckTodoList, 1000);
@@ -30,38 +40,43 @@ function intervalCheckTodoList() {
 }
 
 // Check TBM
-function checkTBMItem(checkList) {
-    var newCheckList = [];
-    for (var newCheckIndex = 0;
-        newCheckIndex < checkList.length;
-        newCheckIndex++) {
-        if (checkList[newCheckIndex].TimeGroup == countBaseItem) {
+function checkTBMItem(machineItemDataList) {
+    var currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+    if (maintDate.getTime() != currentDate.getTime()) {
+        currentTBMMachineItemList = [];
+        maintDate = currentDate;
+    }
+
+    for (var newMachineItemDataIndex = 0;
+        newMachineItemDataIndex < machineItemDataList.length;
+        newMachineItemDataIndex++) {
+        if (machineItemDataList[newMachineItemDataIndex].Type
+            == PMSCheckType.CBM) {
             continue;
         }
 
         var isExistItem = false;
-        for (var currentCheckIndex = 0;
-            currentCheckIndex < currentTBMCheckList.length;
-            currentCheckIndex++) {
-            if ((currentTBMCheckList[currentCheckIndex].FacilityId
-                == checkList[newCheckIndex].FacilityId)
-                && (currentTBMCheckList[currentCheckIndex].Code
-                == checkList[newCheckIndex].Code)) {
+        for (var currentMachineItemDataIndex = 0;
+            currentMachineItemDataIndex < currentTBMMachineItemList.length;
+            currentMachineItemDataIndex++) {
+            if (currentTBMMachineItemList[currentMachineItemDataIndex].UID
+                == machineItemDataList[newMachineItemDataIndex].UID) {
                 isExistItem = true;
             }
         }
 
         if (isExistItem == false) {
-            currentTBMCheckList.push(checkList[newCheckIndex]);
-            newCheckList.push(checkList[newCheckIndex]);
+            currentTBMMachineItemList.push(machineItemDataList[newMachineItemDataIndex]);
+            dbManager.addTodoItem(maintDate, machineItemDataList[newMachineItemDataIndex], function (result, newTodoItem) {
+                if (result == true) {
+                     /* XXX Send New Todo Item */
+                }
+            });
         }
     }
 
-    dbManager.addTodoItem(newCheckList, function (result, todoList) {
-        if (result == true) {
-            // Send New Todo List
-        }
-    });
+    
 }
 
 // Check CBM

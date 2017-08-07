@@ -139,3 +139,15 @@ module.exports.addMachineErrorData = function (req, res) {
         }
     });    
 }
+
+module.exports.getMachineInfoList = function (req, res) {
+
+    machineDBManager.getMachineInfoList(function (result, list) {
+        if (result == true) {
+            res.json(list);
+        }
+        else {
+            res.status(505).json({ error: "Internal Error" });
+        }
+    });
+}

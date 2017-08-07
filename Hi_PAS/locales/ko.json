@@ -27,6 +27,11 @@
     "S_PMS_MaintHistoryTableColMachine": "설비",
     "S_PMS_MaintHistoryTableColDetail": "상세이력",
     "S_PMS_NewButton": "신규",
+    "S_PMS_Level": "점검레벨",
+    "S_PMS_Action": "조치",
+  "S_PMS_Import": "임포트",
+  "S_PMS_UpdateDisplay": "새로고침",
     "S_COMMON_Cancel": "취소",
-    "S_COMMON_Ok": "확인"
+  "S_COMMON_Ok": "확인",
+  "S_COMMON_NUMBER": "번호"
 }

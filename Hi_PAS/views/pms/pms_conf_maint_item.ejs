@@ -3,36 +3,56 @@
   <div class="container-fluid">
 
     <div class="row" style="margin: auto">
-
+      <script>
+        $(document).ready(function () {
+        $('#myfile').change(function (evt) {
+        $("#filesubmit").trigger('click');
+        });
+        $("#filesubmit").click(function (evt) {
+        });
+        });
+      </script>
       <div style="float: left">
         <button type="button" class="btn btn-primary btn-nm" ng-click="pmsConfMaintItemVM.ShowMaintItemCreateView(-1)">
           <%=__('S_PMS_NewButton') %>
         </button>
-      </div>      
-    </div>
-    <div class="row" style="margin: auto">
-      <br></br>
-    </div>
-    <div class="row" style="margin: auto">
-      <table class="table">
-        <thead>
-          <tr>
-            <th style="text-align: center">
-              No              
-            </th>
-            <th style="text-align: center">
-              점검코드
-            </th>
-            <th style="text-align: center">
-              점검명
-            </th>
-            <th style="text-align: center">
-              점검레벨
-            </th>
-            <th style="text-align: center">
-              조치
-            </th>
-          </tr>
+        <button type="button" class="btn btn-primary btn-nm" ng-click="pmsConfMaintItemVM.OnMotherDataLoad()">
+          <%=__('S_PMS_UpdateDisplay') %>
+          </button>
+          <form  id="uploadForm" enctype="multipart/form-data">
+            <div style="border: 1px solid gold; float: left;">
+              <input  id='myfile'type="file" onchange="angular.element(this).scope().file_changed(this)">
+                <div id="DataLoad"></div>
+              </div>
+            <div style="border: 1px solid gold; float: center;">
+              <input style="vertical-align: right" ng-click="" type="submit" value="Upload" name="submit" id="filesubmit">
+          </div>
+        </form>
+        </div>
+      </div>
+      <div class="row" style="margin: auto">
+        <br></br>
+      </div>
+      <div class="row" style="margin: auto">
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="text-align: center">
+                <%=__('S_COMMON_NUMBER') %>
+              </th>
+              <th style="text-align: center">
+                <%=__('S_PMS_MemoTableColTimeTaskCode') %>
+              </th>
+              <th style="text-align: center">
+                <%=__('S_PMS_EventDetailTableColTitle') %>
+              </th>
+              <th style="text-align: center">
+                <%=__('S_PMS_Level') %>
+              </th>
+              <th style="text-align: center">
+                <%=__('S_PMS_Action') %>
+              </th>
+            </tr>
         </thead>
         <tbody>
           <tr ng-repeat="info in pmsConfMaintItemVM.ItemList">
@@ -40,7 +60,9 @@
               <span class="text-info">{{$index+1}}</span>
             </td>
             <td style="text-align: center">
-              <span class="text-info">{{info.Code}}</span>
+              <span class="text-info">
+                <button type="button" ng-click="pmsConfMaintItemVM.ShowMaintItemCreateView(info.Code)" data-toggle="modal" data-target="#ID_PMS_ConfMaintItemCreateModal" class="detail"  data-backdrop="static">{{info.Code}}</button>
+              </span>
             </td>
             <td style="text-align: center; width: 10%">
               <span class="text-info">{{info.Title}}</span>
@@ -77,6 +99,7 @@
             <div class="modal-body" style="display:table; margin: 0px; width: 100%;">
               <div style="margin: 0px;">
                 <div class="row">
+                  코드 : {{pmsConfMaintItemVM.dialogCode}}
                   <div class="radio">
                     <label>
                       <input type="radio" id="ID_PMS_ConfMaintItemTypeCheck" checked="checked" ng-click="pmsConfMaintItemVM.OnSelectItemTypeCheck()"/>점검
@@ -97,7 +120,7 @@
                         <label>점검 코드</label>
                       </div>
                       <div class="col-xs-6">
-                        <input type="text" class="form-control" id="ID_PMS_ConfMaintItemCode" required="" />
+                        <input type="text" ng-model="pmsConfMaintItemVM.dialogCode" class="form-control" id="ID_PMS_ConfMaintItemCode" required="" disabled=""/>
                       </div>
                     </div>
 
@@ -106,7 +129,7 @@
                         <label>점검명</label>
                       </div>
                       <div class="col-xs-6">
-                        <input type="text" class="form-control" id="ID_PMS_ConfMaintItemTitle" required="" />
+                        <input type="text" ng-model="pmsConfMaintItemVM.dialogTitle" class="form-control" id="ID_PMS_ConfMaintItemTitle" required="" />
                       </div>
                     </div>
 
@@ -153,7 +176,7 @@
                         <label>점검내용</label>
                       </div>
                       <div class="row">
-                        <textarea class="form-control" id="ID_PMS_ConfMaintItemContent" rows="10" style="font-size: 10pt; resize: none; overflow-y: hidden; padding : 1.1em; padding-bottom: 0.2em; line-height: 1.5"></textarea>
+                        <textarea class="form-control" ng-model="pmsConfMaintItemVM.dialogContent" id="ID_PMS_ConfMaintItemContent" rows="10" style="font-size: 10pt; resize: none; overflow-y: hidden; padding : 1.1em; padding-bottom: 0.2em; line-height: 1.5"></textarea>
                       </div>
                     </div>                             
                   </div>
@@ -174,7 +197,7 @@
                         <div class="row">
                           <div class="radio">
                             <label>
-                              <input type="radio" id="ID_PMS_ConfMaintItemTBMOption" checked="checked" ng-click="pmsConfMaintItemVM.OnSelectTBMOption()"/>TBM
+                              <input type="radio" id="ID_PMS_ConfMaintItemTBMOption" ng-model="pmsConfMaintItemVM.mSelectedItemCheckType" checked="checked" ng-click="pmsConfMaintItemVM.OnSelectTBMOption()"/>TBM
                             </label>
                           </div>                          
                         </div>                                                
@@ -186,7 +209,7 @@
                             <select class="form-control" ng-model="pmsConfMaintItemVM.mSelectedTBMCheckUnit" ng-options="i as i.Name for i in pmsConfMaintItemVM.TBMCheckUnitList" ng-change="pmsConfMaintItemVM.OnChangeTBMCheckUnit()">"</select>                            
                           </div>
                           <div class="col-xs-4">
-                            <select class="form-control" disabled="true" id="ID_PMS_ConfMaintItemTBMCheckValue" ng-model="pmsConfMaintItemVM.mSelectedTBMCheckValue" ng-options="i as i.Name for i in pmsConfMaintItemVM.TBMCheckValueList"></select>
+                            <select class="form-control" disabled="true" id="ID_PMS_ConfMaintItemTBMCheckValue" ng-model="pmsConfMaintItemVM.mSelectedTBMCheckValue" ng-init="pmsConfMaintItemVM.mSelectedTBMCheckValue = { Value: 1, Name: 1 }" ng-options="i as i.Name for i in pmsConfMaintItemVM.TBMCheckValueList"></select>
                           </div>
                         </div>
                       </div>
@@ -207,7 +230,7 @@
                             <label>Limit</label>
                           </div>
                           <div class="col-xs-4">
-                            <input type="text" class="form-control" id="ID_PMS_ConfMaintItemCBMLimitValue"></input>
+                            <input type="text" class="form-control" ng-model="pmsConfMaintItemVM.mSelectedCBMCheckValue" id="ID_PMS_ConfMaintItemCBMLimitValue"></input>
                           </div>
                           <div class="col-xs-4">
                             <select class="form-control" ng-model="pmsConfMaintItemVM.mSelectedCBMCheckUnit" ng-options="i as i.Name for i in pmsConfMaintItemVM.CBMCheckUnitList"></select>
@@ -217,7 +240,7 @@
                             <label>Warnning Limit</label>
                           </div>
                           <div class="col-xs-4">
-                            <input type="text" class="form-control" id="ID_PMS_ConfMaintItemCBMWarnLimitValue"></input>
+                            <input type="text" class="form-control" ng-model="pmsConfMaintItemVM.mSelectedCBMCheckValueWaring" id="ID_PMS_ConfMaintItemCBMWarnLimitValue"></input>
                           </div>
 
                         </div>
@@ -233,13 +256,20 @@
 
             <div class="modal-footer" style="display:table; margin: 0px; width: 100%;">
               <div style="margin: 0px;">
-                <button type="button" class="btn btn-primary btn-nm" ng-click="pmsConfMaintItemVM.SaveMaintItem()">
+                <button type="button" id="ID_PMS_ConfMaintItemCreateModal_Delete" class="btn btn-primary btn-nm" ng-click="pmsConfMaintItemVM.DeleteItem(pmsConfMaintItemVM.dialogCode)">
+                  삭제
+                </button>
+                <button type="button" id="ID_PMS_ConfMaintItemCreateModal_Save" class="btn btn-primary btn-nm" ng-click="pmsConfMaintItemVM.SaveMaintItem()">
                   저장
                 </button>
+                <button type="button" id="ID_PMS_ConfMaintItemCreateModal_Update" class="btn btn-primary btn-nm" ng-click="pmsConfMaintItemVM.UpdateMaintItem()">
+                  수정
+                </button>
                 &nbsp;
-                <button type="button" class="btn btn-primary btn-nm" ng-click="pmsConfMaintItemVM.CloseMaintItemCreateView()">
+                <button type="button" id="ID_PMS_ConfMaintItemCreateModal_Close" class="btn btn-primary btn-nm" ng-click="pmsConfMaintItemVM.CloseMaintItemCreateView()">
                   닫기
                 </button>
+
               </div>
             </div>
           </div>

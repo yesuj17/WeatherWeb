@@ -1,7 +1,7 @@
 ﻿var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var PMSCheckSchema = new Schema({
+var PMScheckSchema = new Schema({
     Code_FacilityId: { type: String, default: '-' },
     CreateDate: { type: Date, default: Date.now },
     TimeGroup: { type: String, default: '-' },
@@ -14,4 +14,4 @@ var PMSCheckSchema = new Schema({
     Relation: [],
 });
 
-module.exports = mongoose.model('PMSCheckSchema', PMSCheckSchema);
+module.exports = mongoose.model('PMScheckSchema', PMScheckSchema);

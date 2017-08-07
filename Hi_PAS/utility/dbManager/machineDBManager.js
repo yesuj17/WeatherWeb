@@ -219,3 +219,19 @@ module.exports.addMachineErrorData = function (machineErrorData, next) {
         });
     } 
 }
+
+module.exports.getMachineInfoList = function (next) {
+
+    MachineInfoSchema.
+        find().
+        lean().
+        exec(function (err, list) {
+            if (err) {
+                next(err);
+                return;
+            }
+
+            next(true, list);
+            return;
+        });
+}

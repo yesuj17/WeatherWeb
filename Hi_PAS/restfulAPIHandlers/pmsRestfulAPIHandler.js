@@ -3,17 +3,24 @@ var util = require('util');
 var dbManager = require('../utility/dbManager/pmsDBManager');
 var pmsUserInfo = require('../models/pms/userInfoData.json');
 var MaintItemData = require('../models/pms/MaintItemData.json');
+var todoDataSet = require('../models/pms/TodoDataSet.json');
 
-var motherjson = require("../models/pms/mother.json");
 var multer = require('multer')
 var xlstojson = require("xls-to-json-lc");
 var xlsxtojson = require("xlsx-to-json-lc");
 var localeUtil = require('../utility/localeUtil');
-var TimeBaseUnit = {
+var TBMPeriodUnit = {
     Day: 1,
     Week: 2, 
     Month: 3
 }
+var weekString = [{ Day: 1, Week: 'Mon' },
+    { Day: 2, Week: 'Tue' },
+    { Day: 3, Week: 'Wed' },
+    { Day: 4, Week: 'Thu' },
+    { Day: 5, Week: 'Fri' },
+    { Day: 6, Week: 'Sat' },
+    { Day: 7, Week: 'Sun'}];
 
 module.exports.validateUserData = function (req, res){
     var userData = JSON.parse(JSON.stringify(req.body));
@@ -319,24 +326,23 @@ saveMotherDataArrayToDB = function (result,res) {
     dbManager.initializeCheckListData();
 }
 CoverteforSave = function (rawjson) {
-    var result = motherjson;
+    var result = MaintItemData;
     result.Code = rawjson.코드;
     result.Title = rawjson.제목;
     result.Content = rawjson.내용;
-    result.LargeCategory = rawjson.대분류;
-    result.MediumCategory = rawjson.중분류;
-    result.SmallCategory = rawjson.소분류;
+    result.DeviceType = rawjson.대분류;/* PMSDeviceTypeSchema UID */ 
+  //  result.MediumCategory = rawjson.중분류; 스키마에 없음
+  //  result.SmallCategory = rawjson.소분류;       "
     result.CreateDate = Date();
-    result.TimeGroup = rawjson.주기;
-    result.TimeBaseUnit = rawjson.시간단위;
-    result.TimeBaseValue = rawjson.value1;
-    result.nonTimeBaseMainUnit = rawjson.거리단위;
-    result.nonTimeBaseMainValue = rawjson.value2;
-    result.nonTimeBaseWarningUnit = rawjson.경고값설정_거리단위;
-    result.nonTimeBaseWarningValue = rawjson.value3;
+    result.CheckType = rawjson.주기;/* 0 == TBM, 1 == CBM */
+    result.TBMCheckUnit = rawjson.시간단위;/* PMSTBMCheckUnitTypeSchema UID,  0 : Daily, 1 : Weekly, 2 : Monthly */
+    result.TBMCheckValue = rawjson.value1; /* Weekly : 1 ~ 2 , Monthly : 1 ~ 31 */
+    result.CBMCheckUnit = rawjson.거리단위;/* PMSCBMCheckUnitTypeSchema UID,  0 : Count , 1 : Distance */
+    result.CBMCheckLimitValue = rawjson.value2;
+    result.CBMCheckWarnLimitValue = rawjson.value3;
     result.Relation = rawjson.연관코드;
-    result.Type = rawjson.유형;
-    result.Level = rawjson.등급;
+    result.Type = rawjson.유형;/* 0 : Check, 1 : Action */
+    result.Level = rawjson.등급;/* PMSItemLevelType UID */
     return result;
 }
 
@@ -512,7 +518,7 @@ module.exports.getmotheronedata = function (req, res) {
     }
     dbManager.getMothersoneData(callback, req.query.Code);
 }
-module.exports.savemother = function (req, res) {
+module.exports.updateitem = function (req, res) {
     console.log("api 핸들러 savemother");
     var callback = function (result, err, doc) {
         if (result) {
@@ -612,38 +618,12 @@ module.exports.getFacilityCheckData = function (req, res) {
 }
 
 // Get Todo Group List
-module.exports.getTodoList = getTodoList;
 module.exports.getTodoGroupList = getTodoGroupList;
 module.exports.getGroupTodoListPerDate = getGroupTodoListPerDate;
 module.exports.getTotalTodoListPerDate = getTotalTodoListPerDate;
 
-// Get Todo List
-function getTodoList(req, res) {
-    if (!dbManager) {
-        return;
-    }
-
-    var period = {
-        startDate: req.query.startDate,
-        endDate: req.query.endDate
-    }
-
-    dbManager.getTodoList(period, function (result, todoList) {
-        if (result == true) {
-            var resultTodoList = new Object();
-            resultTodoList.StartDate = todoList.StartDate;
-            resultTodoList.TodoList = todoList.TodoList;
-
-            res.send(resultTodoList);
-        }
-        else {
-            res.status(505).json({ error: "Invalid Operation" });
-        }
-    });
-}
-
+// Get Maint Item List
 module.exports.getMaintItemList = function (req, res) {
-
     dbManager.getMaintItemList(function (result, list) {
         if (result == true) {
             res.json(list);
@@ -656,6 +636,7 @@ module.exports.getMaintItemList = function (req, res) {
 
 // Get Todo Group List
 function getTodoGroupList(req, res) {
+    /* XXX 
     if (!dbManager) {
         return;
     }
@@ -684,22 +665,22 @@ function getTodoGroupList(req, res) {
                             // Update Todo Group List
                             todoGroupList[todoGroupIndex].todoGroup
                                 = getTodoGroupFlag(todoGroupList[todoGroupIndex].todoGroup,
-                                    checkItem.TimeBaseUnit);
+                                checkItem.TBMPeriodUnit);
                         } else {
                             // Add Todo Group List
                             todoGroupList.push({
                                 CheckDate: checkDate,
-                                todoGroup: getTodoGroupFlag(null, checkItem.TimeBaseUnit)
+                                todoGroup: getTodoGroupFlag(null, checkItem.TBMPeriodUnit)
                             });
                         }
 
-                        if (endDate < checkDate) {
+                        if (endDate < maintDate) {
                             isTerminate = false;
                         }
                     }
 
-                    addDateOffset(checkItem.TimeBaseUnit,
-                        checkItem.TimeBaseValue, checkDate);
+                    addDateOffset(checkItem.TBMPeriodUnit,
+                        checkItem.TimeBaseValue, maintDate);
                 }
             }
 
@@ -709,6 +690,7 @@ function getTodoGroupList(req, res) {
             res.status(500).json({ error: err });
         }
     });
+    */
 }
 
 module.exports.getMachineTypeList = function (req, res) {
@@ -725,7 +707,7 @@ module.exports.getMachineTypeList = function (req, res) {
 
 // Get Todo List Per Group
 function getGroupTodoListPerDate(req, res) {
-    dbManager.getCheckList(function (result, checkList) {
+    dbManager.getMachineItemDataList(function (result, checkList) {
         if (result) {
             
         }
@@ -741,95 +723,216 @@ function getTotalTodoListPerDate(req, res) {
         return;
     }
 
-    var selectedDate = new Date(+req.query.startDate);
+    var selectedDate = new Date(+req.query.maintDate);
     var currentDate = new Date();
+
+    selectedDate.setHours(0, 0, 0, 0);
     currentDate.setHours(0, 0, 0, 0);
 
     /// Get Past and Today Todo List - From DB
-    var resultTodoList = new Object();
-    resultTodoList.StartDate;
-    resultTodoList.TodoList = [];
-
+    todoDataSet.MaintDate = selectedDate;
+    todoDataSet.TodoDataList = [];
     if (selectedDate <= currentDate) {
-        var period = {
-            startDate: selectedDate,
-            endDate: selectedDate
-        }
-
-        dbManager.getTodoList(period, function (result, todoList) {
-            if (result == true) {
-                resultTodoList.StartDate = todoList.StartDate;
-                resultTodoList.TodoList = todoList.TodoList;
-
-                res.send(resultTodoList);
+        dbManager.getTodoDataListByDate(selectedDate, function (err, todoList, machineItemDataList,
+            maintItemDataList, typeList, maintItemLevelTypeList) {
+            if (err) {
+                res.status(505).json({ error: err });
+                return;
             }
-            else {
-                res.status(505).json({ error: "Invalid Operation" });
+
+            for (var todoIndex = 0;
+                todoIndex < todoList.length;
+                todoIndex++) {
+                var todoItem = new Object();
+                todoItem.TodoID = todoList[todoIndex].UID;
+                todoItem.CheckDate = todoList[todoIndex].CheckDate;
+                todoItem.ActionDate = todoList[todoIndex].ActionDate;
+                todoItem.Status = makeTodoStatusString(todoList[todoIndex]);
+
+                for (var machineIndex = 0;
+                    machineIndex < machineItemDataList.length;
+                    machineIndex++) {
+                    if (todoList[todoIndex].MachineItemUID == machineItemDataList[machineIndex].UID) {
+                        todoItem.Level = makeTodoLevelString(machineItemDataList[machineIndex].Level, maintItemLevelTypeList);
+                        todoItem.Period = makePeriodString(machineItemDataList[machineIndex].TBMPeriodUnit,
+                            machineItemDataList[machineIndex].TBMPeriodValue);
+                        var typeName = getTypeName(machineItemDataList[machineIndex].DeviceType, typeList);
+                        if (typeName != null) {
+                            todoItem.Machine = typeName.MachineName + machineItemDataList[machineIndex].MachineID;
+                            todoItem.Module = typeName.ModuleName;
+                            todoItem.Device = typeName.DeviceName;
+                        }
+
+                        for (var maintIndex = 0;
+                            maintIndex < maintItemDataList.length;
+                            maintIndex++) {
+
+                            if (machineItemDataList[machineIndex].MaintItemUID
+                                == maintItemDataList[maintIndex].UID) {
+                                todoItem.Code = maintItemDataList[maintIndex].Code;
+                                todoItem.Title = maintItemDataList[maintIndex].Title;
+                                todoItem.Content = maintItemDataList[maintIndex].Content;
+                            }
+
+                            break;
+                        }
+
+                        break;
+                    }
+                }
+
+                todoDataSet.TodoDataList.push(todoItem);
             }
+
+            res.send(todoDataSet);
         });
 
         return;
 
     } else {
         /// Get Future Check List - From Check List
-        dbManager.getCheckList(function (result, checkList) {
-            if (result) {
-                for (var checkIndex = 0; checkIndex < checkList.length; checkIndex++) {
-                    var checkItem = checkList[checkIndex];
-                    if (!checkItem) {
-                        continue;
+        dbManager.getTodoDataListByMachineItemData(function (err, machineItemDataList,
+            maintItemDataList, typeList, maintItemLevelTypeList) {
+            if (err) {
+                res.status(505).json({ error: err });
+                return;
+            }
+
+            for (var machineItemDataIndex = 0;
+                machineItemDataIndex < machineItemDataList.length;
+                machineItemDataIndex++) {
+                var machineItemData = machineItemDataList[machineItemDataIndex];
+                if (!machineItemData) {
+                    continue;
+                }
+
+                var isAddTodoItem = false;
+                if (machineItemData.TBMPeriodUnit == TBMPeriodUnit.Month) {
+                    if (machineItemData.TBMPeriodValue == selectedDate.getDate()) {
+                        isAddTodoItem = true;
                     }
-
-                    var checkDate = new Date(checkItem.CreateDate);
+                } else if (machineItemData.TBMPeriodUnit == TBMPeriodUnit.Week) {
+                    if (machineItemData.TBMPeriodValue == selectedDate.getDay()) {
+                        isAddTodoItem = true;
+                    }
+                } else {
+                    var maintDate = new Date(machineItemData.CreateDate);
                     while (true) {
-                        if (checkDate > selectedDate) {
+                        if (maintDate > selectedDate) {
                             break;
                         }
 
-                        console.log(checkDate);
-                        console.log(selectedDate);
-                        if (checkDate.getTime() == selectedDate.getTime()) {
-                            // Add Todo List
-                            resultTodoList.TodoList.push({
-                                Code: checkItem.Code,
-                                CheckDate: null,
-                                Level: checkItem.Level,
-                                Title: checkItem.Title,
-                                Content: checkItem.Content,
-                                LargeCategory: checkItem.LargeCategory,
-                                MediumCategory: checkItem.MediumCategory,
-                                SmallCategory: checkItem.SmallCategory,
-                                TimeGroup: checkItem.TimeGroup,
-                                TimeBaseUnit: checkItem.TimeBaseUnit,
-                                TimeBaseValue: checkItem.TimeBaseValue,
-                                MemoListID: 0,
-                                FileListID: 0,
-                                Result: "미조치",
-                                ActionDate: null,
-                                State: 0,
-                            });
+                        if (maintDate.getTime() == selectedDate.getTime()) {
 
+                            isAddTodoItem = true;
                             break;
                         }
 
-                        addDateOffset(checkItem.TimeBaseUnit,
-                            checkItem.TimeBaseValue, checkDate);
+                        maintDate.setDate(maintDate.getDate() + machineItemData.TBMPeriodValue);
                     }
                 }
 
-                res.send(resultTodoList);
+                if (isAddTodoItem == true) {
+                    var todoItem = new Object();
+                    todoItem.TodoID = 0;
+                    todoItem.CheckDate = null;
+                    todoItem.ActionDate = null;
+                    todoItem.Status = makeTodoStatusString();
+                    todoItem.Level = makeTodoLevelString(machineItemData.Level, maintItemLevelTypeList);
+                    todoItem.Period = makePeriodString(machineItemData.TBMPeriodUnit,
+                        machineItemData.TBMPeriodValue);
+                    var typeName = getTypeName(machineItemData.DeviceType, typeList);
+                    if (typeName != null) {
+                        todoItem.Machine = typeName.MachineName + machineItemData.MachineID;
+                        todoItem.Module = typeName.ModuleName;
+                        todoItem.Device = typeName.DeviceName;
+                    }
+
+                    for (var maintIndex = 0;
+                        maintIndex < maintItemDataList.length;
+                        maintIndex++) {
+
+                        if (machineItemData.MaintItemUID
+                            == maintItemDataList[maintIndex].UID) {
+                            todoItem.Code = maintItemDataList[maintIndex].Code;
+                            todoItem.Title = maintItemDataList[maintIndex].Title;
+                            todoItem.Content = maintItemDataList[maintIndex].Content;
+                        }
+
+                        break;
+                    }
+
+                    // Add Todo List
+                    todoDataSet.TodoDataList.push(todoItem);
+                }
             }
-            else {
-                res.status(500).json({ error: err });
-            }
+
+            res.send(todoDataSet);
         });
 
         return;
     }
 }
 
+// Make Period String
+function makePeriodString(tBMPeriodUnit, tBMPeriodValue) {
+    var periodString = "None";
+    switch (tBMPeriodUnit) {
+        case TBMPeriodUnit.Day:
+            periodString = tBMPeriodValue + " Day";
+            break;
+
+        case TBMPeriodUnit.Week:
+            for (var index = 0; index < weekString.length; index++) {
+                if (weekString[index].Day == tBMPeriodValue) {
+                    periodString = weekString[index].Week + " of every week";
+                    break;
+                }
+            }
+            break;
+
+        case TBMPeriodUnit.Month:
+            periodString = tBMPeriodValue + "th of every month";
+            break;
+    }
+
+    return periodString;
+}
+
+function makeTodoStatusString(todoItem) {
+    if (!todoItem || todoItem.Status == 0) {
+        return "미점검";
+    } 
+
+    if (todoItem.CheckResult == 1) {
+        return "미조치";
+    }
+
+    return "완료";
+}
+
+function makeTodoLevelString(levelUID, maintItemLevelTypeList) {
+    for (var index = 0; index < maintItemLevelTypeList.length; index++) {
+        if (levelUID == maintItemLevelTypeList[index].UID) {
+            return maintItemLevelTypeList[index].Name;
+        }
+    }
+
+    return null;
+}
+
+function getTypeName(deviceType, typeList) {
+    for (var index = 0; index < typeList.length; index++) {
+        if (deviceType == typeList[index].DeviceType) {
+            return typeList[index];
+        }
+    }
+
+    return null;
+}
+
 // Get Todo Group Flag
-function getTodoGroupFlag(todoGroupFlag, timeBaseUnit) {
+function getTodoGroupFlag(todoGroupFlag, tBMPeriodUnit) {
     if (!todoGroupFlag) {
         todoGroupFlag = {
             DayTodo: false,
@@ -838,16 +941,16 @@ function getTodoGroupFlag(todoGroupFlag, timeBaseUnit) {
         }
     }
 
-    switch (timeBaseUnit) {
-        case TimeBaseUnit.Day:
+    switch (tBMPeriodUnit) {
+        case TBMPeriodUnit.Day:
             todoGroupFlag.DayTodo = true;
             break;
 
-        case TimeBaseUnit.Week:
+        case TBMPeriodUnit.Week:
             todoGroupFlag.WeekTodo = true;
             break;
 
-        case TimeBaseUnit.Month:
+        case TBMPeriodUnit.Month:
             todoGroupFlag.MonthTodo = true;
             break;
     }
@@ -869,19 +972,28 @@ function checkExistTodoGroupDate(todoGroupList) {
     return -1;
 }
 
-// Add Date Offset
-function addDateOffset(timeBaseUnit, timeBaseValue, checkDate) {
-    switch (timeBaseUnit) {
-        case TimeBaseUnit.Day:
-            checkDate.setDate(checkDate.getDate() + timeBaseValue);
+// Add Date OffsetTBMPeriodUnit
+function addDateOffset(tBMPeriodUnit, tBMPeriodValue, maintDate) {
+    /* XXX 추후 수정 필요 */
+    switch (tBMPeriodUnit) {
+        case TBMPeriodUnit.Day:
+            maintDate.setDate(maintDate.getDate() + tBMPeriodValue);
             break;
 
-        case TimeBaseUnit.Week:
-            checkDate.setDate(checkDate.getDate() + (timeBaseValue * 7));
+        case TBMPeriodUnit.Week:
+            var dateOffset = 7;
+            var maintDay = maintDate.getDay();
+            if (maintDay < tBMPeriodValue) {
+                dateOffset = tBMPeriodValue - maintDay;
+            } else if (maintDay > tBMPeriodValue){
+                dateOffset = 7 - (maintDay - tBMPeriodValue);
+            }
+
+            maintDate.setDate(maintDate.getDate() + dateOffset);
             break;
 
-        case TimeBaseUnit.Month:
-            checkDate.setMonth(checkDate.getMonth() + timeBaseValue);
+        case TBMPeriodUnit.Month:
+            maintDate.setDate(maintDate.getDate() + 1);
             break;
     }
 }
@@ -963,6 +1075,24 @@ module.exports.createMaintItem = function (req, res) {
     dbManager.createMaintItem(maintItemData, function (result) {
         if (result == true) {
             res.end();
+        }
+        else {
+            res.status(505).json({ error: "Internal Error" });
+        }
+    });
+}
+
+/* Machine Maint Item API *************************************/
+module.exports.getMachineMaintItemList = function (req, res) {
+
+    var param = {
+        MachineType: req.query.MachineType,
+        MachineID: req.query.MachineID
+    };
+
+    dbManager.getMachineMaintItemList(param, function (result, list) {
+        if (result == true) {
+            res.json(list);
         }
         else {
             res.status(505).json({ error: "Internal Error" });

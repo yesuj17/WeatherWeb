@@ -3,8 +3,9 @@ var Schema = mongoose.Schema;
 
 var PMSMachineItemDataSchema = new Schema({
     UID : Number, 
-    MaintItemUID : Number, /* PMSMaintItemDataSchema UID */
-    DeviceType : Number,  /* PMSDeviceTypeSchema UID */                  
+    MachineID: Number,
+    MaintItemUID: Number, /* PMSMaintItemDataSchema UID */
+    DeviceType: Number,  /* PMSDeviceTypeSchema UID */
     CreateDate : { type: Date }, 
     CheckType : Number,  /* 0 == TBM, 1 == CBM */
     TBMPeriodUnit : Number,  /* 0 : Daily, 1 : Weekly, 2 : Monthly */
