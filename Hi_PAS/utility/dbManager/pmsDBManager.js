@@ -38,6 +38,21 @@ module.exports.addTodoItem = addTodoItem;
 //    next(true, err/* err: null */, doc); //정상처리
 //});
 
+var TBMDateUnit = {
+    Total: 0,
+    Day: 1,
+    Week: 2,
+    Month: 3
+}
+
+var weekString = [{ Day: 1, Week: 'Mon' },
+    { Day: 2, Week: 'Tue' },
+    { Day: 3, Week: 'Wed' },
+    { Day: 4, Week: 'Thu' },
+    { Day: 5, Week: 'Fri' },
+    { Day: 6, Week: 'Sat' },
+    { Day: 7, Week: 'Sun' }];
+
 module.exports.findTodoFileListData = function(param, next){
     if(!param){
         next(false, 'param null');
@@ -1799,7 +1814,6 @@ module.exports.saveMothersoneData = function (next, maintItemData) {
        // mother.Type = req.body.Type;
         mother.Level = maintItemData.Level;
 
-
         mother.save(function (err) {
             if (err) {
                 next(false, err);
@@ -1853,7 +1867,7 @@ function getAllMachineItemDataList(next) {
 }
 
 // Get Todo Data List By Date
-function getTodoDataListByDate(maintDate, next) {
+function getTodoDataListByDate(maintDate, tbmCheckUnit, next) {
     PMSTodoDataSchema.aggregate([
         {
             $match: {
@@ -1862,10 +1876,101 @@ function getTodoDataListByDate(maintDate, next) {
         },
         {
             $lookup: {
+                from: 'PMSMachineItemData',
+                localField: 'MachineItemUID',
+                foreignField: 'UID',
+                as: 'MachineItemData'
+            }
+        },
+        {
+            $unwind:"$MachineItemData"
+        },
+        {
+            $lookup: {
+                from: 'PMSMaintItemData',
+                localField: 'MachineItemData.MaintItemUID',
+                foreignField: 'UID',
+                as: 'MaintItemData'
+            } 
+        },
+        {
+            $lookup: {
+                from: 'PMSMaintItemLevelType',
+                localField: 'MachineItemData.Level',
+                foreignField: 'UID',
+                as: 'LevelType'
+            }
+        },
+        {
+            $lookup: {
+                from: 'PMSDeviceType',
+                localField: 'MachineItemData.DeviceType',
+                foreignField: 'UID',
+                as: 'DeviceType'
+            }
+        },
+        {
+            $unwind: "$DeviceType"
+        },
+        {
+            $lookup: {
+                from: 'PMSMachineType',
+                localField: 'DeviceType.MachineType',
+                foreignField: 'UID',
+                as: 'MachineType'
+            }
+        },
+        {
+            $lookup: {
+                from: 'PMSModuleType',
+                localField: 'DeviceType.ModuleType',
+                foreignField: 'UID',
+                as: 'ModuleType'
+            }
+        }
+    ], function (err, result) {
+        if (err) {
+            next(err);
+            return;
+        }
+
+        var todoItemList = [];
+        for (var i = 0; i < result.length; i++) {
+            if ((tbmCheckUnit != TBMDateUnit.Total)
+                && (tbmCheckUnit != result[i].MachineItemData.TBMCheckUnit)) {
+                continue;
+            }
+
+            todoItemList.push({
+                TodoID: result[i].UID,
+                CheckDate: result[i].CheckDate,
+                ActionDate: result[i].ActionDate,
+                Status: makeTodoStatusString(result[i]),
+                Level: result[i].LevelType[0].Name,
+                Period: makePeriodString(result[i].MachineItemData.TBMCheckUnit,
+                    result[i].MachineItemData.TBMCheckValue),
+                Machine: result[i].MachineType[0].Name + result[i].MachineItemData.MachineID,
+                Module: result[i].ModuleType[0].Name,
+                Device: result[i].DeviceType.Name,
+                Code: result[i].MaintItemData[0].Code,
+                Title: result[i].MaintItemData[0].Title,
+                Content: result[i].MaintItemData[0].Content
+            });
+        }
+
+        next(err, todoItemList);
+    });
+}
+
+// Get Todo Data List By Machine Item Data
+function getTodoDataListByMachineItemData(maintDate, tbmCheckUnit, next) {
+    PMSMachineItemDataSchema.aggregate([
+        {
+            $lookup: {
                 from: 'PMSMaintItemData',
                 localField: 'MaintItemUID',
                 foreignField: 'UID',
-                as: 'MaintData'
+                as: 'MaintItemData'
             }
         },
         {
@@ -1873,288 +1978,135 @@ function getTodoDataListByDate(maintDate, next) {
                 from: 'PMSMaintItemLevelType',
                 localField: 'Level',
                 foreignField: 'UID',
-                as: 'LevelData'
+                as: 'LevelType'
+            }
+        },
+        {
+            $lookup: {
+                from: 'PMSDeviceType',
+                localField: 'DeviceType',
+                foreignField: 'UID',
+                as: 'DeviceType'
+            }
+        },
+        {
+            $unwind: "$DeviceType"
+        },
+        {
+            $lookup: {
+                from: 'PMSMachineType',
+                localField: 'DeviceType.MachineType',
+                foreignField: 'UID',
+                as: 'MachineType'
+            }
+        },
+        {
+            $lookup: {
+                from: 'PMSModuleType',
+                localField: 'DeviceType.ModuleType',
+                foreignField: 'UID',
+                as: 'ModuleType'
             }
         }
     ], function (err, result) {
+        if (err) {
+            next(err);
+            return;
+        }
 
+        var todoItemList = [];
+        for (var i = 0; i < result.length; i++) {
+            if ((tbmCheckUnit != TBMDateUnit.Total)
+                && (tbmCheckUnit != result[i].TBMCheckUnit)) {
+                continue;
+            }
+
+            var isAddTodoItem = false;
+            if (result[i].TBMCheckUnit == TBMDateUnit.Month) {
+                if (result[i].TBMCheckValue == maintDate.getDate()) {
+                    isAddTodoItem = true;
+                }
+            } else if (result[i].TBMCheckUnit == TBMDateUnit.Week) {
+                if (result[i].TBMCheckValue == maintDate.getDay()) {
+                    isAddTodoItem = true;
+                }
+            } else {
+                var maintStartDate = new Date(result[i].CreateDate);
+                maintStartDate.setHours(0, 0, 0, 0);
+                while (true) {
+                    console.log(maintStartDate);
+                    console.log(maintDate);
+                    if (maintStartDate > maintDate) {
+                        break;
+                    }
+
+                    if (maintStartDate.getTime() == maintDate.getTime()) {
+                        isAddTodoItem = true;
+                        break;
+                    }
+
+                    maintStartDate.setDate(maintStartDate.getDate() + result[i].TBMCheckValue);
+                }
+            }
+
+            if (isAddTodoItem) {
+                todoItemList.push({
+                    TodoID: 0,
+                    CheckDate: null,
+                    ActionDate: null,
+                    Status: makeTodoStatusString(),
+                    Level: result[i].LevelType[0].Name,
+                    Period: makePeriodString(result[i].TBMCheckUnit, result[i].TBMCheckValue),
+                    Machine: result[i].MachineType[0].Name + result[i].MachineID,
+                    Module: result[i].ModuleType[0].Name,
+                    Device: result[i].DeviceType.Name,
+                    Code: result[i].MaintItemData[0].Code,
+                    Title: result[i].MaintItemData[0].Title,
+                    Content: result[i].MaintItemData[0].Content
+                });
+            }
+        }
+
+        next(err, todoItemList);
     });
-    /* XXX 
-    async.waterfall([
-        function (next) {
-            PMSTodoDataSchema.
-                find().
-                where('MaintDate').eq(maintDate).
-                sort('MaintDate').
-                lean().
-                exec(function (err, todoList) {
-                    if (err) {
-                        console.log(err);
-                        next(err);
-                    }
-
-                    if (!todoList) {
-                        todoList = [];
-                    }
-
-                    next(err, todoList);
-                });
-        },
-        function (todoList, next) {
-            var machineItemUIDList = [];
-            for (var index = 0; index < todoList.length; index++) {
-                machineItemUIDList.push(todoList[index].MachineItemUID);
-            }
-
-            PMSMachineItemDataSchema.
-                find().
-                where('UID').
-                in(machineItemUIDList).
-                lean().
-                exec(function (err, machineItemDataList) {
-                    if (err) {
-                        console.log(err);
-                        next(err);
-                    }
-
-                    next(err, todoList, machineItemDataList);
-                });
-        },
-        function (todoList, machineItemDataList, next) {
-            var maintItemUIDList = [];
-            for (var index = 0; index < machineItemDataList.length; index++) {
-                maintItemUIDList.push(machineItemDataList[index].MaintItemUID);
-            }
-
-            PMSMaintItemDataSchema.
-                find().
-                where('UID').
-                in(maintItemUIDList).
-                exec(function (err, maintItemDataList) {
-                    if (err) {
-                        console.log(err);
-                        next(err);
-                    }
-
-                    next(err, todoList, machineItemDataList, maintItemDataList);
-                });
-        },
-        function (todoList, machineItemDataList, maintItemDataList, next) {
-            PMSDeviceTypeSchema.
-                find().
-                lean().
-                exec(function (err, deviceTypeList) {
-                    if (err) {
-                        console.log(err);
-                        next(err);
-                    }
-
-                    next(err, todoList, machineItemDataList,
-                        maintItemDataList, deviceTypeList);
-                });
-        },
-        function (todoList, machineItemDataList,
-            maintItemDataList, deviceTypeList, next) {
-            PMSMachineTypeSchema.
-                find().
-                lean().
-                exec(function (err, machineTypeList) {
-                    if (err) {
-                        console.log(err);
-                        next(err);
-                    }
-
-                    next(err, todoList, machineItemDataList,
-                        maintItemDataList, deviceTypeList,
-                        machineTypeList);
-                });
-        },
-        function (todoList, machineItemDataList,
-            maintItemDataList, deviceTypeList,
-            machineTypeList, next) {
-            PMSModuleTypeSchema.
-                find().
-                lean().
-                exec(function (err, moduleTypeList) {
-                    if (err) {
-                        console.log(err);
-                        next(err);
-                    }
-
-                    var typeList = [];
-                    for (var index = 0; index < deviceTypeList.length; index++) {
-                        var type = new Object();
-                        type.DeviceType = deviceTypeList[index].UID;
-                        type.DeviceName = deviceTypeList[index].Name;
-
-                        for (var machineIndex = 0; machineIndex < machineTypeList.length; machineIndex++) {
-                            if (deviceTypeList[index].MachineType
-                                == machineTypeList[machineIndex].UID) {
-                                type.MachineName = machineTypeList[machineIndex].Name;
-                                break;
-                            }
-                        }
-
-                        for (var moduleIndex = 0; moduleIndex < moduleTypeList.length; moduleIndex++) {
-                            if (deviceTypeList[index].ModuleType
-                                == moduleTypeList[moduleIndex].UID) {
-                                type.ModuleName = moduleTypeList[moduleIndex].Name;
-                                break;
-                            }
-                        }
-
-                        typeList.push(type);
-                    }
-
-                    next(err, todoList, machineItemDataList,
-                        maintItemDataList, typeList);
-                });
-        },
-        function (todoList, machineItemDataList,
-            maintItemDataList, typeList) {
-            PMSMaintItemLevelTypeSchema.
-                find().
-                lean().
-                exec(function (err, maintItemLevelTypeList) {
-                    if (err) {
-                        console.log(err);
-                        next(err);
-                    }
-
-                    next(err, todoList, machineItemDataList,
-                        maintItemDataList, typeList, maintItemLevelTypeList);
-                });
-        }
-    ], next);
-    */
 }
 
-function getTodoDataListByMachineItemData(next) {
-    async.waterfall([
-        function (next) {
-            PMSMachineItemDataSchema.
-                find().
-                lean().
-                exec(function (err, machineItemDataList) {
-                    if (err) {
-                        console.log(err);
-                        next(err);
-                    }
+// Make Period String
+function makePeriodString(TBMCheckUnit, TBMCheckValue) {
+    var periodString = "None";
+    switch (TBMCheckUnit) {
+        case TBMDateUnit.Day:
+            periodString = TBMCheckValue + " Day";
+            break;
 
-                    next(err, machineItemDataList);
-                });
-        },
-        function (machineItemDataList, next) {
-            var maintItemUIDList = [];
-            for (var index = 0; index < machineItemDataList.length; index++) {
-                maintItemUIDList.push(machineItemDataList[index].MaintItemUID);
+        case TBMDateUnit.Week:
+            for (var index = 0; index < weekString.length; index++) {
+                if (weekString[index].Day == TBMCheckValue) {
+                    periodString = weekString[index].Week + " of every week";
+                    break;
+                }
             }
+            break;
 
-            PMSMaintItemDataSchema.
-                find().
-                where('UID').
-                in(maintItemUIDList).
-                exec(function (err, maintItemDataList) {
-                    if (err) {
-                        console.log(err);
-                        next(err);
-                    }
+        case TBMDateUnit.Month:
+            periodString = TBMCheckValue + "th of every month";
+            break;
+    }
 
-                    next(err, machineItemDataList, maintItemDataList);
-                });
-        },
-        function (machineItemDataList, maintItemDataList, next) {
-            PMSDeviceTypeSchema.
-                find().
-                lean().
-                exec(function (err, deviceTypeList) {
-                    if (err) {
-                        console.log(err);
-                        next(err);
-                    }
-
-                    next(err, machineItemDataList,
-                        maintItemDataList, deviceTypeList);
-                });
-        },
-        function ( machineItemDataList,
-            maintItemDataList, deviceTypeList, next) {
-            PMSMachineTypeSchema.
-                find().
-                lean().
-                exec(function (err, machineTypeList) {
-                    if (err) {
-                        console.log(err);
-                        next(err);
-                    }
-
-                    next(err, machineItemDataList,
-                        maintItemDataList, deviceTypeList,
-                        machineTypeList);
-                });
-        },
-        function (machineItemDataList,
-            maintItemDataList, deviceTypeList,
-            machineTypeList, next) {
-            PMSModuleTypeSchema.
-                find().
-                lean().
-                exec(function (err, moduleTypeList) {
-                    if (err) {
-                        console.log(err);
-                        next(err);
-                    }
-
-                    var typeList = [];
-                    for (var index = 0; index < deviceTypeList.length; index++) {
-                        var type = new Object();
-                        type.DeviceType = deviceTypeList[index].UID;
-                        type.DeviceName = deviceTypeList[index].Name;
-
-                        for (var machineIndex = 0; machineIndex < machineTypeList.length; machineIndex++) {
-                            if (deviceTypeList[index].MachineType
-                                == machineTypeList[machineIndex].UID) {
-                                type.MachineName = machineTypeList[machineIndex].Name;
-                                break;
-                            }
-                        }
-
-                        for (var moduleIndex = 0; moduleIndex < moduleTypeList.length; moduleIndex++) {
-                            if (deviceTypeList[index].ModuleType
-                                == moduleTypeList[moduleIndex].UID) {
-                                type.ModuleName = moduleTypeList[moduleIndex].Name;
-                                break;
-                            }
-                        }
-
-                        typeList.push(type);
-                    }
-
-                    next(err, machineItemDataList,
-                        maintItemDataList, typeList);
-                });
-        },
-        function (machineItemDataList,
-            maintItemDataList, typeList) {
-            PMSMaintItemLevelTypeSchema.
-                find().
-                lean().
-                exec(function (err, maintItemLevelTypeList) {
-                    if (err) {
-                        console.log(err);
-                        next(err);
-                    }
-
-                    next(err, machineItemDataList,
-                        maintItemDataList, typeList, maintItemLevelTypeList);
-                });
-        }
-    ], next);
+    return periodString;
 }
 
-// Get Total Todo List Per Date
-function getTotalTodoListPerDate(period, next) {
-    /* XXX */
+// Make Todo Status String
+function makeTodoStatusString(todoItem) {
+    if (!todoItem || todoItem.Status == 0) {
+        return "미점검";
+    }
+
+    if (todoItem.CheckResult == 1) {
+        return "미조치";
+    }
+
+    return "완료";
 }
 
 // Add Todo Item
@@ -2190,68 +2142,7 @@ function addTodoItem(maintDate, newMachineItemData, next) {
         });
 }
 
-///////////////////////////////////////////////////
-// XXX For Add Default Check List DB : Must Remove
-module.exports.initializeCheckListData = initializeCheckListData;
-function initializeCheckListData() {
-    mongoose.connection.db.listCollections({ name: 'CheckList' })
-        .next(function (err, collinfo) {
-            if (!collinfo) {
-                /// Fill Default CheckList
-                /*** 임시 Facility ID ***
-                장비 타입 : S.C => 01
-                장비 호기 : 2호기 => 02
-                Facility ID : x0102
-                **************************/
-                PMSMaintItemDataSchema.
-                    find().
-                    lean().
-                    exec(function (err, motherDataList) {
-                        if (err) {
-                            console.log(err);
-                            return;
-                        }
-
-                        var checkList = [];
-                        for (var deviceIndex = 1; deviceIndex < 9; deviceIndex++) {
-                            for (var index = 0; index < motherDataList.length; index++) {
-                                var motherData = motherDataList[index];
-                                var formattedNumber = ("0" + deviceIndex).slice(-2);
-                                var facilityId = "01" + formattedNumber;
-                                var checkItem = {
-                                    FacilityId: parseInt(facilityId, 16),
-                                    Code: motherData.Code,
-                                    Level: motherData.Level,
-                                    CreateDate: motherData.CreateDate.setHours(0, 0, 0, 0),
-                                    Title: motherData.Title,
-                                    Content: motherData.Content,
-                                    LargeCategory: motherData.LargeCategory,
-                                    MediumCategory: motherData.MediumCategory,
-                                    SmallCategory: motherData.SmallCategory,
-                                    TimeGroup: motherData.TimeGroup,
-                                    TimeBaseUnit: motherData.TimeBaseUnit,
-                                    TimeBaseValue: motherData.TimeBaseValue,
-                                    Relation: motherData.Relation
-                                }
-
-                                checkList.push(checkItem);
-                            }
-                        }
-
-                        CheckListSchema
-                            .insertMany(checkList, function (err) {
-                                if (err) {
-                                    console.log(err);
-                                    return;
-                                }
-                            });
-                    });
-            }
-        });
-}
-
 module.exports.getMaintItemList = function (next) {
-
     PMSMaintItemDataSchema.aggregate([
         {
             $lookup: {

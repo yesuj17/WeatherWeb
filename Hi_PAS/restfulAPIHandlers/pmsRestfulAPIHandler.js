@@ -396,10 +396,6 @@ saveMotherDataArrayToDB = function (result,res) {
         //  if (true != result) 비동기라 undefind 가 넘어와서 종료됨. 리턴값 무시 
         //      return result;  
     }
-
-    ///////////////////////////////////////////////////
-    // XXX For Add Default Check List DB : Must Remove
-    dbManager.initializeCheckListData();
 }
 CoverteforSave = function (rawjson) {
     var result = MaintItemData;
@@ -875,156 +871,28 @@ function getTodoListPerDate(req, res) {
 
     /// Get Past and Today Todo List - From DB
     todoDataSet.MaintDate = selectedDate;
-    todoDataSet.TodoDataList = [];
     if (selectedDate <= currentDate) {
-        dbManager.getTodoDataListByDate(selectedDate, function (err, todoList, machineItemDataList,
-            maintItemDataList, typeList, maintItemLevelTypeList) {
+        dbManager.getTodoDataListByDate(selectedDate, tbmCheckUnit, function (err, todoItemList) {
             if (err) {
                 res.status(505).json({ error: err });
                 return;
             }
 
-            for (var todoIndex = 0;
-                todoIndex < todoList.length;
-                todoIndex++) {
-                if ((tbmCheckUnit != TBMDateUnit.Total)
-                    && (tbmCheckUnit != todoList[todoIndex].TBMCheckUnit)) {
-                    continue;
-                }
-
-                var todoItem = new Object();
-                todoItem.TodoID = todoList[todoIndex].UID;
-                todoItem.CheckDate = todoList[todoIndex].CheckDate;
-                todoItem.ActionDate = todoList[todoIndex].ActionDate;
-                todoItem.Status = makeTodoStatusString(todoList[todoIndex]);
-
-                for (var machineIndex = 0;
-                    machineIndex < machineItemDataList.length;
-                    machineIndex++) {
-                    if (todoList[todoIndex].MachineItemUID == machineItemDataList[machineIndex].UID) {
-                        todoItem.Level = makeTodoLevelString(machineItemDataList[machineIndex].Level, maintItemLevelTypeList);
-                        todoItem.Period = makePeriodString(machineItemDataList[machineIndex].TBMCheckUnit,
-                            machineItemDataList[machineIndex].TBMCheckValue);
-                        var typeName = getTypeName(machineItemDataList[machineIndex].DeviceType, typeList);
-                        if (typeName != null) {
-                            todoItem.Machine = typeName.MachineName + machineItemDataList[machineIndex].MachineID;
-                            todoItem.Module = typeName.ModuleName;
-                            todoItem.Device = typeName.DeviceName;
-                        }
-
-                        for (var maintIndex = 0;
-                            maintIndex < maintItemDataList.length;
-                            maintIndex++) {
-
-                            if (machineItemDataList[machineIndex].MaintItemUID
-                                == maintItemDataList[maintIndex].UID) {
-                                todoItem.Code = maintItemDataList[maintIndex].Code;
-                                todoItem.Title = maintItemDataList[maintIndex].Title;
-                                todoItem.Content = maintItemDataList[maintIndex].Content;
-
-                                break;
-                            }
-                        }
-
-                        break;
-                    }
-                }
-
-                todoDataSet.TodoDataList.push(todoItem);
-            }
-
+            todoDataSet.TodoDataList = todoItemList;
             res.send(todoDataSet);
         });
-
-        return;
 
     } else {
         /// Get Future Check List - From Check List
-        dbManager.getTodoDataListByMachineItemData(function (err, machineItemDataList,
-            maintItemDataList, typeList, maintItemLevelTypeList) {
+        dbManager.getTodoDataListByMachineItemData(selectedDate, tbmCheckUnit, function (err, todoItemList) {
             if (err) {
                 res.status(505).json({ error: err });
                 return;
             }
 
-            for (var machineItemDataIndex = 0;
-                machineItemDataIndex < machineItemDataList.length;
-                machineItemDataIndex++) {
-                var machineItemData = machineItemDataList[machineItemDataIndex];
-                if (!machineItemData) {
-                    continue;
-                }
-
-                if ((tbmCheckUnit != TBMDateUnit.Total)
-                    && (tbmCheckUnit != machineItemData.TBMCheckUnit)) {
-                    continue;
-                }
-
-                var isAddTodoItem = false;
-                if (machineItemData.TBMCheckUnit == TBMDateUnit.Month) {
-                    if (machineItemData.TBMCheckValue == selectedDate.getDate()) {
-                        isAddTodoItem = true;
-                    }
-                } else if (machineItemData.TBMCheckUnit == TBMDateUnit.Week) {
-                    if (machineItemData.TBMCheckValue == selectedDate.getDay()) {
-                        isAddTodoItem = true;
-                    }
-                } else {
-                    var maintDate = new Date(machineItemData.CreateDate);
-                    maintDate.setHours(0, 0, 0, 0);
-                    while (true) {
-                        if (maintDate > selectedDate) {
-                            break;
-                        }
-
-                        if (maintDate.getTime() == selectedDate.getTime()) {
-                            isAddTodoItem = true;
-                            break;
-                        }
-
-                        maintDate.setDate(maintDate.getDate() + machineItemData.TBMCheckValue);
-                    }
-                }
-
-                if (isAddTodoItem == true) {
-                    var todoItem = new Object();
-                    todoItem.TodoID = 0;
-                    todoItem.CheckDate = null;
-                    todoItem.ActionDate = null;
-                    todoItem.Status = makeTodoStatusString();
-                    todoItem.Level = makeTodoLevelString(machineItemData.Level, maintItemLevelTypeList);
-                    todoItem.Period = makePeriodString(machineItemData.TBMCheckUnit,
-                        machineItemData.TBMCheckValue);
-                    var typeName = getTypeName(machineItemData.DeviceType, typeList);
-                    if (typeName != null) {
-                        todoItem.Machine = typeName.MachineName + machineItemData.MachineID;
-                        todoItem.Module = typeName.ModuleName;
-                        todoItem.Device = typeName.DeviceName;
-                    }
-
-                    for (var maintIndex = 0;
-                        maintIndex < maintItemDataList.length;
-                        maintIndex++) {
-
-                        if (machineItemData.MaintItemUID
-                            == maintItemDataList[maintIndex].UID) {
-                            todoItem.Code = maintItemDataList[maintIndex].Code;
-                            todoItem.Title = maintItemDataList[maintIndex].Title;
-                            todoItem.Content = maintItemDataList[maintIndex].Content;
-
-                            break;
-                        }
-                    }
-
-                    // Add Todo List
-                    todoDataSet.TodoDataList.push(todoItem);
-                }
-            }
-
+            todoDataSet.TodoDataList = todoItemList;
             res.send(todoDataSet);
         });
-
-        return;
     }
 }
 
