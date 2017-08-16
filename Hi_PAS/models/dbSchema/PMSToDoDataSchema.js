@@ -1,17 +1,40 @@
-﻿var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+﻿var mongoose = require('mongoose'),
+    Schema = mongoose.Schema,
+    autoIncrement = require('mongoose-auto-increment');
+
+autoIncrement.initialize(mongoose.connection); 
 
 var PMSToDoDataSchema = new Schema({
-    UID: Number,
-    MaintDate: Date,
-    MachineItemUID: Number, /* PMSMachineItemMaintItemDataSchema UID */
-    /* XXX Todo List 임시 */
-    MachineItemObjectID: { type: Schema.Types.ObjectId, ref: 'PMSMachineItemDataSchema'},
-    Status: Number, /* 0 : 미점검, 1 : 점검 완료 */
-    CheckResult: Number, /* 0 : OK, 1 : NG */
-    ActionMaintItemUID: Number, /* 조치 항목 UID, -1 : undefined */
-    CheckDate: Date,
-    ActionDate: Date
+    UID: {
+        type: Number, required: true
+    },
+    MaintDate: {
+        type: Date
+    },
+    MachineItemUID: {
+        type: Number, required: true  /* PMSMachineItemMaintItemDataSchema UID */
+    },
+    Status: {
+        type: Number, required: true  /* 0 : 미점검, 1 : 점검 완료 */
+    },
+    CheckResult: {
+        type: Number, required: true  /* 0 : OK, 1 : NG */
+    },
+    ActionMaintItemUID: {
+        type: Number, required: true  /* 조치 항목 UID, -1 : undefined */
+    },
+    CheckDate: {
+        type: Date
+    },
+    ActionDate: {
+        type: Date
+    }
+});
+
+PMSToDoDataSchema.plugin(autoIncrement.plugin, {
+    model: 'PMSToDoDataSchema',
+    field: 'UID',
+    startAt: 1
 });
 
 module.exports = mongoose.model('PMSToDoDataSchema', PMSToDoDataSchema, "PMSToDoData");

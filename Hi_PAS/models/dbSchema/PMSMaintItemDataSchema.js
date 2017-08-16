@@ -1,22 +1,57 @@
-﻿var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+﻿var mongoose = require('mongoose'),
+    Schema = mongoose.Schema,
+    autoIncrement = require('mongoose-auto-increment');
+
+autoIncrement.initialize(mongoose.connection); 
 
 var PMSMaintItemDataSchema = new Schema({
-    UID : Number,
-    Code : String,
-    Title : String,
-    Content : String,    
-    DeviceType : Number,  /* PMSDeviceTypeSchema UID */           
+    UID: {
+        type: Number, required: true
+    },
+    Code: {
+        type: String, default: ''
+    },
+    Title: {
+        type: String, default: ''
+    },
+    Content: {
+        type: String, default: ''
+    },
+    DeviceType: {
+        type: Number,               /* PMSDeviceTypeSchema UID */           
+    },    
     CreateDate : { type: Date },
-    CheckType : Number,  /* 0 == TBM, 1 == CBM */
-    TBMCheckUnit : Number,  /* PMSTBMCheckUnitTypeSchema UID,  0 : Daily, 1 : Weekly, 2 : Monthly */
-    TBMCheckValue : Number,   /* Weekly : 1 ~ 2 , Monthly : 1 ~ 31 */
-    CBMCheckUnit : Number, /* PMSCBMCheckUnitTypeSchema UID,  0 : Count , 1 : Distance */
-    CBMCheckLimitValue : Number,
-    CBMCheckWarnLimitValue : Number,
+    CheckType: {
+        type: Number, default: 0    /* 0 == TBM, 1 == CBM */
+    },        
+    TBMCheckUnit: {
+        type: Number, default: 0   /* PMSTBMCheckUnitTypeSchema UID,  0 : Daily, 1 : Weekly, 2 : Monthly */
+    },        
+    TBMCheckValue: {
+        type: Number, default: 1   /* Weekly : 1 ~ 2 , Monthly : 1 ~ 31 */
+    },        
+    CBMCheckUnit: {
+        type: Number, default: 0   /* PMSCBMCheckUnitTypeSchema UID,  0 : Count , 1 : Distance */
+    },
+    CBMCheckLimitValue: {
+        type: Number, default: 0 
+    },
+    CBMCheckWarnLimitValue: {
+        type: Number, default: 0
+    },   
     Relation : [], /* array(String) */
-    Type : Number, /* 0 : Check, 1 : Action */
-    Level : Number  /* PMSItemLevelType UID */
+    Type: {
+        type: Number, default: 0   /* 0 : Check, 1 : Action */
+    },    
+    Level: {
+        type: Number, default: 0  /* PMSItemLevelType UID */
+    }
+});
+
+PMSMaintItemDataSchema.plugin(autoIncrement.plugin, {
+    model: 'PMSMaintItemDataSchema',
+    field: 'UID',
+    startAt: 1
 });
 
 module.exports = mongoose.model('PMSMaintItemDataSchema', PMSMaintItemDataSchema, "PMSMaintItemData");

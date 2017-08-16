@@ -1,7 +1,5 @@
-﻿const LARGE_NUMBER = 99999999;
-const MILLISECONDS_OF_THE_YEAR = 31536000000;
-angular
-    .module('pdasAnalysisApp', ['chart.js'])
+﻿angular
+    .module('pdasAnalysisApp', ['chart.js', 'angularjs-gauge'])
     .controller('pdasAnalysisController', ['$scope', '$http', pdasAnalysisController]);
 
 var currentTrendChart;
@@ -17,10 +15,13 @@ var orgCurrentData = {
     datasets:[]
 };
 
+var LARGE_NUMBER = 99999999;
+var MILLISECONDS_OF_THE_YEAR = 31536000000;
+
 function pdasAnalysisController($scope, $http) {
     var pdasAnalysisVM = this;
     pdasAnalysisVM.Machines = [];
-    pdasAnalysisVM.selectedMachine = [];
+    pdasAnalysisVM.selectedMachine = '';
     pdasAnalysisVM.motorType = {
         DrivingMotor: 'DrivingMotor',
         HoistingMotor: 'HoistingMotor',
@@ -35,7 +36,24 @@ function pdasAnalysisController($scope, $http) {
     pdasAnalysisVM.maxIStockRate = 0;
     pdasAnalysisVM.minIStockRate = 0;
     // OEE
-    pdasAnalysisVM.oeeValue = 0;
+    pdasAnalysisVM.oeeInfo              = {value:'', threshold:{}};
+    pdasAnalysisVM.balancingRateInfo    = {value:'', threshold:{}};
+    pdasAnalysisVM.yieldInfo            = {value:'', threshold:{}};
+    pdasAnalysisVM.iStockRateInfo       = {value:'', threshold:{}};
+    // chart.js canvas background color setting
+    Chart.pluginService.register({
+        beforeDraw: function (chart, easing) {
+            if (chart.config.options.chartArea && chart.config.options.chartArea.backgroundColor) {
+                var helpers = Chart.helpers;
+                var ctx = chart.chart.ctx;
+                var chartArea = chart.chartArea;
+                ctx.save();
+                ctx.fillStyle = chart.config.options.chartArea.backgroundColor;
+                ctx.fillRect(0, 0, chart.width, chart.height);
+                ctx.restore();
+            }
+        }
+	});
 
     var $analysisDateTimePickerFrom = $('#ID_PDAS_analysisDateTimePickerFrom');
     var $analysisDateTimePickerTo = $('#ID_PDAS_analysisDateTimePickerTo');
@@ -63,30 +81,31 @@ function pdasAnalysisController($scope, $http) {
         $('#ID_PDAS_dateToChangeFlg').val('true');
     });
 
-    //initializePdasAnalysisApp();
+    initializePdasAnalysisApp();
     pdasAnalysisVM.changeAnalysisDate = function() {
         if($('#ID_PDAS_dateFromChangeFlg').val() == 'false' && $('#ID_PDAS_dateToChangeFlg').val() == 'false') {
             return;
         }
         var period = {
-            from: new Date($('#ID_PDAS_analysisDateFrom').val()),
-            to: new Date($('#ID_PDAS_analysisDateTo').val())
+            from: new Date($('#ID_PDAS_analysisDateFrom').val()).toString(),
+            to: new Date($('#ID_PDAS_analysisDateTo').val()).toString()
         }
         // Step 1. 선택된 기간의 분석데이터 수집
-        getAnalysisData(period, updateAnalysisContents);
-        // Step 2. 컨텐츠 별로 챠트 업데이트
-        function updateAnalysisContents(err, anaysisData) {
-            if (err) { }
-            else {
-                removeAnalysisChartData();
-                createMachineInfo(anaysisData.Machines);
-                updateCurrentTrendChart(anaysisData.CurrentData);
-                createCycleTimeChart(anaysisData.CycleTimeData);
-                createIStockRateChart(anaysisData.IStockRateData);
-                createOEESummaryChart(anaysisData.OEESummaryData);
-                createOEETrendChart(anaysisData.OEETrendData);
-            }
-        }
+        $("#ID_PDAS_analysisSpinner").show().spin(spinOpts);
+        getAnalysisData(period).
+        then(function (response) {
+            $("#ID_PDAS_analysisSpinner").hide().spin();
+            
+            removeAnalysisChartData();
+            createMachineInfo(response.data.Machines);
+            updateCurrentTrendChart(response.data.CurrentData);
+            createCycleTimeChart(response.data.CycleTimeData);
+            createIStockRateChart(response.data.IStockRateData);
+            createOEESummaryChart(response.data.OEESummaryData);
+            createOEETrendChart(response.data.OEETrendData);
+        }, function err(response){
+            $("#ID_PDAS_analysisSpinner").hide().spin();
+        });
         $('#ID_PDAS_dateFromChangeFlg').val('false');
         $('#ID_PDAS_dateToChangeFlg').val('false');
     }
@@ -102,7 +121,7 @@ function pdasAnalysisController($scope, $http) {
         cpyCurrentData.datasets.forEach(selectDataSets);
         function selectDataSets(dataset) {
             var machineNo = dataset.label.split('_')[0];
-            if (machineNo != targetMachine && targetMachine != LARGE_NUMBER) {
+            if (machineNo != targetMachine && targetMachine != 0) {
                 return;
             }
             var motorType = dataset.label.split('_')[1];
@@ -113,47 +132,86 @@ function pdasAnalysisController($scope, $http) {
             }
             targetDatasets.push(dataset);
         }
-        currentTrendChart.data.labels = cpyCurrentData.labels;
-        currentTrendChart.data.datasets = targetDatasets;
-        currentTrendChart.update();
+        if(currentTrendChart){
+            currentTrendChart.data.labels = cpyCurrentData.labels;
+            currentTrendChart.data.datasets = targetDatasets;
+            currentTrendChart.update();
+        }
+    }
+
+     pdasAnalysisVM.previewAnalysisResult = function() {
+		var currTrendImgData 		= document.getElementById('ID_PDAS_currentTrendChart').toDataURL('image/jpeg');
+		var cycleTimeImgData 		= document.getElementById('ID_PDAS_cycleTimeChart').toDataURL('image/jpeg');
+		var iStockRateImgData 		= document.getElementById('ID_PDAS_iStockRateChart').toDataURL('image/jpeg');
+		var oeeTrendImgData 		= document.getElementById('ID_PDAS_OEETrendChart').toDataURL('image/jpeg');
+        localStorage.setItem('oeeInfo', JSON.stringify(pdasAnalysisVM.oeeInfo));
+        localStorage.setItem('balancingRateInfo', JSON.stringify(pdasAnalysisVM.balancingRateInfo));
+        localStorage.setItem('yieldInfo', JSON.stringify(pdasAnalysisVM.yieldInfo));
+        localStorage.setItem('iStockRateInfo', JSON.stringify(pdasAnalysisVM.iStockRateInfo));
+       
+        var printWin = window.open('/pdas/analysisPreview/', '', 'width=842, height=947, toolbar=no, menubar=no, resizable=no, scrollbars=yes');
+		printWin.onload = function(){
+			$('#ID_PDAS_PREVIEW_periodFrom',printWin.document).val($('#ID_PDAS_analysisDateFrom').val());
+			$('#ID_PDAS_PREVIEW_periodTo',printWin.document).val($('#ID_PDAS_analysisDateTo').val());
+			var machineID = $('#ID_PDAS_machine').val()
+			$('#ID_PDAS_PREVIEW_machineID',printWin.document).val(machineID == '0'? '전체' : machineID);
+			$('#ID_PDAS_PREVIEW_oeeSummary',printWin.document).text($('#ID_PDAS_oeeSummary').text());
+			$('#ID_PDAS_PREVIEW_cycleAvg',printWin.document).text($('#ID_PDAS_avgCycleTime').text());
+			$('#ID_PDAS_PREVIEW_cycleMin',printWin.document).text($('#ID_PDAS_minCycleTime').text());
+			$('#ID_PDAS_PREVIEW_cycleMax',printWin.document).text($('#ID_PDAS_maxCycleTime').text());
+			$('#ID_PDAS_PREVIEW_stockRateAvg',printWin.document).text($('#ID_PDAS_avgIStockRate').text());
+			$('#ID_PDAS_PREVIEW_stockRateMin',printWin.document).text($('#ID_PDAS_minIStockRate').text());
+			$('#ID_PDAS_PREVIEW_stockRateMax',printWin.document).text($('#ID_PDAS_maxIStockRate').text());
+
+			printWin.document.getElementById('ID_PDAS_PREVIEW_imgCurrentTrend').src = currTrendImgData;
+			printWin.document.getElementById('ID_PDAS_PREVIEW_imgCycleTime').src = cycleTimeImgData;
+			printWin.document.getElementById('ID_PDAS_PREVIEW_imgIStockRate').src = iStockRateImgData;
+			printWin.document.getElementById('ID_PDAS_PREVIEW_imgOEETrend').src = oeeTrendImgData;
+        } 
     }
 
     function createMachineInfo(machineDatas) {
         pdasAnalysisVM.Machines.splice(0);
-        pdasAnalysisVM.Machines.push({ title: '전체', value: LARGE_NUMBER });
+        pdasAnalysisVM.Machines.push({ title: '전체', value: 0 });
         machineDatas.forEach(function (machineNo) {
             var machineInfo = new Object();
             machineInfo.title = machineNo + '호기';
             machineInfo.value = machineNo;
             pdasAnalysisVM.Machines.push(machineInfo);
         });
-        pdasAnalysisVM.selectedMachine = pdasAnalysisVM.Machines[0];
+        
+        if($('#ID_PDAS_machine').val() != '?') {
+            for(index in pdasAnalysisVM.Machines){
+                if(pdasAnalysisVM.Machines[index].value == $('#ID_PDAS_machine').val()) {
+                    pdasAnalysisVM.selectedMachine = pdasAnalysisVM.Machines[index];
+                    break;
+                }
+            }
+        }
+        else {
+            pdasAnalysisVM.selectedMachine = pdasAnalysisVM.Machines[0];
+        }
     }
 
     // Initialize Analysis Data
     function initializePdasAnalysisApp() {
-        var period = {
-            from: new Date($('#ID_PDAS_analysisDateFrom').val()),
-            to:   new Date($('#ID_PDAS_analysisDateTo').val())
-        }
-        // Step 1. 분석 Data 수집
-        getAnalysisData(period, createAnalysisContents);
-        // Step 2. 컨텐츠 별로 챠트 생성
-        function createAnalysisContents(err, anaysisData) {
-            if (err) { }
-            else {
-                createMachineInfo(anaysisData.Machines);
-                createCurrentTrendChart(anaysisData.CurrentData);
-                createCycleTimeChart(anaysisData.CycleTimeData);
-                createIStockRateChart(anaysisData.IStockRateData);
-                createOEESummaryChart(anaysisData.OEESummaryData);
-                createOEETrendChart(anaysisData.OEETrendData);
+        $http.get('/MA/getMachineInfoList').success(function(res){
+            pdasAnalysisVM.Machines.push({ title: '전체', value: 0 });
+            var machinesInfo = JSON.parse(JSON.stringify(res));
+            for(index in machinesInfo) {
+                if(machinesInfo[index].Type != 'SC')
+                    continue;
+                var machineInfo = new Object();
+                machineInfo.title = machinesInfo[index].ID + '호기';
+                machineInfo.value = machinesInfo[index].ID;
+                pdasAnalysisVM.Machines.push(machineInfo);
             }
-        }
+        });
     }
 
     function createCurrentTrendChart(currentData) {
         var chartData = createCurrentChartDatasets(currentData);
+        addAnnotationsForTrendChart(currentTrendChartOption, localStorage.getItem('currentUpperLimit'), 'Upper limit');
         var chartConfig = {
             type: 'line',
             data: chartData,
@@ -263,6 +321,7 @@ function pdasAnalysisController($scope, $http) {
     }
 
     function createOEETrendChart(OEETrendData) {
+        addAnnotationsForTrendChart(OEETrendChartOption, localStorage.getItem('oeeLowerLimit'),'Lower limit');
         var config = {
             type: 'line',
             data: createOEETrendChartDatasets(OEETrendData),
@@ -292,124 +351,48 @@ function pdasAnalysisController($scope, $http) {
     }
 
     function createOEEChart(oee) {
-        pdasAnalysisVM.oeeValue = (oee * 100).toFixed(1);
-        var config = {
-            type : 'doughnut',
-            data : {
-                labels: ['OEE',''],             
-                datasets:[]
-            },
-            options: doughnutChartConfig('OEE(%)')
+        pdasAnalysisVM.oeeInfo.value = (oee * 100).toFixed(1);
+        var oeeThreshold = localStorage.getItem('oeeThreshold');
+        var array = [];
+        if(oeeThreshold){
+            array = oeeThreshold.split(",");
         }
-
-        var dataset = new Object();
-        dataset.data = [(oee*100).toFixed(1), ((1 - oee)* 100).toFixed(1)];
-        dataset.backgroundColor = [];
-        dataset.borderWidth = 0;
-        if(oee < 0.333) {
-            dataset.backgroundColor = ['rgba(255, 51, 51, 1)', 'rgba(1, 1, 1, 0.2)',];
-        }
-        else if(oee < 0.666) {
-            dataset.backgroundColor = ['rgba(255, 219, 77, 1)', 'rgba(1, 1, 1, 0.2)',];
-        }
-        else {
-            dataset.backgroundColor = ['rgba(153, 223, 89, 1)', 'rgba(1, 1, 1, 0.2)',];
-        }
-        config.data.datasets.push(dataset);
-
-        var canvasObj = document.getElementById('ID_PDAS_OEEChart');
-        OEEChart = new Chart(canvasObj, config);    
+        pdasAnalysisVM.oeeInfo.threshold['0']       = { color: '#ff3333'};
+        pdasAnalysisVM.oeeInfo.threshold[array[0]]  = { color: '#FF6701'};
+        pdasAnalysisVM.oeeInfo.threshold[array[1]]  = { color: '#42A129'};
     }
 
     function createBalancingRateChart(balancingRate) {
-        var config = {
-            type : 'doughnut',
-            data : {
-                labels: ['분배효율',''],             
-                datasets:[]
-            },
-            options: doughnutChartConfig('분배효율(%)')
-        }
-        var dataset = new Object();
-        dataset.data = [(balancingRate*100).toFixed(1), ((1 - balancingRate)* 100).toFixed(1)];
-        dataset.backgroundColor = [];
-        dataset.borderWidth = 0;
-        if(balancingRate < 0.333) {
-            dataset.backgroundColor = ['rgba(255, 51, 51, 1)', 'rgba(1, 1, 1, 0.2)',];
-        }
-        else if(balancingRate < 0.666) {
-            dataset.backgroundColor = ['rgba(255, 219, 77, 1)', 'rgba(1, 1, 1, 0.2)',];
-        }
-        else {
-            dataset.backgroundColor = ['rgba(153, 223, 89, 1)', 'rgba(1, 1, 1, 0.2)',];
-        }
-        config.data.datasets.push(dataset);
-
-        var canvasObj = document.getElementById('ID_PDAS_balancingRateChart');
-        balancingRateChart = new Chart(canvasObj, config);    
-
+        pdasAnalysisVM.balancingRateInfo.value = (balancingRate*100).toFixed(1);
+        pdasAnalysisVM.balancingRateInfo.threshold = {
+            '0': { color: '#ff3333' },
+            '50': { color: '#FF6701' },
+            '80': { color: '#42A129' },
+        };
     }
 
     function createYieldChart(yieldVal) {
-        var config = {
-            type : 'doughnut',
-            data : {
-                labels: ['양품율',''],
-                datasets:[]
-            },
-            options: doughnutChartConfig('양품율(%)')
-        }
-        //yieldVal = 0.4;
-        var dataset = new Object();
-        dataset.data = [(yieldVal*100).toFixed(1), ((1 - yieldVal)* 100).toFixed(1)];
-        dataset.backgroundColor = [];
-        dataset.borderWidth = 0;
-        if(yieldVal < 0.333) {
-            dataset.backgroundColor = ['rgba(255, 51, 51, 1)', 'rgba(1, 1, 1, 0.2)'];
-        }
-        else if(yieldVal < 0.666) {
-            dataset.backgroundColor = ['rgba(255, 219, 77, 1)', 'rgba(1, 1, 1, 0.2)'];
-        }
-        else {
-            dataset.backgroundColor = ['rgba(153, 223, 89, 1)', 'rgba(1, 1, 1, 0.2)'];
-        }
-        config.data.datasets.push(dataset);
-
-        var canvasObj = document.getElementById('ID_PDAS_yieldChart');
-        yieldChart = new Chart(canvasObj,config);    
+        pdasAnalysisVM.yieldInfo.value = (yieldVal*100).toFixed(1);
+        pdasAnalysisVM.yieldInfo.threshold = {
+            '0': { color: '#ff3333' },
+            '50': { color: '#FF6701' },
+            '80': { color: '#42A129' },
+        };
     }
 
     function createTotalISockRateChart(iStockRate) {
-        var config = {
-            type : 'doughnut',
-            data : {
-                labels: ['재고율',''],
-                datasets:[]
-            },
-            options: doughnutChartConfig('재고율(%)')
-        }
-        var dataset = new Object();
-        dataset.data = [(iStockRate*100).toFixed(1), ((1 - iStockRate)* 100).toFixed(1)];
-        dataset.backgroundColor = [];
-        dataset.borderWidth = 0;
-        if(iStockRate < 0.5) {
-            dataset.backgroundColor = ['rgba(153, 223, 89, 1)', 'rgba(1, 1, 1, 0.2)',];
-        }
-        else if(iStockRate < 0.8) {
-            dataset.backgroundColor = ['rgba(255, 219, 77, 1)', 'rgba(1, 1, 1, 0.2)',];
-        }
-        else {
-            dataset.backgroundColor = ['rgba(255, 51, 51, 1)', 'rgba(1, 1, 1, 0.2)',];
-        }
-        config.data.datasets.push(dataset);
-
-        var canvasObj = document.getElementById('ID_PDAS_totalIStockRateChart');
-        totalIStockRateChart = new Chart(canvasObj, config);    
+        pdasAnalysisVM.iStockRateInfo.value = (iStockRate*100).toFixed(1);
+        pdasAnalysisVM.iStockRateInfo.threshold = {
+            '0': { color: '#42A129' },
+            '50': { color: '#FF6701' },
+            '80': { color: '#ff3333' },
+        };
     }
 
     function updateCurrentTrendChart(currentData) {
         if(currentTrendChart){
             var chartData = createCurrentChartDatasets(currentData);
+            addAnnotationsForTrendChart(currentTrendChartOption, localStorage.getItem('currentUpperLimit'), 'Upper limit');
             currentTrendChart.data = chartData;
         }
         else {
@@ -417,6 +400,32 @@ function pdasAnalysisController($scope, $http) {
         }
         pdasAnalysisVM.filteringCurrentData();
     }
+
+    function addAnnotationsForTrendChart(option, limit, name) {
+        var upperLimit = localStorage.getItem('currentUpperLimit');
+        if(!limit) {
+            return;
+        }
+        option.annotation = {
+            annotations: [{
+                type: 'line',
+                mode: 'horizontal',
+                scaleID: 'y-axis-0',
+                value: parseInt(limit),
+                borderColor: 'red',
+                borderWidth: 2,
+                borderDash: [7, 3],
+                borderDashOffset: 5,
+                label: {
+                backgroundColor: '',
+                yAdjust: -10,
+                enabled: true,
+                position: 'left',
+                content: name
+            }
+        }]};
+    }
+
     function removeAnalysisChartData() {
         removeCurrentTrendChartData();
         removeCycleTimeChartData();
@@ -484,7 +493,13 @@ function pdasAnalysisController($scope, $http) {
             datasets: []
         };
         var targetMachine = pdasAnalysisVM.selectedMachine.value;
-        chartData.labels = currentData.labels;
+        for(index in currentData.labels) {
+            var newDate = new Date(currentData.labels[index]);
+            var aaa = new Date(newDate.toISOString());
+            newDate.setTime(newDate.getTime() - (9 * 3600 * 1000))
+            chartData.labels.push(newDate);
+        }
+        
         currentData.dataSets.forEach(function (datasetPerMotor) {
             var color = getRandomColor();
             var dataset = {
@@ -492,6 +507,7 @@ function pdasAnalysisController($scope, $http) {
                 data: datasetPerMotor.datas,
                 borderColor: color,
                 fill: false,
+                showLine: true
             }
             chartData.datasets.push(dataset);
         });
@@ -501,13 +517,13 @@ function pdasAnalysisController($scope, $http) {
         return chartData;
     }
 
-    function getAnalysisData(period, callback) {
-        $("#ID_PDAS_analysisSpinner").show().spin(spinOpts);
-        url = '/pdas/dataAnalysis/' + period.from + '/' + period.to;
-        $http.get(url).success(function (res) {
-            $("#ID_PDAS_analysisSpinner").hide().spin();
-            return callback(null, res);
-        });
+    function getAnalysisData(period) {
+        var config = {
+            params: period,
+            headers: { 'Authorization': 'Basic YmVlcDpib29w' }
+        }
+        var url = '/pdas/dataAnalysis/' + period.from + '/' + period.to;
+        return $http.get('/pdas/dataAnalysis/', config);
     }
 }
 
@@ -534,10 +550,16 @@ var currentTrendChartOption = {
         }
     },
     tooltips: {
-        itemSort: function (i0, i1) {
-            var v0 = i0.y;
-            var v1 = i1.y;
-            return (v0 < v1) ? -1 : (v0 > v1) ? 1 : 0;
+         callbacks: {
+            itemSort: function (i0, i1) {
+                var v0 = i0.y;
+                var v1 = i1.y;
+                return (v0 < v1) ? -1 : (v0 > v1) ? 1 : 0;
+            },
+            title: function(tooltipItem, data){
+                var newDate = new Date(tooltipItem[0].xLabel);
+                return newDate.toLocaleDateString("ko-KR", {year:"numeric", month:"numeric", day:"numeric", hour:"numeric", minute:"numeric", second:"numeric"});
+            }
         }
     },
     elements: {
@@ -558,7 +580,10 @@ var currentTrendChartOption = {
                 labelString: '(time)'
             },
             time: {
-                //unit: 'minute',
+                parser: function(date) {
+                    return moment(moment(date).format());
+                    //return moment(date).format();
+                }
             },
             ticks: {
                 display: true,
@@ -579,10 +604,14 @@ var currentTrendChartOption = {
             ticks: {
                 beginAtZero: false,
                 fontColor: 'white',
-                fontSize: 9
-            }
+                fontSize: 9,
+            },
         }]
-    }
+    },
+     chartArea: {
+        backgroundColor: 'rgb(72, 98, 104)'
+    },
+    annotation: {}
 }
 
 var OEETrendChartOption = {
@@ -595,6 +624,14 @@ var OEETrendChartOption = {
         labels: {
             fontColor: 'white',
             fontSize: 9
+        }
+    },
+    tooltips: {
+        callbacks: {
+            title: function(tooltipItem, data){
+                var newDate = new Date(tooltipItem[0].xLabel);
+                return newDate.toLocaleDateString("ko-KR", {year:"numeric", month:"numeric", day:"numeric", hour:"numeric", minute:"numeric", second:"numeric"});
+            }
         }
     },
     elements: {
@@ -613,9 +650,6 @@ var OEETrendChartOption = {
             scaleLabel: {
                 display: false,
                 labelString: '(time)'
-            },
-            time: {
-                //unit: 'minute',
             },
             ticks: {
                 display: true,
@@ -639,7 +673,11 @@ var OEETrendChartOption = {
                 fontSize: 9
             }
         }]
-    }
+    },
+    chartArea: {
+        backgroundColor: 'rgb(72, 98, 104)'
+    },
+    annotation: {}
 }
 
 function getBarChartOptions(yLabelStr, ySugMax) {
@@ -686,9 +724,13 @@ function getBarChartOptions(yLabelStr, ySugMax) {
                 ticks: {
                     fontColor: 'white',
                     fontSize: 9,
-                    suggestedMax: ySugMax
+                    suggestedMax: ySugMax,
+                    beginAtZero:true
                 }
             }]
+        },
+        chartArea: {
+           backgroundColor: 'rgb(72, 98, 104)'
         }
     });
 }
@@ -736,6 +778,9 @@ var gaugeChartConfig =
             text: '',
             position: 'bottom',
             fontColor: 'white'
+        },
+        chartArea: {
+            backgroundColor: 'rgb(72, 98, 104)'
         }
     }
 }
@@ -759,6 +804,9 @@ function doughnutChartConfig(name) {
             text: name,
             position: 'top',
             fontColor: 'white'
+        },
+        chartArea: {
+            backgroundColor: 'rgb(72, 98, 104)'
         }
     }
 }

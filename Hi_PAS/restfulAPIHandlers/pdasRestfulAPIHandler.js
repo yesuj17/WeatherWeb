@@ -3,21 +3,23 @@ var dbManager = require('../utility/dbManager/commonDBManager');
 var pdasDBManager = require('../utility/dbManager/pdasDBManager');
 var async = require('async');
 
-
 module.exports.PdAS = function (req, res) {
     res.render('./pdas/pdas', { title: 'PdAS' });
 }
 
+module.exports.analysisPreview = function (req, res) {
+    res.render('./pdas/pdas_analysisPreview');
+}
 
 module.exports.DataAnalysis = function (req, res) {
-    var fromDate = new Date(req.params.fromDate);
-    var toDate = new Date(req.params.toDate);
+    var fromDate = new Date(req.query.from);
+    var toDate = new Date(req.query.to);
     var period = Math.floor((toDate - fromDate) / 1000 / 60 / 60 / 24);
-
 
     fromDate.setHours(0, 0, 0, 0);
     toDate.setHours(23, 59, 59, 999);
-
+    fromDate.setTime(fromDate.getTime() + (9 * 3600 * 1000));
+    toDate.setTime(toDate.getTime() + (9 * 3600 * 1000));
 
     async.series([
         function (callback) {
@@ -74,9 +76,11 @@ function setResponseCurrentData(datas, rsResult) {
     var tmpArr = [];
     datas.forEach(setLabels);
     function setLabels(element) {
-        if (intervals.indexOf(element._id.timeKey.toString()) < 0) {
-            intervals.push(element._id.timeKey.toString());
-            resDataSets.labels.push((element._id.timeKey));
+        var dateStr = element._id.timeKey.toISOString();
+        if (intervals.indexOf(dateStr) < 0) {
+            intervals.push(dateStr);
+            //var tmpDate = new Date(element._id.timeKey.getTime() - (9 * 3600 * 1000));
+            resDataSets.labels.push(dateStr);
             tmpArr.push(0);
         }
         if (machines.indexOf(element._id.MachineID) < 0) {
@@ -100,7 +104,7 @@ function setResponseCurrentData(datas, rsResult) {
     for (var ipx in intervals) {
         datas.forEach(setDataSets);
         function setDataSets(element) {
-            if (intervals[ipx] != element._id.timeKey.toString())
+            if (intervals[ipx] != element._id.timeKey.toISOString())
                 return;
             var indx = ipx;
             var mcInx = machines.indexOf(element._id.MachineID);
@@ -193,12 +197,13 @@ function setResponseOEEData(datas, rsResult) {
         data: []
     };
     for (var ipx in oeeRawData) {
-        OEETrendData.labels.push(oeeRawData[ipx]._id);
+        var tmpDate = new Date(oeeRawData[ipx]._id.getTime() - (9 * 3600 * 1000));
+        OEETrendData.labels.push(tmpDate);
         var balancingRate = oeeRawData[ipx].BalancingRate;
         var iStockRate = oeeRawData[ipx].AvgIStockRate;
         var errCnt = 0;
         errData.forEach(function (data) {
-            if (data._id.Date.toString() != oeeRawData[ipx]._id.toString())
+            if (data._id.Date.toString() != oeeRawData[ipx]._id.toISOString())
                 return;
             errCnt = data.TotalErrCnt;
             return;
@@ -209,6 +214,8 @@ function setResponseOEEData(datas, rsResult) {
         totalBalancingRate += balancingRate;
         totalYield += yieldRate;
         oeeDataset.data.push((balancingRate * yieldRate));
+        if (iStockRate > 1.0)
+            iStockRate = 1.0;
         iStockRateDataset.data.push(iStockRate);
     }
     OEETrendData.datasets.push(oeeDataset);
@@ -257,4 +264,55 @@ module.exports.CurrentData = function (req, res) {
         console.log("machineRealTimeDataJson Save Success.");
         res.send(machineRealTimeDataJson);
     }
+}
+
+module.exports.getConfigSetting = function(req, res) {
+    pdasDBManager.getConfigSettingData(function(err, result){
+        if (err) {
+            console.log(err.message);
+            return res.status(500).send(err.message);
+        }
+        else {
+            if (result.length <= 0) {
+                var configSettingDataJson = require("../models/pdas/configurationData.json");
+                var defaultData = JSON.parse(JSON.stringify(configSettingDataJson));
+                defaultData.CurrentTime = new Date();
+                defaultData.CurrentData.Threshold = [30, 40];
+                defaultData.CurrentData.UpperLimit = 40;
+                defaultData.OEEData.Threshold = [50, 70];
+                defaultData.OEEData.LowerLimit = 70;
+                pdasDBManager.insertAConfigSettingData(defaultData, function (err, result) {
+                    if (err) {
+                        console.log(err.message);
+                        return res.status(500).send(err.message);
+                    }
+                    else
+                        return res.json(defaultData);
+                });
+            }
+            else {
+                var configSettingDataJson = require("../models/pdas/configurationData.json");
+                var rtnData = JSON.parse(JSON.stringify(configSettingDataJson));
+                var doc = result[0]._doc;
+                rtnData.CurrentTime = doc.CurrentTime;
+                rtnData.CurrentData = doc.CurrentData;
+                rtnData.OEEData = doc.OEEData;
+                return res.json(rtnData);
+            }
+        }
+    })   
+}
+
+module.exports.addAConfigSettingData = function (req, res) {
+    var configData = JSON.parse(JSON.stringify(req.body.ConfigSetting));
+    pdasDBManager.insertAConfigSettingData(configData, function (err, result) {
+        if (err) {
+            console.log(err.message);
+            res.status(500).send(err.message);
+        }
+        else {
+            console.log('Success to add a configuration setting data.');
+            res.end();
+        }
+    })
 }

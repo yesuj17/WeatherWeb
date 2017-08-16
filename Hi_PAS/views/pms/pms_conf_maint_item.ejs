@@ -71,7 +71,7 @@
               <span class="text-info">{{info.Level}}</span>
             </td>
             <td style="text-align: center">
-              <button type="button" class="btn btn-primary btn-nm" ng-attr-id="{{'maintHistory-'+info.UID}}" ng-click="pmsConfMaintItemVM.ShowItemActionListView()">
+              <button type="button" class="btn btn-primary btn-nm" ng-attr-id="{{'maintHistory-'+info.UID}}" ng-click="pmsConfMaintItemVM.ShowItemActionListView(info.Code,info.DeviceType)">
                 연관 조치 항목
               </button>                                          
             </td>
@@ -197,7 +197,7 @@
                         <div class="row">
                           <div class="radio">
                             <label>
-                              <input type="radio" id="ID_PMS_ConfMaintItemTBMOption" ng-model="pmsConfMaintItemVM.mSelectedItemCheckType" checked="checked" ng-click="pmsConfMaintItemVM.OnSelectTBMOption()"/>TBM
+                              <input type="radio" id="ID_PMS_ConfMaintItemTBMOption" ng-click="pmsConfMaintItemVM.OnSelectTBMOption()"/>TBM
                             </label>
                           </div>                          
                         </div>                                                
@@ -294,7 +294,41 @@
 
             <div class="modal-body" style="display:table; margin: 0px; width: 100%;">
               <div style="margin: 0px;">
+                <button type="button" ng-click=" pmsConfMaintItemVM.showactionlistbycheckbox()">조치 추가 + </button>
+                <table style="table-layout:fixed; width:100%;" class="table-bordered table-lg text-left">
+                  <thead></thead>
+                  <tr>
+                    <th colspan="1" style="text-align:center" class="text-left col-lg-1">선택</th>
+                    <th colspan="1" style="text-align:center" class="text-left col-lg-1">번호</th>
+                    <th colspan="1" style="text-align:center" class="text-left col-lg-1">코드</th>
+                    <th colspan="2" style="text-align:center" class="text-left col-lg-2">제목</th>
+                    <th colspan="1" style="text-align:center" class="text-left col-lg-1">Level</th>
+                    
+                    
+                  </tr>
 
+                  <tr ng-repeat="one in pmsConfMaintItemVM.ActionList">
+                      <th colspan="1" style="text-align:center" class="text-left col-lg-1">
+                         <checkbox>
+                          <input type="checkbox" id="PMS_ID_ACTION{{one.Code}}_{{$index}}"/>
+                         </checkbox>
+                      </th>
+				          	  <th colspan="1" style="text-align:center">{{$index+1}}</th>
+				          	  <th colspan="1" style="text-align:center">
+				          	  <span class="text-info">
+                        <button type="button" ng-click="pmsConfMaintItemVM.ShowMaintItemCreateView(one.Code)" data-toggle="modal" data-target="#ID_PMS_ConfMaintItemCreateModal" class="detail"  >{{one.Code}}</button>
+                      </span>
+				          	  </th>
+				          	  <th colspan="2" style="text-align:center">{{one.Title}}</th>
+				          	  <th colspan="1" style="text-align:center">{{one.Level}}</th>
+               
+                  </tr>
+                </table>
+               <button type="button" ng-click=" pmsConfMaintItemVM.moveActionList()">선택완료 </button>
+                <h4>{{pmsConfMaintItemVM.mPivotactionCode}}의 연관 조치 List </h4>
+                  <span ng-repeat="one in pmsConfMaintItemVM.ItemsActionList" class="text-info">
+                        {{one}}
+                  </span>
               </div>
             </div>
 
@@ -302,8 +336,15 @@
         </div>
       </div>
     </div>
-
-  </div>
+    <div class="modal fade" id="ID_PMS_Addaction" role="dialog">
+      <div style="display: table; height: 100%; width: 100%; pointer-events:none">
+        <div class="modal-dialog modal-lg" style="display: table-cell; vertical-align: middle; pointer-events:none">
+          <div class="modal-content" style="width: inherit; height: inherit; margin: 0 auto; pointer-events: all">
+          </div>
+        </div>
+      </div>
+    </div>
+          </div>
 
   <!-- pmsHistoryMaintLogController.js start-->
   <script>

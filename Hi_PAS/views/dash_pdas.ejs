@@ -1,38 +1,53 @@
-<div class="container-fluid" style="height: 100%; width:100%; margin:0; padding-left:10px" >
-  <div class='row' style='height:10%;'>
+<div class="container-fluid" style="height: 100%; width:96%; margin:0; padding-left:10px" >
+  <div class='row' style='height:8%; margin-top:20px'>
     <div class='col-md-12'>
-      <h4>실시간 S/C 모터별 전류(단위:A)
+      <span class='label' style='font-size:16px; color:black'>실시간 S/C 모터별 전류(단위:A)</span>
     </div>
   </div>
-  <div class='row' style='height:50%'>
+  <div class='row' id='ID_PDAS_DASH_RowRealTime' style='height:45%; margin-top:15px'>
+  </div>
+  <div class='row' style='height:10%; margin-top:40px'>
     <div class='col-md-12'>
-      <ul id = 'ID_PDAS_DASH_realTimeCurrent' style='list-style-type: none'>
-      </ul>
+      <span class='label' style='font-size:16px; color:black'>설비종합효율(단위:%)</span>
     </div>
   </div>
-  <div class='row' style='height:30%;'>
-    <div class='col-md-12'>
-      <h4>설비종합효율(단위:%)
+  <div class='row' style='height:25%; margin-top:15px'>
+    <div class='col-md-11'>
+      <span class= 'label' style='color:black; font-size:14px;'>종합효율:</span>
+      <span class= 'label' id='ID_PDAS_DASH_oee' style='font-size:20px;'></span>
+    </div>
+    <div class='col-md-1' style='float:right;'>
+      <button class="btn btn-primary" id='ID_PDAS_DASH_btnAnalysis' type="button">더보기</button>
     </div>
   </div>
-  <div class='row' style='height:10%;'>
-      <div class='col-md-11'>
-        <span style='font-size:14px;'>종합효율:</span>
-          <label id='ID_PDAS_DASH_oee' style='color:darkorange; font-size:20px;'>
-      </div>
-      <div class='col-md-1' style='float:right; padding:0'>
-        <button class="btn btn-primary" id='ID_PDAS_DASH_btnAnalysis' type="button">더보기</button>
-      </div>
-  </div>
-      <!-- pdas_analysis.ejs start-->
-      <% include ./pdas/pdas_analysis.ejs %>
-      <!-- pdas_analysis.ejs end-->
+  <!-- pdas_analysis.ejs start-->
+  <% include ./pdas/pdas_analysis.ejs %>
+  <!-- pdas_analysis.ejs end-->
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
 <style>
-  li.pdasDashRTCurrent {
-    float: left;
-    padding:15px;
+  .round {
+  display: inline-block;
+  height: 30px;
+  width: 30px;
+  line-height: 30px;
+  -moz-border-radius: 15px;
+  border-radius: 15px;
+  background-color: #42A129;
+  color: #FFF;
+  text-align: center;
+  }
+
+  .round.round-lg {
+  height: 100px;
+  width: 100px;
+  line-height: 20px;
+  -moz-border-radius: 50px;
+  border-radius: 50px;
+  border:solid;
+  border-width:5px;
+  font-size: 2.2em;
+  text-align: center;
   }
 </style>

@@ -1,13 +1,18 @@
 ﻿var dbManager = require('../utility/dbManager/pmsDBManager');
 
-var currentTBMMachineItemList = [];
 var currentCBMMachineItemList = [];
 var PMSCheckType = {
     TBM: 0,
     CBM: 1
 }
 
-var maintDate;
+var TBMDateUnit = {
+    Total: 0,
+    Day: 1,
+    Week: 2,
+    Month: 3
+}
+
 module.exports = function (next) {
     /* Initialize PMS Service */
     initializePMSService();
@@ -19,14 +24,12 @@ module.exports = function (next) {
 }
 
 function initializePMSService() {
-    maintDate= new Date();
-    maintDate.setHours(0, 0, 0, 0);
 }
 
 // Interval Check Todo List
 function intervalCheckTodoList() {
     // Get Check List
-    dbManager.getMachineItemDataList(function (result, machineItemDataList) {
+    dbManager.getAllMachineItemDataList(function (result, machineItemDataList) {
         if (result) {
             // Check TBM Item
             checkTBMItem(machineItemDataList);
@@ -41,12 +44,8 @@ function intervalCheckTodoList() {
 
 // Check TBM
 function checkTBMItem(machineItemDataList) {
-    var currentDate = new Date();
-    currentDate.setHours(0, 0, 0, 0);
-    if (maintDate.getTime() != currentDate.getTime()) {
-        currentTBMMachineItemList = [];
-        maintDate = currentDate;
-    }
+    var maintDate = new Date();
+    maintDate.setHours(0, 0, 0, 0);
 
     for (var newMachineItemDataIndex = 0;
         newMachineItemDataIndex < machineItemDataList.length;
@@ -56,27 +55,30 @@ function checkTBMItem(machineItemDataList) {
             continue;
         }
 
-        var isExistItem = false;
-        for (var currentMachineItemDataIndex = 0;
-            currentMachineItemDataIndex < currentTBMMachineItemList.length;
-            currentMachineItemDataIndex++) {
-            if (currentTBMMachineItemList[currentMachineItemDataIndex].UID
-                == machineItemDataList[newMachineItemDataIndex].UID) {
-                isExistItem = true;
+        var isAddTodoItem = false;
+        var newMachineItemData = machineItemDataList[newMachineItemDataIndex];
+        if (newMachineItemData.TBMCheckUnit
+            == TBMDateUnit.Month) {
+            if (newMachineItemData.TBMCheckValue == maintDate.getDate()) {
+                isAddTodoItem = true;
             }
+        } else if (newMachineItemData.TBMCheckUnit
+            == TBMDateUnit.Week) {
+            if (newMachineItemData.TBMCheckValue == maintDate.getDay()) {
+                isAddTodoItem = true;
+            }
+        } else {
+            isAddTodoItem = true;
         }
 
-        if (isExistItem == false) {
-            currentTBMMachineItemList.push(machineItemDataList[newMachineItemDataIndex]);
+        if (isAddTodoItem) {
             dbManager.addTodoItem(maintDate, machineItemDataList[newMachineItemDataIndex], function (result, newTodoItem) {
                 if (result == true) {
-                     /* XXX Send New Todo Item */
+                    /* XXX Send New Todo Item */
                 }
             });
         }
     }
-
-    
 }
 
 // Check CBM

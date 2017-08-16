@@ -1,5 +1,5 @@
 ﻿<!-- Modal-->
-<div id="ID_PMS_mainModal" role="dialog" class="modal fade" style="resizable=">
+<div id="ID_PMS_mainModal" role="dialog" class="modal fade">
   <div style="width: 1500px; height: auto; display:table" class="modal-dialog">
     <!-- Modal content-->
     <div style="height: auto; overflow-x: hidden; overflow-y: auto; min-height: 800px" class="modal-content">
@@ -50,24 +50,25 @@
         </div>
 
         <div id="right_content" style="height: 100%; width: 85%; float:right">
-          <div style="margin-left: 10px; height: 100%; width:100%; float:left; border:2px #f99 solid" class="tab-content">
-            <div id="ID_PMS_MenuScheduleMaint" style="height: 100%; width:100%; float:left" class="tab-pane fade">                
-              <% include ./pms_schedule_maint.ejs %>              
+          <div style="height: 100%; width:100%; float:left; border:2px #DDDDDD solid" class="tab-content">
+            <div id="ID_PMS_MenuScheduleMaint" style="height: 100%; width:100%;" class="tab-pane fade">
+              <% include ./pms_schedule_maint.ejs %>
             </div>
-            <div id="ID_PMS_MenuConfigSubMaintItem" style="height: 100%; width:100%; float:left" class="tab-pane fade">
-              <% include ./pms_conf_maint_item.ejs %>    
+            <div id="ID_PMS_MenuConfigSubMaintItem" style="height: 100%; width:100%;" class="tab-pane fade">
+              <% include ./pms_conf_maint_item.ejs %>
             </div>
-            <div id="ID_PMS_MenuConfigSubMachineMaintItem" style="height: 100%; width:100%; float:left" class="tab-pane fade">
-              <% include ./pms_conf_machine_maint_item.ejs %>              
+            <div id="ID_PMS_MenuConfigSubMachineMaintItem" style="height: 100%; width:100%;" class="tab-pane fade">
+              <% include ./pms_conf_machine_maint_item.ejs %>
             </div>
-            <div id="ID_PMS_MenuHistoryMaintLog" style="height: 100%; width:100%; float:left" class="tab-pane fade">
-              <% include ./pms_history_maint_log.ejs %>              
+            <div id="ID_PMS_MenuHistoryMaintLog" style="height: 100%; width:100%;" class="tab-pane fade">
+              <% include ./pms_history_maint_log.ejs %>
             </div>
-            <div id="ID_PMS_MenuHistorySystemLog" style="height: 100%; width:100%; float:left" class="tab-pane fade">
-              <% include ./pms_history_system_log.ejs %>              
+            <div id="ID_PMS_MenuHistorySystemLog" style="height: 100%; width:100%;" class="tab-pane fade">
+              <% include ./pms_history_system_log.ejs %>
             </div>
           </div>
-        </div>                
+        </div>
+
       </div>
     </div>
   </div>

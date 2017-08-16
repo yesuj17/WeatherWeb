@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<head>
+    <link rel="stylesheet" href="/bootstrap_v3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/font-awesome-4.7.0/css/font-awesome.min.css">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script type="text/javascript" src="http://cdn.jsdelivr.net/jquery.cookie/1.3.1/jquery.cookie.js"></script>
+    <script src="/bootstrap_v3.3.7/js/bootstrap.min.js"></script>
+    <script src="/chart.js_v2.6.0/Chart.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.min.js"></script>
+    <script src="/angular-gauge_v2.1.0/angularjs-gauge.js"></script>
+    <title>Pdas Analysis Preview</title>
+    <h3>PDAS Analysis Preview</h3>
+</head>
+<body ng-app='pdasPreviewApp' ng-controller="pdasAnalysisPreviewController as pdasAnalysisPreviewVM">
+    <div class="container-fluid" style="height:100%; border-top:4px solid black;">
+        <div class='row' sytle='height:9%;'>
+            <div class='col-md-12' style='float:left;  margin-top:1%'>
+                <span class='label' style='font-size:14px; color:black'>기간</span> 
+                <input type='text' id='ID_PDAS_PREVIEW_periodFrom' value=''readonly></input> ~
+                <input type='text' id='ID_PDAS_PREVIEW_periodTo' readonly></input>
+                <span class='label' style='font-size:14px; color:black'>호기</span>        
+                <input type='text' id='ID_PDAS_PREVIEW_machineID' readonly></input> &nbsp;
+                <button class='btn btn-primary' id='ID_PDAS_PREVIEW_print' style='width:90px'>
+                    <span class="glyphicon glyphicon-print"></span> &nbsp;Print
+                </button>
+            </div>
+        </div>
+        <div class='row' sytle='height:3%;'>
+            <div class='col-md-12' style='margin-top:2%'>
+                <span class='label  label-primary' style='font-size:14px'>Trend분석(전류)</span>
+            </div>
+        </div>
+        <div class='row' sytle='height:24%;'>
+            <div class='col-md-12' style='margin-top:1%'>
+                <img src=''id='ID_PDAS_PREVIEW_imgCurrentTrend' width='800px'></img>
+                <!-- <canvas id='ID_PDAS_PREVIEW_currentTrendChart'></canvas> -->
+            </div>
+        </div>
+        <div class='row' sytle='height:28%;'>
+            <div class='col-md-6' style='height:98%; margin-top:2%;'>
+                <div class='row' style='height:3%'>
+                    <div class='col-md-12'>
+                        <span class='label  label-primary' style='font-size:14px'>설비종합효율(%)</span>
+                    </div>
+                </div>
+                <div class='row' style='height:3%;'>
+                    <div class='col-md-12' style='margin-top:1%'>
+                        <span class='label' style='font-size:14px; color:black'>종합효율: &nbsp</span>
+                        <label id='ID_PDAS_PREVIEW_oeeSummary' style='font-size:18px; color:#e67300'>92%</label>
+                    </div>
+                </div>
+                <div class='row' style='height:25%;'>
+                    <table style='background-color:#486268; margin-left:15px; margin-top:1%'>
+                        <tr>
+                            <td rowspan='3'><ng-gauge size="280" duration="100" type="full" thick="25" value="pdasAnalysisPreviewVM.oeeInfo.value" cap="round" label="Total" 
+                                thresholds="pdasAnalysisPreviewVM.oeeInfo.threshold" foreground-color="#ffcc66" background-color="rgba(255,255,255, 0.4)" append="%"></ng-gauge>
+                            </td>
+                                <td><ng-gauge size="170" duration="100" type="arch" thick="15" value="pdasAnalysisPreviewVM.balancingRateInfo.value" cap="round" label="Total" 
+                                thresholds="pdasAnalysisPreviewVM.balancingRateInfo.threshold" foreground-color="#ffcc66" background-color="rgba(255,255,255, 0.4)" append="%"></ng-gauge>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><ng-gauge size="170" duration="100" type="arch" thick="15" value="pdasAnalysisPreviewVM.yieldInfo.value" cap="round" label="Total" 
+                                thresholds="pdasAnalysisPreviewVM.yieldInfo.threshold" foreground-color="#ffcc66" background-color="rgba(255,255,255, 0.4)" append="%"></ng-gauge>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><ng-gauge size="170" duration="100" type="arch" thick="15" value="pdasAnalysisPreviewVM.iStockRateInfo.value" cap="round" label="Total" 
+                                thresholds="pdasAnalysisPreviewVM.iStockRateInfo.threshold" foreground-color="#ffcc66" background-color="rgba(255,255,255, 0.4)" append="%"></ng-gauge>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class='row' style='height:3%'>
+            <div class='col-md-6' style='margin-top:2%'>
+                <span class='label  label-primary' style='font-size:14px'>Cycle Time(sec)</span>
+            </div>
+            <div class='col-md-6' style='margin-top:1%'>
+                <span>
+                    <label style='color:black; font-size:12px'> AVG </label>
+                    <label id='ID_PDAS_PREVIEW_cycleAvg' style='color:#e67300; font-size:14px'> 0.0 </label>
+                    <label style='color:black; font-size:12px'> &nbsp; &nbsp; &nbsp; &nbsp; MIN </label>
+                    <label id='ID_PDAS_PREVIEW_cycleMin' style='color:#e67300; font-size:14px'> 0.0 </label>
+                    <label style='color:black; font-size:12px'> &nbsp; &nbsp; &nbsp; &nbsp; MAX </label>
+                    <label id='ID_PDAS_PREVIEW_cycleMax' style='color:#e67300; font-size:14px'> 0.0 </label>
+                </span>
+            </div>
+        </div>
+        <div class='row' style='height:45%'>
+            <div class='col-md-12' style='margin-top:1%'>
+                <img src=''id='ID_PDAS_PREVIEW_imgCycleTime'></img>
+            </div>
+        </div>
+        <div class='row' style='height:3%'>
+            <div class='col-md-6' style='margin-top:1%'>
+                <span class='label  label-primary' style='font-size:14px'>재고율(%)</span>
+            </div>
+            <div class='col-md-6' style='margin-top:1%'>
+                <span>
+                    <label style='color:black; font-size:12px'> AVG </label>
+                    <label id='ID_PDAS_PREVIEW_stockRateAvg' style='color:#e67300; font-size:14px'> 0.0 </label>
+                    <label style='color:black; font-size:12px'> &nbsp; &nbsp; &nbsp; &nbsp; MIN </label>
+                    <label id='ID_PDAS_PREVIEW_stockRateMin' style='color:#e67300; font-size:14px'> 0.0 </label>
+                    <label style='color:black; font-size:12px'> &nbsp; &nbsp; &nbsp; &nbsp; MAX </label>
+                    <label id='ID_PDAS_PREVIEW_stockRateMax' style='color:#e67300; font-size:14px'> 0.0 </label>
+                </span>
+            </div>
+        </div>
+        <div class='row' style='height:45%'>
+            <div class='col-md-12' style='margin-top:1%'>
+                <img src=''id='ID_PDAS_PREVIEW_imgIStockRate'></img>
+            </div>
+        </div>
+        <!-- 30% -->
+        <div class='row' style='height:3%'>
+            <div class='col-md-12' style='margin-top:2%'>
+               <span class='label  label-primary' style='font-size:14px'>Trend분석(종합효율)</span> 
+            </div>
+        </div>
+        <div class='row' style='height:24%'>
+            <div class='col-md-12' style='margin-top:1%'>
+                <img src=''id='ID_PDAS_PREVIEW_imgOEETrend' width='800px'></img>
+            </div>
+        </div>
+    </div>
+</body>
+<script><% include ./pdasAnalysisPreviewController.js %></script>
+<script>
+    $('#ID_PDAS_PREVIEW_print').on('click',function(){
+        window.print();
+    });
+</script>

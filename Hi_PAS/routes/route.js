@@ -25,11 +25,15 @@ var wemsDELETEList;
 var pdasGETList = [
     ['/pdas', pdasRestfulAPIHandler.PdAS],
     //['/pdas/dataAnalysis', pdasRestfulAPIHandler.DataAnalysis],
-    ['/pdas/dataAnalysis/:fromDate/:toDate', pdasRestfulAPIHandler.DataAnalysis]
+    ['/pdas/dataAnalysis/:fromDate/:toDate', pdasRestfulAPIHandler.DataAnalysis],
+    ['/pdas/dataAnalysis/', pdasRestfulAPIHandler.DataAnalysis],
+    ['/pdas/analysisPreview/', pdasRestfulAPIHandler.analysisPreview],
+    ['/pdas/configSetting/', pdasRestfulAPIHandler.getConfigSetting]
 ];
 
 var pdasPOSTList = [
-    ['/pdas/CurrData', pdasRestfulAPIHandler.CurrentData]
+    ['/pdas/CurrData', pdasRestfulAPIHandler.CurrentData],
+    ['/pdas/configSetting', pdasRestfulAPIHandler.addAConfigSettingData]
 ];
 
 var pdasPUTList;
@@ -46,6 +50,9 @@ var pmsGETList = [
     ['/pms/getcode', pmsRestfulAPIHandler.getcode],
     ['/pms/getallfacility', pmsRestfulAPIHandler.getallfacility],
     ['/pms/getFacilityCheckData', pmsRestfulAPIHandler.getFacilityCheckData],
+    ['/pms/getModule', pmsRestfulAPIHandler.getModule],
+    ['/pms/getmachine', pmsRestfulAPIHandler.getmachine],
+    ['/pms/getMaintUID', pmsRestfulAPIHandler.getMaintUID],
 
     /* Maint Item API *********************************************/
     ['/pms/getMaintItemList', pmsRestfulAPIHandler.getMaintItemList],
@@ -55,9 +62,10 @@ var pmsGETList = [
     ['/pms/getMaintItemLevelList', pmsRestfulAPIHandler.getMaintItemLevelList],
     ['/pms/getTBMCheckUnitList', pmsRestfulAPIHandler.getTBMCheckUnitList],
     ['/pms/getCBMCheckUnitList', pmsRestfulAPIHandler.getCBMCheckUnitList],
-
+    ['/pms/getactionlistbyMacine', pmsRestfulAPIHandler.getactionlistbyMacine],
+    
     /* Machine Maint Item API *************************************/
-    ['/pms/getMachineMaintItemList', pmsRestfulAPIHandler.getMachineMaintItemList],
+    ['/pms/getMachineMaintItemList', pmsRestfulAPIHandler.getMachineMaintItemList],    
 
     /* Calendar API ***********************************************/
     ['/pms/getMemoInfoList', pmsRestfulAPIHandler.getMemoInfoList],    
@@ -73,7 +81,11 @@ var pmsGETList = [
     // ['/pms/getTodoList', pmsRestfulAPIHandler.getTodoList],
     ['/pms/getTodoGroupList', pmsRestfulAPIHandler.getTodoGroupList],
     ['/pms/getGroupTodoListPerDate', pmsRestfulAPIHandler.getGroupTodoListPerDate],
-    ['/pms/getTotalTodoListPerDate', pmsRestfulAPIHandler.getTotalTodoListPerDate]
+    ['/pms/getTodoListPerDate', pmsRestfulAPIHandler.getTodoListPerDate],
+    
+    /* File API ************************************************/
+    ['/pms/getTodoFileListData', pmsRestfulAPIHandler.getTodoFileListData],
+    ['/pms/getTodoFileRawData', pmsRestfulAPIHandler.getTodoFileRawData]
 ];
 
 var pmsPOSTList = [
@@ -94,18 +106,26 @@ var pmsPOSTList = [
     /* Maint Item API *********************************************/
     ['/pms/createMaintItem', pmsRestfulAPIHandler.createMaintItem],
 
+    /* Machine Maint Item API *************************************/
+    ['/pms/addMachineMaintItem', pmsRestfulAPIHandler.addMachineMaintItem],    
+    ['/pms/removeMachineMaintItem', pmsRestfulAPIHandler.removeMachineMaintItem],        
+
     /* Calendar API ***********************************************/
     ['/pms/updateEventGroupSchedule', pmsRestfulAPIHandler.updateEventGroupSchedule],
-    ['/pms/updateEventsSchedule', pmsRestfulAPIHandler.updateEventsSchedule]
+    ['/pms/updateEventsSchedule', pmsRestfulAPIHandler.updateEventsSchedule],
+
+    /* File API ************************************************/
+    ['/pms/addTodoFileData', pmsRestfulAPIHandler.addTodoFileData]
 ];
 
 var pmsPUTList = [
-    
+    ['/pms/AddactioniList',pmsRestfulAPIHandler.AddactioniList],
 ];
 var pmsDELETEList = [
     ['/pms/deleteUserData', pmsRestfulAPIHandler.deleteUserData],
     ['/pms/deleteNoticeData', pmsRestfulAPIHandler.deleteNoticeData],
-    ['/pms/deletemother', pmsRestfulAPIHandler.deletemother]
+    ['/pms/deletemother', pmsRestfulAPIHandler.deletemother],
+    //['/pms/DeleteActionList', pmsRestfulAPIHandler.DeleteActionList]
 ];
 
 /* Machine Agent Restful API Handler */

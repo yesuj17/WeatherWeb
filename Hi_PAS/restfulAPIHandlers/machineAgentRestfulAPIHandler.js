@@ -79,7 +79,8 @@ module.exports.addMachineCycleData = function (req, res) {
             var period = Math.floor((toDate - fromDate) / 1000 / 60 / 60 / 24);
             fromDate.setHours(0, 0, 0, 0);
             toDate.setHours(23, 59, 59, 999);
-
+            fromDate.setTime(fromDate.getTime() + (9 * 3600 * 1000));
+            toDate.setTime(toDate.getTime() + (9 * 3600 * 1000));
             pdasDBManager.getPerformanceSummaryData(fromDate, toDate, 0, function (err, datas) {
                 if (err) {
                     res.status(500).send('error: Data base access failure.');

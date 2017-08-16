@@ -4,6 +4,7 @@ var async = require('async');
 var systemConfig = require('../../config/systemConfig');
 var machineDBManager = require('./machineDBManager.js');
 var pmsDBManager = require('./pmsDBManager.js');
+var autoIncrement = require('mongoose-auto-increment');
 
 
 // Connect to Mongo DB
@@ -15,6 +16,8 @@ module.exports.connect = function (next) {
     db.once('open', function () {
         console.log("Connected to mongo server");
     });
+
+    autoIncrement.initialize(db);    
 
     mongoose
         .connect(systemConfig.db.urls, function () {

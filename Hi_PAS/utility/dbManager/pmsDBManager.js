@@ -4,7 +4,6 @@ var async = require('async');
 var UserInfoSchema = require('../../models/dbSchema/UserInfoSchema.js');
 var NoticeInfoSchema = require('../../models/dbSchema/NoticeInfoSchema.js');
 var UserLevelSchema = require('../../models/dbSchema/UserLevelSchema.js');
-var PMSMaintItemDataSchema = require('../../models/dbSchema/PMSmotherSchema.js');
 var PMSSystemLogDataSchema = require('../../models/dbSchema/PMSSystemLogDataSchema.js');
 var PMSMaintHistoryDataSchema = require('../../models/dbSchema/PMSMaintHistoryDataSchema.js');
 var CheckListSchema = require('../../models/dbSchema/CheckListSchema.js');
@@ -22,11 +21,117 @@ var PMSMaintItemDataSchema = require('../../models/dbSchema/PMSMaintItemDataSche
 var PMSMachineItemDataSchema = require('../../models/dbSchema/PMSMachineItemDataSchema.js');
 var PMSTodoDataSchema = require('../../models/dbSchema/PMSToDoDataSchema.js');
 
-module.exports.getMachineItemDataList = getMachineItemDataList;
+var PMSFileDataSchema = require('../../models/dbSchema/PMSFileDataSchema.js');
+var PMSMemoDataSchema = require('../../models/dbSchema/PMSMemoDataSchema.js');
+
+var GridStore = mongoose.mongo.GridStore;
+module.exports.getAllMachineItemDataList = getAllMachineItemDataList;
 module.exports.getTodoDataListByDate = getTodoDataListByDate;
 module.exports.getTodoDataListByMachineItemData = getTodoDataListByMachineItemData;
 module.exports.addTodoItem = addTodoItem;
-module.exports.addMachineItem = addMachineItem;
+
+//PMSMaintItemDataSchema.find().select().exec(function (err, doc) {
+//    if (err) {
+//        console.err(err);
+//        next(false, err, doc/* doc : null */)//err발생.
+//    }
+//    next(true, err/* err: null */, doc); //정상처리
+//});
+
+module.exports.findTodoFileListData = function(param, next){
+    if(!param){
+        next(false, 'param null');
+        return;
+    }
+
+    var query = PMSFileDataSchema
+        .find()
+        .where('ToDoUID').equals(Number(param.ToDoUID));
+
+    query.exec(function (err, files) {
+        if (err) {
+            next(false, err);
+            return;
+        }
+
+        if (!files) {
+            next(false, 'files null');
+        }
+
+        next(true, '', files);
+    });
+}
+
+module.exports.findTodoFileRawData = function(param, next){
+    if(!param){
+        next(false, 'param null');
+        return;
+    }
+
+    var db = mongoose.connection.db;
+    var option = {};   
+    option.root = 'RawTodoFile';    
+    option.metadata = {};
+
+    var store = new GridStore(db, Number(param.fileId), Number(param.fileId), "r", {root: option.root});
+	store.open(function(err, store) {
+		if (err) {
+            console.log('findGridFile ERROR ===================');
+            next(false, err);
+            return;
+		}
+        
+        next(true, '', store);
+	});
+}
+
+module.exports.insertTodoFileListData = function(param, next){
+    if(!param){
+        next(false, 'param null');
+        return;
+    }
+
+    var data = new PMSFileDataSchema();
+    data.ToDoUID = param.toDoUID;
+    data.FileName = param.file.originalname;
+    data.FileType = (param.file.mimetype == 'image/png' || param.file.mimetype == 'image/jpeg') ? 0 : 1;
+    data.FileWriter = param.fileWriter;
+
+    data.save(function (err) {
+        if (err) {
+            next(false, err);
+            return;
+        }
+        next(true, '', data);
+    });
+}
+
+module.exports.insertTodoFileRawData = function(param, next){
+    if(!param){
+        next(false, 'param null');
+        return;
+    }
+
+    var db = mongoose.connection.db;
+    var fileName = param.file.originalname;
+    var fileType = param.file.mimetype;
+    var fileBuffer = param.file.buffer;
+    var UID = param.fileInfo.UID;
+    
+    var option = {};
+    option.root = 'RawTodoFile'; 
+    option.metadata = {};
+    option.content_type = fileType;
+
+    new GridStore(db, UID, fileName, "w", option).open(function(err, file){
+        if (err) {
+            return next(err);
+        }
+        else {
+            file.write(fileBuffer, true, next);
+        }
+	});
+}
 
 // Insert to Mongo DB
 module.exports.insertUserLevelData = function (param, next) {
@@ -902,7 +1007,7 @@ module.exports.InitPMSDB = function (next) {
                     callback('Init Default PMS Device Type failed');
                 }
             });
-        },
+        }
     ],
         function (err) {
             if (err) {
@@ -1262,7 +1367,6 @@ function onDefaultPMSCBMCheckUnitType(next) {
         });
 }
 
-
 module.exports.dropMothersData = function () {
     console.log("MothersData Drop!");
     dropCollection(PMSMaintItemDataSchema);
@@ -1284,6 +1388,131 @@ module.exports.getMothersAllData = function (next) {
         next(true, err/* err: null */, doc); //정상처리
     });
 }
+
+module.exports.getMachineUIDbyDeviceUID = function (DeviceUID) {
+    return getMachineUIDbyDeviceUID(DeviceUID);
+}
+
+
+getMachineUIDbyDeviceUID = function(DeviceUID){
+ 
+}
+
+module.exports.AddactionList = function (next, targetList,Code) {
+    var query = PMSMaintItemDataSchema
+        .findOne()
+        .where('Code')
+        .equals(Code)
+
+    PMSMaintItemDataSchema.findOne({ Code: Code }, function (err, doc) {
+        if (err) {
+            console.log('스키마에서 검색 하다가 에러');
+            next(false, err);
+
+            return;
+        }
+
+ 
+        var a = new PMSMaintItemDataSchema();
+        a = doc;
+        
+        for (var j = 0;  doc.Relation.length; j++) {
+            doc.Relation.pop();
+        }
+        for (var i = 0; i < targetList.length; i++) {
+            doc.Relation.push(targetList[i].Code);
+        }
+
+        doc.save(function (err) {
+            if (err) {
+                next(false, err);
+                //debug  console.log(" [CreateMotherData]model 저장실패");
+                //  next(5, 'fail save');
+                return;
+            } else {
+                //debug  console.log(" [CreateMotherData]model 저장 성공");
+                next(true, '', doc.Relation);
+            }
+        });
+    });
+
+
+}
+module.exports.getactionlistbyMacine = function (next, DeviceUID) {
+    var temp;
+    async.waterfall([
+        function (callback) {
+           // temp = getMachineUIDbyDeviceUID(DeviceID);
+            PMSDeviceTypeSchema
+                .findOne()
+                .where('UID').equals(DeviceUID)
+                .exec(function (err, deviceType) {
+                    if (err) {
+                        console.log(err);
+                    }
+                    callback(null, deviceType.MachineType);
+                });
+        },
+        function (pivotmachinetype,callback) {
+            var actionlist = [];
+            PMSMaintItemDataSchema
+                .find()
+                .exec(function (err, allList) {
+                if (err) {
+                    console.err(err);
+                }
+                callback(null, pivotmachinetype, allList);//actionlist= allList;
+            });
+        },
+        function (pivotmachinetype, actionlist, callback) {
+            var i = 0;
+            async.whilst(
+                function () {
+                    if (i == actionlist.length)
+                        callback(null, actionlist);
+                    return i < actionlist.length;
+                },
+                function (whilstcb) {
+                    PMSDeviceTypeSchema
+                        .findOne()
+                        .where('UID').equals(actionlist[i].DeviceType)
+                        .exec(function (err, deviceType) {
+                            if (err) {
+                                console.log(err);
+                            }
+                            if (pivotmachinetype != deviceType.MachineType) {
+                                //대분류가 다르면 리스트에서 제외한다. 
+                                actionlist.splice(i, 1);
+                                console.log('ok 내부 ', i);
+                                i++;
+                                whilstcb(null);
+                            }
+                            else {
+                                console.log('ng 내부 ', i);
+                                i++;
+                                whilstcb(null);
+                            }
+                        });
+                    //if (i == actionlist.length - 1) {
+                    //    whilstcb(null, actionlist);
+                    //    console.log('외부(if) ', i);
+                    //}
+                   
+                    console.log('외부 ', i);
+                })
+    
+               // var targetItemMachineType = dgetMachineUIDbyDeviceUID(actionlist[i].DeviceType) ;
+         //   }
+          //  console.log('외부 ', i);
+           
+        },
+        function (actionlist) {
+            next(true,null,actionlist);
+        }]);
+    
+}
+
+
 module.exports.getMothersoneData = function (next, Code) {
     console.log("dbmanager에 들어옴req.param.Code:", Code);
     if (!Code) {
@@ -1421,6 +1650,75 @@ module.exports.createchecklist = function (next, req, Facilityid) {
         });
     });
 }
+module.exports.getModule = function (next, req) {
+
+    var query = PMSDeviceTypeSchema
+        .findOne()
+        .where('UID').equals(req.query.DeviceUID);
+
+    query.exec(function (err, devicetype) {
+        if (err) {
+            next(false, err);
+            return;
+        }
+        next(true, err, devicetype);
+    });
+
+      
+    
+/*
+   var pipeLine = [
+       {
+           $lookup: {
+               from: 'PMSModuleType',
+               localField: 'ModuleType',
+               foreignField: 'UID',
+               as: 'PMSModuleTypeCol'
+           }
+       }];
+   PMSDeviceTypeSchema.aggregate(pipeLine, function (err, datas) {
+       if (err) {
+           console.log(err.message);
+           next(false, err, null);
+       }
+       for (var i = 0; i < datas.length; i++) {
+           if (req.query.DeviceUID == datas[i].UID) {// 디바이스타입을 찾으면 
+               next(true, err, datas[i].PMSModuleTypeCol[0]);// 디바이스 타입의 mudule uid를 반환
+               //MachTypes.ModuleType = datas[i].PMSModuleTypeCol[0].UID;
+               break;
+           }
+       }
+   });
+  */
+ //  next(true, err, MachTypes);
+}
+module.exports.getmachine = function (next,req) {
+    
+    var pipeLine = [
+        {
+            $lookup: {
+                from: 'PMSMachineType',
+                localField: 'MachineType',
+                foreignField: 'UID',
+                as: 'PMSMachineTypeCol'
+            }
+        }];
+    PMSModuleTypeSchema.aggregate(pipeLine, function (err, datas) {
+        if (err) {
+            console.log(err.message);
+            next(false, err, null);
+        }
+        for (var i = 0; i < datas.length; i++) {
+            if (req.query.ModuleUID == datas[i].UID) {// 모듈 타입을 찾으면 
+                 next(true, err, datas[i].PMSMachineTypeCol[0]);// 디바이스 타입의 
+               // MachTypes.MachineType = datas[i].PMSMachineTypeCol[0].UID;
+                break;
+            }
+        }
+    });
+}
+
+
 module.exports.getFacilityCheckData = function (next) {
     PMScheckSchema.find().select('FacilityId').exec(function (err, doc) {
         if (err) {
@@ -1463,16 +1761,16 @@ module.exports.deletemotherdata = function (next, Code) {
     });
 
 }
-module.exports.saveMothersoneData = function (next, req) {
-    console.log("dbmanager에 들어옴req.param.Code:", req.body.Code);
-    if (!req) {
+module.exports.saveMothersoneData = function (next, maintItemData) {
+    console.log("dbmanager에 들어옴req.param.Code:", maintItemData.Code);
+    if (!maintItemData) {
         next(false, 'data null');
         return;
     }
     var key = 'Code';
     var query = PMSMaintItemDataSchema
         .findOne()
-        .where(key).equals(req.body.Code);
+        .where(key).equals(maintItemData.Code);
 
     query.exec(function (err, mother) {
         if (err) {
@@ -1484,22 +1782,22 @@ module.exports.saveMothersoneData = function (next, req) {
             return;
         }
 
-        mother.Title = req.body.Title;
-        mother.Content = req.body.Content;
-        mother.DeviceType = req.body.DeviceType.UID;// 대분류
+        mother.Title = maintItemData.Title;
+        mother.Content = maintItemData.Content;
+        mother.DeviceType = maintItemData.DeviceType;// 소분류.
     
-       // mother.CheckType = req.body.CheckType;// 시간, 거리 
-       // mother.TBMCheckUnit = req.body.TBMCheckUnit;
+        mother.CheckType = maintItemData.CheckType;// 시간, 거리 
+        mother.TBMCheckUnit = maintItemData.TBMCheckUnit;
      
-        //mother.TBMCheckValue = req.body.TBMCheckValue;
+        mother.TBMCheckValue = maintItemData.TBMCheckValue;// res에 안넘어옴
 
-        //mother.CBMCheckUnit = req.body.CBMCheckUnit;
-       // mother.CBMCheckLimitValue = req.body.CBMCheckLimitValue;
+        mother.CBMCheckUnit = maintItemData.CBMCheckUnit;
+        mother.CBMCheckLimitValue = maintItemData.CBMCheckLimitValue;
      
-        //mother.CBMCheckWarnLimitValue = req.body.CBMCheckWarnLimitValue;
+        mother.CBMCheckWarnLimitValue = maintItemData.CBMCheckWarnLimitValue;
     
        // mother.Type = req.body.Type;
-       // mother.Level = req.body.Level;
+        mother.Level = maintItemData.Level;
 
 
         mother.save(function (err) {
@@ -1538,7 +1836,7 @@ function dropCollection(PMSMaintItemDataSchema) {
 }
 
 // Get Check List
-function getMachineItemDataList(next) {
+function getAllMachineItemDataList(next) {
     PMSMachineItemDataSchema.
             find().
             lean().
@@ -1554,32 +1852,34 @@ function getMachineItemDataList(next) {
             });
 }
 
-// Get Todo Data List By Date Use Populate Version
-function getTodoDataListByDateUsePopulate(maintDate, next) {
-    PMSTodoDataSchema.
-        find().
-        where('MaintDate').
-        eq(maintDate).
-        populate('MachineItemObjectID').
-        sort('MaintDate').
-        lean().
-        exec(function (err, todoList) {
-            if (err) {
-                console.log(err);
-                next(err);
-            }
-
-            if (!todoList) {
-                todoList = [];
-            }
-
-            next(err, todoList);
-        });
-    
-}
-
 // Get Todo Data List By Date
 function getTodoDataListByDate(maintDate, next) {
+    PMSTodoDataSchema.aggregate([
+        {
+            $match: {
+                'MaintDate': maintDate,
+            }
+        },
+        {
+            $lookup: {
+                from: 'PMSMaintItemData',
+                localField: 'MaintItemUID',
+                foreignField: 'UID',
+                as: 'MaintData'
+            }
+        },
+        {
+            $lookup: {
+                from: 'PMSMaintItemLevelType',
+                localField: 'Level',
+                foreignField: 'UID',
+                as: 'LevelData'
+            }
+        }
+    ], function (err, result) {
+
+    });
+    /* XXX 
     async.waterfall([
         function (next) {
             PMSTodoDataSchema.
@@ -1726,6 +2026,7 @@ function getTodoDataListByDate(maintDate, next) {
                 });
         }
     ], next);
+    */
 }
 
 function getTodoDataListByMachineItemData(next) {
@@ -1863,10 +2164,13 @@ function addTodoItem(maintDate, newMachineItemData, next) {
         return;
     }
 
-    var newTodoItem = {};
     PMSTodoDataSchema.
-        findOneAndUpdate({ UID: newMachineItemData.UID /* XXX Todo List 임시 */ }, newTodoItem, { upsert: true, new: true }).
+        findOne({ MachineItemUID: newMachineItemData.UID, MaintDate: maintDate }).
         exec(function (err, todoItem) {
+            if (!todoItem) {
+                todoItem = new PMSTodoDataSchema();
+            }
+
             todoItem.MaintDate = maintDate;
             todoItem.MachineItemUID = newMachineItemData.UID;
             todoItem.Status = 0;
@@ -1874,7 +2178,6 @@ function addTodoItem(maintDate, newMachineItemData, next) {
             todoItem.ActionMaintItemUID = -1;
             todoItem.CheckDate = null;
             todoItem.ActionDate = null;
-
             todoItem.save(function (err) {
                 if (err) {
                     console.log(err);
@@ -1949,18 +2252,35 @@ function initializeCheckListData() {
 
 module.exports.getMaintItemList = function (next) {
 
-    PMSMaintItemDataSchema.
-        find().
-        lean().
-        exec(function (err, list) {
-            if (err) {
-                next(err);
-                return;
+    PMSMaintItemDataSchema.aggregate([
+        {
+            $lookup: {
+                from: 'PMSMaintItemLevelType',
+                localField: 'Level',
+                foreignField: 'UID',
+                as: 'LevelData'
             }
-
-            next(true, list);
+        }
+    ], function (err, result) {
+        if (err) {
+            next(err);
             return;
-        });
+        }
+
+        var dataList = [];
+        for (var i = 0; i < result.length; i++) {
+            dataList.push({
+                UID: result[i].UID,                
+                Code: result[i].Code,
+                Title: result[i].Title,
+                DeviceType: result[i].DeviceType,                
+                Level: result[i].LevelData[0].Name
+            });
+        }
+
+        next(true, dataList);
+    });
+
 }
 
 module.exports.getMachineTypeList = function (next) {
@@ -2077,7 +2397,6 @@ module.exports.createMaintItem = function (maintItemData, next) {
     }
 
     var data = new PMSMaintItemDataSchema();
-    data.UID = 1;
     data.Code = maintItemData.Code;
     data.Title = maintItemData.Title;
     data.Content = maintItemData.Content;
@@ -2100,46 +2419,6 @@ module.exports.createMaintItem = function (maintItemData, next) {
         }
 
         next(true);
-        /* XXX Todo List 임시 - Must Delete*/
-        // addDefaultMachineItem(data);
-    });
-}
-
- /* XXX Todo List 임시 - Must Delete*/
-function addDefaultMachineItem(maintItemData) {
-    for (var machineID = 1; machineID < 4; machineID++) {
-        addMachineItem(machineID, maintItemData);
-    }
-}
-
-// Add Machine Item
-function addMachineItem(machineID, maintItemData) {
-    if (maintItemData === null) {
-        return;
-    }
-
-    var createDate = new Date();
-    var machineItemData = new PMSMachineItemDataSchema();
-    machineItemData.UID = machineID * maintItemData.UID; /* XXX Todo List 임시 */
-    machineItemData.MachineID = machineID;
-    machineItemData.MaintItemUID = maintItemData.UID;
-    machineItemData.DeviceType = maintItemData.DeviceType;
-    machineItemData.CreateDate = createDate.setHours(0, 0, 0, 0);
-    machineItemData.CheckType = maintItemData.CheckType;
-    machineItemData.TBMPeriodUnit = maintItemData.TBMCheckUnit;
-    machineItemData.TBMPeriodValue = maintItemData.TBMCheckValue;
-    machineItemData.CBMPeriodUnit = maintItemData.CBMCheckUnit;
-    machineItemData.CBMPeriodLimitValue = maintItemData.CBMCheckLimitValue;
-    machineItemData.CBMPeriodWarnLimitValue = maintItemData.CBMCheckWarnLimitValue;
-    machineItemData.Relation = maintItemData.Relation;
-    machineItemData.Type = maintItemData.Type;
-    machineItemData.Level = maintItemData.Level;
-
-    machineItemData.save(function (err) {
-        if (err) {
-            console.log(err);
-            return;
-        }
     });
 }
 
@@ -2150,30 +2429,122 @@ module.exports.getMachineMaintItemList = function (param, next) {
         return;
     }
 
-    /* XXX  test code. will be removed. */
-    var infos = [];
-    infos.push({        
-        Code: 'PM0005',
-        Level: 'Level 1',
-        Title: '오일 누수 발생'
+    PMSMachineItemDataSchema.aggregate([
+        {
+            $match: {
+                'MachineType': parseInt(param.MachineType),      
+                'MachineID': parseInt(param.MachineID)
+            }
+        },
+        {
+            $lookup: {
+                from: 'PMSMaintItemData',
+                localField: 'MaintItemUID',
+                foreignField: 'UID',
+                as: 'MaintData'
+            }
+        },
+        {
+            $lookup: {
+                from: 'PMSMaintItemLevelType',
+                localField: 'Level',
+                foreignField: 'UID',
+                as: 'LevelData'
+            }
+        }
+    ], function (err, result) {
+        if (err) {
+            next(err);
+            return;
+        }
+
+        var dataList = [];
+        for (var i = 0; i < result.length; i++) {            
+            dataList.push({
+                UID: result[i].UID,
+                MaintItemUID: result[i].MaintItemUID,
+                Code: result[i].MaintData[0].Code,
+                Title: result[i].MaintData[0].Title,
+                Content: result[i].MaintData[0].Content,
+                Level: result[i].LevelData[0].Name
+            });
+        }
+
+        next(true, dataList);            
     });
 
-    next(true, infos);
+}
 
 
-    /*
-    PMSMachineItemDataSchema.
-        find().
-        where('MachineType').equals(param.MachineType).
-        where('MachineID').equals(param.MachineID).
-        exec(function (err, list) {
-            if (err) {
-                next(err);
-                return;
-            }
+module.exports.addMachineMaintItem = function (param, next) {
 
-            next(true, list);
-            return;
-        });
-    */
+    if (param === null) {
+        next(false);
+        return;
+    }
+
+    /* XXX verify params */
+
+    for (var i = 0; i < param.MaintItemIDList.length; i++) {
+        PMSMaintItemDataSchema.
+            findOne().
+            where('UID').equals(param.MaintItemIDList[i].ID).            
+            exec(function (err, item) {
+                if (err) {
+                    next(err);
+                    return;
+                }                
+
+                var data = new PMSMachineItemDataSchema();
+                data.MachineType = param.MachineType;
+                data.MachineID = param.MachineID;
+                data.MaintItemUID = item.UID;
+                data.DeviceType = item.DeviceType;
+                data.CreateDate = new Date();
+                data.CheckType = item.CheckType;
+                data.TBMCheckUnit = item.TBMCheckUnit;
+                data.TBMCheckValue = item.TBMCheckValue;
+                data.CBMCheckUnit = item.CBMCheckUnit;
+                data.CBMCheckLimitValue = item.CBMCheckLimitValue;
+                data.CBMCheckWarnLimitValue = item.CBMCheckWarnLimitValue;
+                data.Relation = item.Relation;
+                data.Type = item.Type;
+                data.Level = item.Level;
+
+                data.save(function (err) {
+                    if (err) {
+                        console.log(err);
+                        next(false);
+                        return;
+                    }
+                });                               
+            });
+    }
+
+    next(true);
+}
+
+
+module.exports.removeMachineMaintItem = function (param, next) {
+
+    if (param === null) {
+        next(false);
+        return;
+    }
+
+    for (var i = 0; i < param.MaintItemIDList.length; i++) {
+        PMSMachineItemDataSchema.
+            find().
+            where('UID').equals(param.MaintItemIDList[i].ID).
+            remove().
+            exec(function (err) {
+                if (err) {
+                    console.log(err);
+                    next(false);
+                    return;
+                }
+            });            
+    }
+
+    next(true);
 }

@@ -623,3 +623,47 @@ function onMakeBarCode() {
         $(id).JsBarcode(name, { width: 1, height: 40, displayValue: false });
     }
 }
+
+
+//////////////////////////////////////////////////////////////////Image TEST///////////////////////////////////////////////////////////////
+dashVM.onImageSend = onImageSend;
+
+function saveFile(url) {
+    // Get file name from url.
+    var filename = url.substring(url.lastIndexOf("/") + 1).split("?")[0];
+    var xhr = new XMLHttpRequest();
+    xhr.responseType = 'blob';
+    xhr.onload = function () {
+        var a = document.createElement('a');
+        a.href = window.URL.createObjectURL(xhr.response); // xhr.response is a blob
+        a.download = filename; // Set the file name.
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        delete a;
+    };
+    xhr.open('GET', url);
+    xhr.send();
+}
+
+//$('#testImageID').attr("src", "/pms/getTodoFileRawData?fileId=1");
+function onImageSend() {
+    
+    var fileselectID = $('#fileselectID')[0].files[0];
+    var filedata = {};
+    var fd = new FormData();
+    fd.append('file', fileselectID);
+    fd.append('ToDoUID', '1');
+    fd.append('FileWriter', '2');
+
+    $http.post('/pms/addTodoFileData', fd, {
+        transformRequest: angular.identity,
+        headers: { 'Content-Type': undefined },
+    })
+        .success(function () {
+            alert('OK');
+        })
+        .error(function () {
+            
+        });
+}

@@ -1,0 +1,87 @@
+<div class="modal fade" id="ID_PDAS_configSettingModal" role="dialog" style='overflow: auto'>
+    <div class="modal-dialog">
+      <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+              <h3 class="modal-title"><b>임계값 설정</b></h4>
+            </div>
+            <div class="modal-body" ng-app="pdasConfigSettingApp" ng-controller="pdasConfigSettingController as pdasConfigSettingVM" style='margin:5px'>
+                <form class="form-horizontal" ng-submit="pdasConfigSettingVM.saveConfiguration()">
+                    <div class='form-group'>
+                        <span class='label' style='color:black;font-size:16px'>전류</span>
+                        <table class='table'>
+                            <tbody>
+                                <tr>
+                                    <td rowspan = '2' style='width:30%;'>
+                                        <label style='font-size:14px'>하이라이트 구간</label>
+                                    </td>
+                                    <td><input type='text' class='form-controll' style='width:90%; background-color:green' readonly></td>
+                                    <td><input type='text' class='form-controll' style='width:90%; background-color:yellow' readonly></td>
+                                    <td><input type='text' class='form-controll' style='width:90%; background-color:red' readonly></td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td ng-repeat='$index in pdasConfigSettingVM.currentThreshold'>
+                                        <input type='number' ng-model='pdasConfigSettingVM.currentThreshold[$index]' class='form-controll' min='0' style='width:40%' ng-change='pdasConfigSettingVM.changeConfigData()'>&nbsp A
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label style='font-size:14px'>전류 상한선</label></td>
+                                    <td><input type='number' class='form-controll' ng-change='pdasConfigSettingVM.changeConfigData()' min='0' max='100' ng-model='pdasConfigSettingVM.currentUpperLimit' style='width:40%'>&nbsp A</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class='form-group'>
+                        <span class='label' style='color:black; font-size:16px'>설비종합효율</span>
+                        <table class='table'>
+                            <tbody>
+                                <tr>
+                                    <td rowspan = '2' style='width:30%;'>
+                                        <label style='font-size:14px'>하이라이트 구간</label>
+                                    </td>
+                                    <td><input type='text' class='form-controll' style='width:90%; background-color:red' readonly></td>
+                                    <td><input type='text' class='form-controll' style='width:90%; background-color:yellow' readonly></td>
+                                    <td><input type='text' class='form-controll' style='width:90%; background-color:green' readonly></td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td ng-repeat='$index in pdasConfigSettingVM.oeeThreshold'>
+                                        <input type='number' ng-model=' pdasConfigSettingVM.oeeThreshold[$index]' class='form-controll' style='width:40%' min='0' ng-change='pdasConfigSettingVM.changeConfigData()'>&nbsp %
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label style='font-size:14px'>종합효율 하한선</label></td>
+                                    <td><input type='number' class='form-controll' ng-change='pdasConfigSettingVM.changeConfigData()' min='0' max='100' ng-model='pdasConfigSettingVM.oeeLowerLimit' style='width:40%'>&nbsp %</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <input type="submit" id='ID_PDAS_saveConfigBtn' ng-click='pdasConfigSettingVM.saveConfiguration()' class="btn btn-default" value='저장' disabled></input>
+                    <button data-dismiss-modal="modal2" type="button" class="btn btn-default">닫기</button>
+                    <span class='label' style='color:darkorange; font-size:14px'>{{pdasConfigSettingVM.saveResult}}
+                </form>
+                <button id='ID_PDAS_initConfigSettingData' ng-click='pdasConfigSettingVM.initConfigSettingData()' type='button' hidden></button>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>      
+    </div>
+</div>
+
+<script><% include ./pdasConfigSettingController.js %></script>
+
+<script>
+    $("button[data-dismiss-modal=modal2]").click(function () {
+        $('#ID_PDAS_configSettingModal').modal('hide');
+        if($('#ID_PDAS_saveConfigBtn').prop('disabled') == false) {
+            //$("#ID_PDAS_machine").val('?').trigger('change');
+            $('#ID_PDAS_dateToChangeFlg').val(true).trigger('change');
+            $('#ID_PDAS_analysisSearch').trigger('click');
+        }
+    });
+</script>

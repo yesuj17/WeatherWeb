@@ -123,6 +123,13 @@
                     </div>
                     <div class="modal-footer">
                       <button type="button" data-dismiss="modal" class="btn btn-default">Close</button>
+                      <div style="display:none;">
+                        <form enctype="multipart/form-data">
+                          <input id="fileselectID" type="file" name="file" />
+                          <button ng-click="dashVM.onImageSend()" class="btn btn-default pull-left">Image Send</button>
+                        </form>
+                        <img id="testImageID"></img>
+                      </div>
                     </div>
                   </div>
                 </div>

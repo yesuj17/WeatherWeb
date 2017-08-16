@@ -2,6 +2,13 @@
     .module('pmsScheduleMaintApp', [])
     .controller('PMScheduleMaintController', ['$scope', '$http', '$compile', PMScheduleMaintController]);
 
+var TBMDateUnit = {
+    Total: 0,
+    Day: 1,
+    Week: 2, 
+    Month: 3
+}
+
 function PMScheduleMaintController($scope, $http, $compile) {
     var pmsScheduleMaintVM = this; 
 
@@ -311,12 +318,8 @@ function PMScheduleMaintController($scope, $http, $compile) {
 
     // Initizlie Todo List
     function initializeTodoList() {
-        var selectedDate = new Date();
-        var maintDate = {
-            maintDate: selectedDate.setHours(0, 0, 0, 0),
-        }
-
-        getTotalTodoListPerDate(maintDate)
+        var maintDate = new Date();
+        getTodoListPerDate(maintDate, TBMDateUnit.Total)
             .then(function (res, status, headers, config) {
                 refreshTodoList(res.data);
             })
@@ -354,12 +357,8 @@ function PMScheduleMaintController($scope, $http, $compile) {
 
     // On Select Calendar Date
     function onSelectCalendarDate(start, end, jsEvent, view) {
-        var selectedDate = new Date(start.startOf('day'));
-        var maintDate = {
-            maintDate: selectedDate.setHours(0, 0, 0, 0),
-        }
-
-        getTotalTodoListPerDate(maintDate)
+        var maintDate = new Date(start.startOf('day'));
+        getTodoListPerDate(maintDate, TBMDateUnit.Total)
             .then(function (res, status, headers, config) {
                 refreshTodoList(res.data);
             })
@@ -374,12 +373,17 @@ function PMScheduleMaintController($scope, $http, $compile) {
     }
     
     // Get Total Todo List Per Date
-    function getTotalTodoListPerDate(maintDate){ 
+    function getTodoListPerDate(maintDate, tbmCheckUnit){ 
+        var params = {
+            maintDate: maintDate.toString(),
+            tbmCheckUnit: tbmCheckUnit
+        };
+
         var config = {
-            params: maintDate,
+            params: params,
             headers: { 'Authorization': 'Basic YmVlcDpib29w' }
         }
 
-        return $http.get('/pms/getTotalTodoListPerDate/', config);
+        return $http.get('/pms/getTodoListPerDate/', config);
     }
 }

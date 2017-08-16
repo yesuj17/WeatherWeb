@@ -1,0 +1,11 @@
+﻿{
+  "CurrentTime": "string",
+  "CurrentData": {
+      "Threshold": "array" ,
+      "UpperLimit": "number"
+  },
+  "OEEData": {
+      "Threshold": "array" ,
+      "LowerLimit": "number"
+  }
+}

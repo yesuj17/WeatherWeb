@@ -12,10 +12,15 @@ function PMSConfMaintItemController($scope, $http) {
     pmsConfMaintItemVM.TBMCheckUnitList = [];
     pmsConfMaintItemVM.CBMCheckUnitList = [];
     pmsConfMaintItemVM.TBMCheckValueList = [];
+    pmsConfMaintItemVM.ActionList = []; 
+    pmsConfMaintItemVM.selectedActionList = [];
+    pmsConfMaintItemVM.ItemsActionList = [];
+
 
     pmsConfMaintItemVM.dialogCode;
     pmsConfMaintItemVM.dialogTitle;
     pmsConfMaintItemVM.dialogContent;
+    pmsConfMaintItemVM.dialogTypeCheck
     pmsConfMaintItemVM.mSelectedMachineType;
     pmsConfMaintItemVM.mSelectedModuleType;
     pmsConfMaintItemVM.mSelectedDeviceType;
@@ -27,7 +32,8 @@ function PMSConfMaintItemController($scope, $http) {
     pmsConfMaintItemVM.mSelectedCBMCheckValueWaring;
     pmsConfMaintItemVM.mSelectedItemCheckType = 0; // Default TBM   see PMSMaintItemDataSchema    
     pmsConfMaintItemVM.mSelectedItemType = 0; // Default Check  see PMSMaintItemDataSchema    
-
+    pmsConfMaintItemVM.mPivotactionCode;
+    pmsConfMaintItemVM.mPivotactionDeviceType;
 
     /* Export Function declare */
     pmsConfMaintItemVM.ShowMaintItemCreateView = ShowMaintItemCreateView;
@@ -46,9 +52,12 @@ function PMSConfMaintItemController($scope, $http) {
     pmsConfMaintItemVM.initializeControl = initializeControl;
     pmsConfMaintItemVM.DeleteItem = DeleteItem;
     pmsConfMaintItemVM.UpdateMaintItem = UpdateMaintItem;
+    pmsConfMaintItemVM.LoadactionListbyCode = LoadactionListbyCode;
+    pmsConfMaintItemVM.moveActionList = moveActionList;
+    pmsConfMaintItemVM.showactionlistbycheckbox = showactionlistbycheckbox;
     var newobject;
     newCode();// 실행될때 DB 정보로 new code 생성. new 버튼 누르면 비동기 처리 후 사용. 
-
+    CommConfItem();
     $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
         if (e.target.hash === "#ID_PMS_MenuConfigSubMaintItem") {
             initializeControl();
@@ -125,20 +134,66 @@ function PMSConfMaintItemController($scope, $http) {
                 console.log(err);
             });
     }    
+    /*
+     data를 최초로 생성 할 때. 
+     */
+    function InitNewItem() {
+        document.getElementById('ID_PMS_ConfMaintItemCreateModal_Delete').disabled = true;
+        document.getElementById('ID_PMS_ConfMaintItemCreateModal_Update').disabled = true;
+        document.getElementById('ID_PMS_ConfMaintItemCreateModal_Save').disabled = false;
+        document.getElementById('ID_PMS_ConfMaintItemTypeCheck').disabled = false;
+        document.getElementById('ID_PMS_ConfMaintItemTypeAction').disabled = false;
+        OnSelectItemTypeCheck();
+    }
+    /*
+     생성되 있는 data 수정 할 때  
+     */
+    function InitEditeItem() {
+        document.getElementById('ID_PMS_ConfMaintItemCreateModal_Delete').disabled = false;
+        document.getElementById('ID_PMS_ConfMaintItemCreateModal_Update').disabled = false;
+        document.getElementById('ID_PMS_ConfMaintItemCreateModal_Save').disabled = true;
+        document.getElementById('ID_PMS_ConfMaintItemTypeCheck').disabled = true;;
+        document.getElementById('ID_PMS_ConfMaintItemTypeAction').disabled = true;
+    }
+    /*Lis box 초기화*/
+    function CommConfItem() {
+        LoadMachineTypeList();
+        LoadItemLevelList();
+        LoadTBMCheckUnitList();
+        LoadCBMCheckUnitList();
+        pmsConfMaintItemVM.mSelectedItemType = true;
+        OnSelectTBMOption();
 
+    }
+    /*
+    DB에서 가져다온 data를 설정함.
+    */
+    function Mappingdata(res) {
+        console.log("호출결과", res);
+        
+       // LoadMachineTypeList(res.DeviceType);// 장비 
+        pmsConfMaintItemVM.dialogCode = res.Code;//코드 
+        if (res.Type == 0)//조치/점검 이냐 radio
+            OnSelectItemTypeCheck();
+        else
+            OnSelectItemTypeAction();
+        pmsConfMaintItemVM.dialogTitle = res.Title; //점검명 text
+        console.log('pmsConfMaintItemVM.dialogTitle',pmsConfMaintItemVM.dialogTitle);  //점검 코드 box
+        LoadValueMachineModuleDevice(res.DeviceType, res.Code);//장비 종류 List box //장비 모듈 List box  //장비 부품 List box
+        LoadValueLevel(res.Level);//장비 레벨 List box
+        pmsConfMaintItemVM.dialogContent = res.Content;//점검 내용 text
+        pmsConfMaintItemVM.mSelectedTBMCheckUnit = selectValueInListbyUID(pmsConfMaintItemVM.TBMCheckUnitList, res.TBMCheckUnit);//tbm unit List box
+        LoadvalueCheckType(res.CheckType); //tbm이냐 cbm 이냐 radio. unit, value List도 초기화 함.
+        pmsConfMaintItemVM.mSelectedTBMCheckValue = pmsConfMaintItemVM.TBMCheckValueList[res.TBMCheckValue-1];//tbm 값 List box
+        pmsConfMaintItemVM.mSelectedCBMCheckUnit = selectValueInListbyUID(pmsConfMaintItemVM.CBMCheckUnitList, res.CBMCheckUnit);
+        pmsConfMaintItemVM.mSelectedCBMCheckValue =res.CBMCheckLimitValue;
+        pmsConfMaintItemVM.mSelectedCBMCheckValueWaring = res.CBMCheckWarnLimitValue;
+    }
     function ShowMaintItemCreateView(maintItemUID) {
+        
         if (maintItemUID == -1) {//새것 
             $('#ID_PMS_ConfMaintItemCreateModal').modal(); ID_PMS_ConfMaintItemCreateModal_Save
-            document.getElementById('ID_PMS_ConfMaintItemCreateModal_Delete').disabled = true;
-            document.getElementById('ID_PMS_ConfMaintItemCreateModal_Update').disabled = true;
-            document.getElementById('ID_PMS_ConfMaintItemCreateModal_Save').disabled = false;
-            document.getElementById('ID_PMS_ConfMaintItemTypeCheck').disabled = false;
-            document.getElementById('ID_PMS_ConfMaintItemTypeAction').disabled = false;
-            LoadMachineTypeList(0);
-            LoadItemLevelList();
-            LoadTBMCheckUnitList();
-            LoadCBMCheckUnitList();
-
+            InitNewItem();
             // 코드 할당
             if (document.getElementById('ID_PMS_ConfMaintItemTypeCheck').checked == true)
                 pmsConfMaintItemVM.dialogCode = newobject.check;
@@ -146,46 +201,175 @@ function PMSConfMaintItemController($scope, $http) {
                 pmsConfMaintItemVM.dialogCode = newobject.action;
         }
         if (maintItemUID != -1) {//헌것 
-            document.getElementById('ID_PMS_ConfMaintItemCreateModal_Delete').disabled = false;
-            document.getElementById('ID_PMS_ConfMaintItemCreateModal_Update').disabled = false;
-            document.getElementById('ID_PMS_ConfMaintItemCreateModal_Save').disabled = true;
-            document.getElementById('ID_PMS_ConfMaintItemTypeCheck').disabled = true;;
-            document.getElementById('ID_PMS_ConfMaintItemTypeAction').disabled = true;
+            InitEditeItem();
             /*  XXX Load MaintItemInfo & fill view */
             var url = "/pms/onemother?Code=" + maintItemUID;
-            console.log("호출url: ", url);
             $http.get(url).success(function (res) {
-                console.log("호출결과", res);
-                pmsConfMaintItemVM.dialogCode = res.Code;//코드 
-                LoadMachineTypeList(res.DeviceType);// 장비 
-                pmsConfMaintItemVM.dialogTitle = res.Title;
-                pmsConfMaintItemVM.dialogContent = res.Content;
-            //    LoadItemLevelList();
-             //   LoadTBMCheckUnitList();
-             //   LoadCBMCheckUnitList();
-               // inputmotherdata(res);
-                console.log(pmsConfMaintItemVM.dialog_input_title);
+                Mappingdata(res)
 
             }, function (err) {
                 console.log(err);
             });
         }        
     }       
+    function LoadValueMachineModuleDevice(DeviceUID, Code) {
+        //LoadDeviceModuleMachineTypeList();
+        {
+            $http.get('/pms/getModule', {
+                params: {
+                    DeviceUID: DeviceUID,
+                    Code: Code
+                }
+            }).success(function (devicetype) {
+                console.log("LoadValueMachineModuleDevice");
+                LoadDeviceModuleMachineTypeList(devicetype.MachineType, devicetype.ModuleType, devicetype.UID);
+                /*$http.get('/pms/getmachine', {
+                    params: {
+                        ModuleUID: ModuleType.UID
+                    }
+                }).success(function (machineType) {
 
+                   // pmsConfMaintItemVM.mSelectedModuleType = pmsConfMaintItemVM.ModuleTypeList[ModuleType.UID - 1];
+                    //pmsConfMaintItemVM.mSelectedMachineType = pmsConfMaintItemVM.MachineTypeList[machineType.UID - 1];
+                   // pmsConfMaintItemVM.mSelectedDeviceType = pmsConfMaintItemVM.DeviceTypeList[DeviceUID - 1];
+                });*/
+            });
+        }
+    }
+    function LoadValueLevel(levelUID) {
+        pmsConfMaintItemVM.mSelectedItemLevel = selectValueInListbyUID(pmsConfMaintItemVM.ItemLevelList, levelUID);
+    }
+    function LoadactionListbyCode() {
+        
+        for (var i = 0; pmsConfMaintItemVM.ActionList.length; i++)
+            pmsConfMaintItemVM.ActionList.pop();
+
+
+        $http.get('/pms/getactionlistbyMacine', {
+            params: {
+                DeviceUID: pmsConfMaintItemVM.mPivotactionDeviceType,
+                Code: pmsConfMaintItemVM.mPivotactionCode
+            }
+        })
+            .then(function (response) {
+                if (response.data) {
+                    pmsConfMaintItemVM.ActionList = response.data;
+                    for (var i = 0; i < pmsConfMaintItemVM.ActionList.length; i++) {
+                        if (pmsConfMaintItemVM.ActionList[i].Code == pmsConfMaintItemVM.mPivotactionCode)
+                            pmsConfMaintItemVM.ItemsActionList = pmsConfMaintItemVM.ActionList[i].Relation;
+                    }
+
+
+                }
+            }, function (err) {
+                console.log(err);
+            })
+            .then(function () {
+                showactionlistbycheckbox();
+            });
+    }
+    function moveActionList() {
+        //초기화 
+
+        for (var i = 0; pmsConfMaintItemVM.selectedActionList.length; i++)
+            pmsConfMaintItemVM.selectedActionList.pop();
+
+        //체크된 항목 저장.
+        for (var move_i = 0; move_i < pmsConfMaintItemVM.ActionList.length; move_i++) {
+            var access = 'PMS_ID_ACTION' + pmsConfMaintItemVM.ActionList[move_i].Code + '_' + move_i;
+
+            if (document.getElementById(access).checked == true) {
+                console.log(access, '선택됨');
+                pmsConfMaintItemVM.selectedActionList.push(pmsConfMaintItemVM.ActionList[move_i]);
+            }
+        }
+
+        console.log(pmsConfMaintItemVM.selectedActionList);
+        AddActionList();
+    }
+    function AddActionList() {
+        
+        $http.put('/pms/AddactioniList', {
+            params: {
+                targetList: pmsConfMaintItemVM.selectedActionList,
+                Code: pmsConfMaintItemVM.mPivotactionCode
+            }
+        })
+            .success(function (res) {
+              
+
+              //  res.shift();
+                showactionList(res);
+        })
+        .error(function (data) {
+        });
+        
+            
+    }
+    function showactionlistbycheckbox() {
+        for (var j = 0; j < pmsConfMaintItemVM.ItemsActionList.length; j++){
+            
+            var pivotstring = pmsConfMaintItemVM.ItemsActionList[j];
+            for (var i = 0; i < pmsConfMaintItemVM.ActionList.length; i++) {
+                var access = 'PMS_ID_ACTION' + pmsConfMaintItemVM.ActionList[i].Code + '_' + i;
+                if (access.indexOf(pivotstring) != -1) { // 있는 경우 
+                    document.getElementById(access).checked = true;
+                }
+               // console.log('입력결과는?', access.indexOf(pivotstring));
+               // console.log(pivotstring, access);
+            }
+        }
+    }
+    function deleteactionList() {
+        showactionList();
+    }
+    function showactionList(res) {
+        pmsConfMaintItemVM.ItemsActionList = res;
+    }
+    
+    function LoadvalueCheckType(CheckType) {
+        if (CheckType == 0) {
+            OnSelectTBMOption();
+            OnChangeTBMCheckUnit();//리스트 생성.
+        }
+        else {
+            OnSelectCBMOption();
+        }
+    }
     function CloseMaintItemCreateView() {
         $('#ID_PMS_ConfMaintItemCreateModal').modal('toggle');
     }
-        
-    function ShowItemActionListView() {
-        $('#ID_PMS_ConfMaintItemActionModal').modal();
-    }
+    function ShowItemActionListView(Code, DeviceType) {
+        for (var i = 0; pmsConfMaintItemVM.ItemsActionList.length; i++) {
+            pmsConfMaintItemVM.ItemsActionList.pop();
+        }
 
+        $('#ID_PMS_ConfMaintItemActionModal').modal();
+        pmsConfMaintItemVM.mPivotactionCode = Code;
+        pmsConfMaintItemVM.mPivotactionDeviceType = DeviceType;
+        //showActionList(Code);
+        //선택 항목 초기화
+        for (var move_i = 0; move_i < pmsConfMaintItemVM.ActionList.length; move_i++) {
+            var access = 'PMS_ID_ACTION' + pmsConfMaintItemVM.ActionList[move_i].Code + '_' + move_i;
+            document.getElementById(access).checked = false;
+        }
+        //조치 항목 불러오기
+        LoadactionListbyCode();
+      
+    }
     function CloseItemActionListView() {
+       
         $('#ID_PMS_ConfMaintItemActionModal').modal('toggle');
     }
-
+    function showActionList(Code) {
+        $http.get('/pms/showactionlist', {
+            params: {
+                Code: Code
+            }
+        }).success(function (actionarray) {
+        });
+    }
     function SaveMaintItem() {
-        
         /* XXX verify UI data */
               
         $http.post('/pms/createMaintItem', {
@@ -207,7 +391,7 @@ function PMSConfMaintItemController($scope, $http) {
         }).then(function (response) {
             newCode(); //새 코드 가져옴.
             OnMotherDataLoad();
-            alert('생성',pmsConfMaintItemVM.dialogCode);
+            alert('%s생성 %d', pmsConfMaintItemVM.dialogCode, pmsConfMaintItemVM.mSelectedDeviceType.UID );
             CloseMaintItemCreateView();
         }, function (err) {
             console.log(err);
@@ -217,36 +401,36 @@ function PMSConfMaintItemController($scope, $http) {
         console.log('pmsConfMaintItemVM.dialogCode', pmsConfMaintItemVM.dialogCode);
         console.log('pmsConfMaintItemVM.dialogTitle', pmsConfMaintItemVM.dialogTitle);
         console.log('pmsConfMaintItemVM.dialogContent', pmsConfMaintItemVM.dialogContent);
-        console.log('pmsConfMaintItemVM.mSelectedMachineType', pmsConfMaintItemVM.mSelectedMachineType);
+        console.log('pmsConfMaintItemVM.mSelectedDeviceType', pmsConfMaintItemVM.mSelectedDeviceType);
         console.log('pmsConfMaintItemVM.mSelectedItemCheckType', pmsConfMaintItemVM.mSelectedItemCheckType);
         console.log('pmsConfMaintItemVM.mSelectedTBMCheckUnit', pmsConfMaintItemVM.mSelectedTBMCheckUnit);
         console.log('pmsConfMaintItemVM.mSelectedTBMCheckValue', pmsConfMaintItemVM.mSelectedTBMCheckValue);
         console.log('pmsConfMaintItemVM.mSelectedCBMCheckUnit', pmsConfMaintItemVM.mSelectedCBMCheckUnit);
         console.log('pmsConfMaintItemVM.mSelectedCBMCheckValue', pmsConfMaintItemVM.mSelectedCBMCheckValue);
         console.log('pmsConfMaintItemVM.mSelectedCBMCheckValueWaring', pmsConfMaintItemVM.mSelectedCBMCheckValueWaring);
- 
+        console.log('pmsConfMaintItemVM.mSelectedItemLevel', pmsConfMaintItemVM.mSelectedItemLevel);
+
 
         $http.post('/pms/updateitem', {
-            Code: pmsConfMaintItemVM.dialogCode, //코드는 변경 안됨.
-            Title: pmsConfMaintItemVM.dialogTitle,
-            Content: pmsConfMaintItemVM.dialogContent,
-            DeviceType: pmsConfMaintItemVM.mSelectedMachineType,
-            CheckType: pmsConfMaintItemVM.mSelectedItemCheckType,
-            TBMCheckUnit: pmsConfMaintItemVM.mSelectedTBMCheckUnit,
-            TBMCheckValue: pmsConfMaintItemVM.mSelectedTBMCheckValue,//timevalue(),
-            CBMCheckUnit: pmsConfMaintItemVM.mSelectedCBMCheckUnit,
-            CBMCheckLimitValue: pmsConfMaintItemVM.mSelectedCBMCheckValue,
-            CBMCheckWarnLimitValue: pmsConfMaintItemVM.mSelectedCBMCheckValueWaring,
-          
-            Relation: [],
-            
-            
-            Type: pmsConfMaintItemVM.mSelectedItemType,
-            Level: pmsConfMaintItemVM.mSelectedItemLevel
+            params: {
+                Code: pmsConfMaintItemVM.dialogCode, //코드는 변경 안됨.
+                Title: pmsConfMaintItemVM.dialogTitle,
+                Content: pmsConfMaintItemVM.dialogContent,
+                DeviceType: pmsConfMaintItemVM.mSelectedDeviceType.UID,
+                CheckType: pmsConfMaintItemVM.mSelectedItemCheckType,
+                TBMCheckUnit: pmsConfMaintItemVM.mSelectedTBMCheckUnit.UID,
+                TBMCheckValue: pmsConfMaintItemVM.mSelectedTBMCheckValue.Value,//timevalue(),
+                CBMCheckUnit: pmsConfMaintItemVM.mSelectedCBMCheckUnit.UID,
+                CBMCheckLimitValue: pmsConfMaintItemVM.mSelectedCBMCheckValue,
+                CBMCheckWarnLimitValue: pmsConfMaintItemVM.mSelectedCBMCheckValueWaring,
+                Type: pmsConfMaintItemVM.mSelectedItemType,
+                Level: pmsConfMaintItemVM.mSelectedItemLevel.UID
+            }
         })
             .success(function () {
-                var message_createsuccess = pmsConfMaintItemVM.dialog_input_code;
-                message_createsuccess += '수정 성공';
+                var message_createsuccess = pmsConfMaintItemVM.dialogCode;
+                message_createsuccess += '수정 성공, UID :';
+                message_createsuccess += pmsConfMaintItemVM.mSelectedDeviceType.UID;
                 alert(message_createsuccess);
                 CloseMaintItemCreateView();
                 OnMotherDataLoad();
@@ -262,25 +446,21 @@ function PMSConfMaintItemController($scope, $http) {
     function OnChangeMachineTypeList() {
         LoadModuleTypeList();        
     }
-    
     function OnChangeModuleTypeList() {
         LoadDeviceTypeList();
     }
-    
     function OnSelectTBMOption() {
         pmsConfMaintItemVM.mSelectedItemCheckType = 0;
-
+        $('#ID_PMS_ConfMaintItemTBMOption').prop("checked", true);
         $('#ID_PMS_ConfMaintItemCBMOption').prop("checked", false);
     }
-
     function OnSelectCBMOption() {
         pmsConfMaintItemVM.mSelectedItemCheckType = 1;
-
         $('#ID_PMS_ConfMaintItemTBMOption').prop("checked", false);
+        $('#ID_PMS_ConfMaintItemCBMOption').prop("checked", true);
     }
-    
     function OnChangeTBMCheckUnit() {
-        
+        console.log('onchangeTBMcheckUnit');
         pmsConfMaintItemVM.TBMCheckValueList = [];
         
         if (pmsConfMaintItemVM.mSelectedTBMCheckUnit.UID == 1) {
@@ -329,48 +509,49 @@ function PMSConfMaintItemController($scope, $http) {
                 pmsConfMaintItemVM.TBMCheckValueList.push({
                     Value : i,                     
                     Name : i,
-            
                 });
             }
 
             pmsConfMaintItemVM.mSelectedTBMCheckValue = pmsConfMaintItemVM.TBMCheckValueList[0];
         }
     }
-    
     function OnSelectItemTypeCheck() {
         
         pmsConfMaintItemVM.mSelectedItemType = 0;
      
         $('#ID_PMS_ConfMaintItemTypeAction').prop("checked", false);
 
-        pmsConfMaintItemVM.dialogCode = newobject.check;//점검 코드 부여
+        //점검/조치 라디오 버튼이 활성화 되있을 때만 새 코드를 할당한다. 
+        //-> 새로 만드는 창에는 라디오 버튼이 활서화 되있으므로 코드를 할당하는데 
+        //   기존의 창에는 비활성화 되어 있어서 기존의 코드만 사용하게 한다.
+        if (document.getElementById('ID_PMS_ConfMaintItemTypeCheck').disabled == false &&
+            document.getElementById('ID_PMS_ConfMaintItemTypeAction').disabled == false) {
+            pmsConfMaintItemVM.dialogCode = newobject.check;//점검 코드 부여
+        }
     }
-    
     function OnSelectItemTypeAction() {
 
         pmsConfMaintItemVM.mSelectedItemCheckType = 1;
         
         $('#ID_PMS_ConfMaintItemTypeCheck').prop("checked", false);       
-
-        pmsConfMaintItemVM.dialogCode = newobject.action; //조치 코드 부여
+        if (document.getElementById('ID_PMS_ConfMaintItemTypeCheck').disabled == false &&
+            document.getElementById('ID_PMS_ConfMaintItemTypeAction').disabled == false) {
+            pmsConfMaintItemVM.dialogCode = newobject.action; //조치 코드 부여
+        }
     }
-
-    
     /* Internal functions *******************************************/
     function LoadMachineTypeList(value) {
         $http.get('/pms/getMachineTypeList')
-            .then(function (response) {               
+            .then(function (response) {
                 if (response.data) {
                     pmsConfMaintItemVM.MachineTypeList = response.data;
-                    for (var rd_i = 0; rd_i < response.data.length; rd_i++) {
-                        if( value==rd_i)
-                            pmsConfMaintItemVM.mSelectedMachineType = pmsConfMaintItemVM.MachineTypeList[rd_i]
-                    }
+                    pmsConfMaintItemVM.mSelectedMachineType = pmsConfMaintItemVM.MachineTypeList[0];
                     LoadModuleTypeList(pmsConfMaintItemVM.mSelectedMachineType);
                 }
             }, function (err) {
                 console.log(err);
-        });        
+            });
+    
     }
 
     function LoadModuleTypeList(value) {
@@ -399,28 +580,69 @@ function PMSConfMaintItemController($scope, $http) {
     }
 
     function LoadDeviceTypeList() {
-        
+        console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         pmsConfMaintItemVM.DeviceTypeList = [];
         
         if (pmsConfMaintItemVM.mSelectedMachineType == null
                 || pmsConfMaintItemVM.mSelectedModuleType == null) {
             return;
         }        
-
+        console.log('pmsConfMaintItemVM.mSelectedModuleType', pmsConfMaintItemVM.mSelectedModuleType );
         $http.get('/pms/getDeviceTypeList', {
             params: {
                 MachineType: pmsConfMaintItemVM.mSelectedMachineType.UID,
                 ModuleType: pmsConfMaintItemVM.mSelectedModuleType.UID
             }
         }).then(function (response) {
+           
             if (response.data) {
                 pmsConfMaintItemVM.DeviceTypeList = response.data;
+                console.log('pmsConfMaintItemVM.mSelectedMachineType,', pmsConfMaintItemVM.mSelectedMachineType );
+                console.log(' pmsConfMaintItemVM.mSelectedModuleType,', pmsConfMaintItemVM.mSelectedModuleType );
+                console.log('pmsConfMaintItemVM.DeviceTypeList',pmsConfMaintItemVM.DeviceTypeList);
                 pmsConfMaintItemVM.mSelectedDeviceType = pmsConfMaintItemVM.DeviceTypeList[0];
+
             }
         }, function (err) {
             console.log(err);
-        });                
+        });           
+        console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");     
     }
+    function LoadDeviceModuleMachineTypeList(MachineUID, ModuleUID, DeviceUID) {
+        // DeviceUID, ModuleUID, MacheineUID로 리스트 박스의 List를 먼저 채우고 
+        // 채움이 끝나면 List box에 DB의 UID를 참조해 value 를 찾아 넣는다.
+
+        pmsConfMaintItemVM.DeviceTypeList = [];
+        $http.get('/pms/getDeviceTypeList', {//device List부터 채운다. 
+            params: {
+                MachineType: MachineUID,
+                ModuleType: ModuleUID
+            }
+        }).then(function (response) {
+            if (response.data) {
+                pmsConfMaintItemVM.DeviceTypeList = response.data;
+            }
+            $http.get('/pms/getModuleTypeList', {   //device List 다음 Module List 를 채운다.
+                params: {
+                    MachineType: MachineUID
+                }
+            }).then(function (response) {
+                if (response.data) {
+                    pmsConfMaintItemVM.ModuleTypeList = response.data;
+                }// 각 List가 DeviceUID 에 맞게 채워진 후 value를 넣는다. 
+                pmsConfMaintItemVM.mSelectedModuleType = selectValueInListbyUID(pmsConfMaintItemVM.ModuleTypeList, ModuleUID);
+                pmsConfMaintItemVM.mSelectedDeviceType = selectValueInListbyUID(pmsConfMaintItemVM.DeviceTypeList, DeviceUID);
+                pmsConfMaintItemVM.mSelectedMachineType = pmsConfMaintItemVM.MachineTypeList[MachineUID - 1];// machine 은 UID로 index를 찾을 수 있음.
+           
+            }, function (err) {
+                console.log(err);
+            });
+
+        }, function (err) {
+            console.log(err);
+        });        
+    }
+
     
     function LoadItemLevelList() {
         $http.get('/pms/getMaintItemLevelList')
@@ -458,6 +680,13 @@ function PMSConfMaintItemController($scope, $http) {
         });
     }
     //잡다 함수
+    function selectValueInListbyUID(List, UID) {
+        for (var i = 0; i < List.length; i++) {
+            if (List[i].UID == UID) {
+                return List[i];
+            }
+        }
+    }
     function findnumber(array, number) {
         return (array.indexOf(number) != -1);
     }

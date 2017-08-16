@@ -3,6 +3,7 @@ var MachineRealTimeDataModel = require('../../models/dbSchema/MachineRealTimeDat
 var MachineCycleDataModel = require('../../models/dbSchema/MachineCycleDataSchema.js');
 var MachineInfoModel = require('../../models/dbSchema/MachineInfoSchema.js');
 var MachineErrorDataModel = require('../../models/dbSchema/MachineErrorDataSchema.js');
+var ConfigSettingDataModel = require('../../models/dbSchema/PdASConfigSettingSchema.js');
 var async = require('async');
 // Insert to Mongo DB
 // Update to Mongo DB
@@ -341,6 +342,34 @@ var getOEERawDataForEachStackerCrane = function (fromDate, toDate, period, FnEnd
         console.log((end - start) / 1000);
         return FnEnd(err, datas);
     }
+}
+/* 
+module.exports.getConfigSettingDataCount = function (FnEnd) {
+    if (!ConfigSettingDataModel) {
+        return FnEnd('Database access failure');
+    }
+    ConfigSettingDataModel.distinct('_id').count().exec(function (err, count) {
+        return FnEnd(err, count);
+    });
+} */
+
+module.exports.insertAConfigSettingData = function (data, FnEnd) { 
+    var configSettingDataModel = new ConfigSettingDataModel();
+    configSettingDataModel.CurrentTime = data.CurrentTime;
+    configSettingDataModel.CurrentData = data.CurrentData;
+    configSettingDataModel.OEEData = data.OEEData;
+    configSettingDataModel.save(function(err, result){
+        return FnEnd(err, result);
+    });
+}
+
+module.exports.getConfigSettingData = function(FnEnd) {
+    if (!ConfigSettingDataModel) {
+        return FnEnd('Database access failure');
+    }
+    ConfigSettingDataModel.find().sort({ 'CurrentTime': -1 }).limit(1).exec(function (err, result) {
+        return FnEnd(err, result);
+    });
 }
 
 var getTimeInterval = function (docDate, period) {
